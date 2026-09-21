@@ -135,13 +135,16 @@ passing, then one commit.
     - `weightBytesBf16` and `weightMethod` (from `weightBytes`)
     - `kvBytesPerTokenBf16` and `kvBytesPerTokenFp8` (from
       `kvBytesForSequence(m, 1, {tp:1, pp:1}, {kvDtype, blockSize: 1})`)
+    - `embeddingParams` (from `parameterCounts`). The sim's cost model excludes
+      the embedding table from streamed bytes, as llmsize does.
   - Per GPU (a10g-24, l4-24, l40s-48, h100-sxm-80, m4-max-128; all present):
     - `id`, `name`
     - `usableVramBytes` (from `usableVram`) and the reserved fraction used
     - `memBandwidthBytesPerSec`, `bf16Tflops`
     - `source_url` and llmsize's `notes`. On m4-max, bf16 is set equal to fp32.
   - Prompt 2's cross-check numbers also come from here: `estimateThroughput`
-    results go into `src/data/roofline-ref.json`.
+    results for the 3 configs in SIM.md §10 go into `src/data/roofline-ref.json`,
+    along with llmsize's `mbu_decode` and `mfu_prefill` and their sources.
   - Every file gets `_provenance`: llmsize commit, `generated_at`, functions used,
     and a pinned MATH.md URL.
   - Test: a zod schema for each file.
@@ -195,7 +198,12 @@ _Empty until the steps run._
 
 ## Prompt 2: sim engine
 
-- [ ] STOP 1: docs/SIM.md, written and waiting for approval.
+- [x] Read the vLLM paper (§4.2–4.5 and §7.2–7.3, from the arXiv HTML) and
+      vllm-apc-doc myself. A subagent read the V1 scheduler and KV manager code
+      at `cfd54ca8`. I re-read `BlockPool.free_blocks`, `prepend_n`, and
+      `allocate_slots` myself.
+- [ ] STOP 1: docs/SIM.md is written and waiting for approval, with 8 open
+      questions in §11.
 - [ ] Implementation, after approval. It depends on Prompt 1 steps 1 (vitest)
       and 4 (gen-data, for the roofline cross-check).
 - [ ] STOP 2 report.

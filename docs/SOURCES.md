@@ -49,3 +49,8 @@ arXiv, and GitHub.
 8. **bench-kvtt.** The README headline (~7.4 GB/s) disagrees with RESULTS.md
    §6b, which calls that number the wrong one to quote (~0.28 GB/s end to end).
    Use RESULTS.md's "Where each number comes from" table and the result files.
+9. **vllm-apc-doc vs. vllm-src on free order.** The doc says every freed block
+   goes to the tail of the free queue, in reverse order. The code at `cfd54ca8`
+   (`BlockPool.free_blocks`, block_pool.py L777–808) sends unhashed blocks to
+   the front and hashed blocks to the tail. docs/SIM.md follows the code. The
+   author's sign-off is pending (SIM.md Q8).
