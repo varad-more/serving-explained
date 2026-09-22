@@ -62,14 +62,23 @@ export interface Sim {
   events(): readonly SimEvent[]
 }
 
+export interface StepInfo { step: number; time: number; waiting: number; running: number; done: boolean }
+
 /** (adj) Takes the event log, not the state. */
 export function metrics(events: readonly SimEvent[], config: SimConfig): SimMetrics
 
 export function generateWorkload(spec: WorkloadSpec, seed: number): RequestSpec[]
 export const PRESETS: Record<PresetName, Preset>
 export function hashEvents(events: readonly SimEvent[]): string
-export function checkInvariants(snapshot: SimSnapshot): InvariantViolation[]
+export class ConfigError extends Error {}
+export class InvariantError extends Error { invariant: number; step: number }
 ```
+
+Invariant checks are not exported. With `checkInvariants: true`, `step()` runs
+them itself and throws `InvariantError` naming the invariant (§6). Tests import
+`invariants.ts` directly. Some invariants need the step's events and the config,
+not just a snapshot, so a public `checkInvariants(snapshot)` could not check
+them all.
 
 **(adj) 1. `metrics` takes the event log.** Every metric can be derived from
 the log, and the widgets animate from the same log. If both read the log, a
@@ -109,6 +118,17 @@ interface SimConfig {
   }
   checkInvariants?: boolean        // true in tests and dev builds
 }
+
+interface ModelCost {              // mapped from one models.json entry
+  id: string
+  params: number; embeddingParams: number
+  weightBytes: number              // bf16
+  layers: number; attentionHeads: number; headDim: number
+  kvBytesPerToken: number          // all layers, bf16
+}
+interface GpuCost { id: string; bf16Tflops: number; memBandwidthBytesPerSec: number }
+interface CostConstants { mfu: Sourced; mbu: Sourced; overheadS: Sourced }   // §5
+interface Sourced { value: number; source: string }   // a SOURCES.md id, or 'teaching default'
 
 interface RequestSpec {
   id: number
@@ -150,18 +170,26 @@ Requests are numeric ids and blocks are physical block ids.
 | `Free` | `req`, `blocks` or `region` | blocks are released (ref count drops) |
 | `Finish` | `req` | the request is complete and returned |
 | `Reject` | `req`, `reason` | the request can never be served |
-| `StepEnd` | `duration`, `computeS`, `memoryS`, `overheadS`, `bound`, `tokens`, `batch`, `kv: {used, cached, free}` | the iteration ended |
+| `StepEnd` | `duration`, `computeS`, `memoryS`, `overheadS`, `bound`, `tokens`, `batch`, `waiting`, `running`, `kv: {capacity, allocated, cached, tokens, unusable}` | the iteration ended |
+
+`StepEnd.kv` is in token slots, so it means the same thing for both allocators:
+- `allocated`: slots in used blocks (paged) or reserved regions (contiguous)
+- `cached`: slots in cached, evictable blocks (paged only)
+- `tokens`: slots that hold KV, so `allocated − tokens` is the waste
+- `unusable`: free slots in gaps too small for a region (contiguous only)
 
 Within one step, events come in this order:
 1. arrivals
-2. scheduling decisions, in the order they happen: `Preempt`, `Admit`,
-   `CacheHit`, `Evict`, `Allocate`, `CacheInsert`
+2. scheduling decisions, in the order they happen: `Preempt` (followed by a
+   `Free` of the victim's blocks), `Admit`, `CacheHit`, `Evict`, `Allocate`,
+   `CacheInsert`
 3. results: `PrefillChunk`, `DecodeToken`
 4. `Finish` and `Free`
 5. `StepEnd`
 
 Scheduling events carry the step's start time; results and later events carry
-its end time.
+its end time. Every reference-count drop is a `Free`, so a widget can track
+block ownership from `Allocate`, `CacheHit`, and `Free` alone.
 
 `CacheInsert` is a scheduling event. vLLM hashes a block as soon as it is
 scheduled to become full, so a request later in the same batch can hit it
@@ -190,6 +218,45 @@ interface ContiguousView {
   regions: { req: number; start: number; len: number; used: number }[]
 }
 ```
+
+### 2.4 Metrics
+
+Everything comes from the event log. Per-step series come from `StepEnd`.
+
+```ts
+interface SimMetrics {
+  provenance: 'simulated'
+  requests: RequestMetrics[]       // id order
+  summary: {
+    makespan: number               // last Finish − first Arrive, seconds
+    outputTokensPerS: number       // DecodeToken count / makespan
+    requestsPerS: number
+    ttft: Dist; itl: Dist; e2e: Dist
+    prefixHitRate: number | null   // hitTokens / queryTokens, first admissions only; null with caching off
+    preemptions: number
+    evictions: number
+  }
+  series: {                        // one entry per step
+    t: number[]
+    kvUtilization: number[]        // kv.tokens / kv.capacity
+    waste: number[]                // kv.allocated − kv.tokens: partial last blocks (paged) or reserved-unused (contiguous)
+    unusable: number[]             // kv.unusable: gaps between regions (contiguous)
+    waiting: number[]; running: number[]
+  }
+}
+interface RequestMetrics {
+  id: number; arrival: number
+  ttft: number                     // DecodeToken index 0 time − arrival
+  itl: number[]                    // gaps between consecutive DecodeToken times
+  e2e: number                      // Finish time − arrival
+  preemptions: number; cachedTokens: number
+}
+interface Dist { mean: number; p50: number; p90: number; p99: number }   // nearest-rank
+```
+
+Under static batching, `Finish` comes at the end of the batch, so `e2e`
+includes the wait for the batch's slowest request. That is the cost the
+chapter shows.
 
 ## 3. Data structures
 
@@ -422,8 +489,8 @@ CUDA-graph padding, and CPU scheduling time.
 ## 6. Invariants
 
 These are checked after every step when `checkInvariants` is on, and always in
-property tests. Items marked **(adj)** restate the prompt's version so it holds
-exactly.
+property tests. A violation throws `InvariantError` with its number. Items
+marked **(adj)** restate the prompt's version so it holds exactly.
 
 1. **Paged: block accounting.** `used + cached + free = numBlocks`. The free
    queue holds exactly the cached and free blocks, each once.
@@ -467,6 +534,8 @@ interface WorkloadSpec {
   maxModelLen: number            // the body is clipped first, then the output
   vocabSize?: number             // default 32000
 }
+type PresetName = 'chatbot' | 'rag' | 'batch-summarize' | 'agent-loop'
+interface Preset { workload: WorkloadSpec; description: string }   // engine defaults are shared, below
 type LengthDist =
   | { kind: 'fixed'; value: number }
   | { kind: 'uniform'; min: number; max: number }
