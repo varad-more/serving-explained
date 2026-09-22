@@ -302,7 +302,7 @@ This is the Orca paper's baseline (yu2022 §3), not a vLLM mode.
 
 ### 4.2 Continuous (iteration-level) policy
 
-Each step, with `budget = maxNumBatchedTokens` and `seqs = 0`:
+Each step starts with `budget = maxNumBatchedTokens`:
 
 **Running requests, in admission order.**
 - A decode needs `q = 1`. A request mid-prefill or mid-recompute needs
