@@ -207,3 +207,225 @@ _Empty until the steps run._
 - [ ] Implementation, after approval. It depends on Prompt 1 steps 1 (vitest)
       and 4 (gen-data, for the roofline cross-check).
 - [ ] STOP 2 report.
+
+## Prompt 3: KV cache chapter (PLAN, waiting for approval)
+
+- [x] Part A: docs/CHAPTER_DOD.md written (19 items, plus tests and review).
+- [x] Sources: added ainslie2023 (GQA), verified on the ACL Anthology. Note 10
+      records an llmsize vs. vLLM gap on memory utilization.
+- [ ] Part B: the chapter, after approval.
+
+### Depends on
+
+- **The Prompt 1 shell:** components, routes, postbuild, OG images, gen-data,
+  Playwright, and CI. All of its decisions are still open.
+- **The sim (Prompt 2):** the step 1–2 figure animates one request's event log,
+  per CLAUDE.md's visual rules. SIM.md approval is still open.
+- **Proposed order:** Prompt 1 steps 1–4, then the sim, then Prompt 1 steps 5–9,
+  then this chapter.
+
+### Decisions for the author
+
+1. **ffmpeg** (`brew install ffmpeg`). Playwright records only webm, and the DoD
+   needs mp4 and gif. It is a tool on this machine, not a repo dependency.
+   `pnpm capture` stops with a clear message if it is missing.
+2. **Badge rule** (DoD item 3). One badge may cover a readout or figure. Numbers
+   quoted from a source get a SourceLink instead. Definitional constants get
+   neither. This is how I read CLAUDE.md's "every number".
+3. **Step 1 wording.** With a cache, the new token still attends to every earlier
+   token. What the cache saves is rerunning the model over earlier tokens to
+   rebuild their keys and values (kwon2023 §2.2). So step 1 says "reruns the
+   model over every earlier token," not "recomputes attention."
+4. **What "free memory" means.** Free memory is llmsize's usable VRAM minus the
+   weights, as the prompt says. vLLM also keeps 8% back by default
+   (`gpu_memory_utilization` 0.92, vllm-src) and reserves activation and
+   CUDA-graph memory. So the widget's max concurrency is an upper bound. The
+   callout says so and links llmsize's full planner.
+5. **Model picker.** It has all 10 dense models. Three of them (Llama-3.1-70B,
+   Llama-3.1-405B, Qwen2.5-72B) never fit on one listed GPU in bf16. For those,
+   the widget says "weights alone do not fit." The alternative is to drop them.
+
+### Numbers behind this plan (llmsize 51b9746, computed today)
+
+| model | KV per token, bf16 | weights | max context |
+|---|---|---|---|
+| Llama-3.1-8B | 131,072 B (128 KiB) | 14.96 GiB | 131,072 |
+| Llama-3.2-3B | 114,688 B (112 KiB) | 5.98 GiB | 131,072 |
+| Phi-3.5-mini | 393,216 B (384 KiB) | 7.12 GiB | 131,072 |
+| Qwen2.5-7B | 57,344 B (56 KiB) | 14.19 GiB | 32,768 |
+
+- **Usable memory:** the A10G and L4 have 22.50 GiB (llmsize reserves 6.25% on
+  GDDR6). The L40S has 45.00, the H100 SXM 79.68, and the M4 Max 96.00 (Metal's
+  75% cap).
+- **Llama-3.1-8B on an A10G in bf16:** 7.54 GiB is free. Max concurrency is 15 at
+  4K tokens, 7 at 8K, 1 at 32K, and 0 at 128K. The model's own full context
+  does not fit even once. On an H100: 129, 64, 16, and 4.
+- **fp8 KV is exactly half of bf16** in llmsize: 1-byte elements, with
+  per-tensor scales ignored (llmsize-math, KV dtype). vLLM stores fp8 as 1 byte
+  (vllm-src `torch_utils.py` L39–41).
+
+### Data (added to Prompt 1 step 4)
+
+- `models.json` gets `maxContext`, from llmsize's `maxPositionEmbeddings`.
+- New `src/data/kv-ref.json` holds llmsize's `kvBytesForSequence` for every model
+  × {bf16, fp8} × context stop, at block size 16. The widget's arithmetic is
+  tested against it, so browser math cannot drift from llmsize.
+
+### Scroll steps
+
+Each step has one idea, one figure state, its claim ids, and its sources.
+
+1. **Without a cache, work keeps growing.** The model makes one token per step.
+   Without a cache, each step reruns the model over the whole sequence and
+   rebuilds keys and values for every earlier token.
+   - **Figure A (TokenGrid, no-cache mode):** one request with a 6-token prompt
+     and 6 outputs, from a sim run.
+     - Rows are Llama-3.1-8B's 32 layers; columns are token positions.
+     - Each step lights every column it computes.
+     - Counter: positions computed this step, and in total (6, 7, … 11; 51 in
+       total).
+   - Claim: `no-cache-work`. Sources: kwon2023 §2.2.
+2. **With a cache, each step adds one column.** The figure switches to cache
+   mode. Each step computes one new column in every layer and stores it. Earlier
+   columns are read, not rebuilt. In total, 11 positions are computed instead of
+   51.
+   - The newest sampled token has no column yet. Its keys and values are
+     computed in the next step (SIM.md §3).
+   - Claims: `cache-one-column`, `cache-total`. Sources: kwon2023 §2.2.
+3. **How big one column is.** A MathML formula (native, no dependency):
+   bytes per token = 2 × L × n_kv × d_h × s. Every symbol is bound live to the
+   model picked inline, with the product and a `computed` badge.
+   - A note says engines store whole blocks of 16 tokens, so a request is
+     charged in steps of 16 (llmsize-math, KV token count).
+   - Claim: `formula-matches-data`. Sources: llmsize-math (KV per token),
+     kwon2023 §3.
+4. **GQA: fewer KV heads, smaller cache.** The data has a contrast, so this step
+   stays.
+   - Phi-3.5-mini gives each of its 32 query heads its own KV head. Llama-3.2-3B
+     shares 8 KV heads among 24 query heads.
+   - Per token, that is 384 KiB vs. 112 KiB (3.4×). The weights differ by only
+     1.2× (7.1 vs. 6.0 GiB).
+   - On an A10G at 8K tokens: 5 requests vs. 18.
+   - Claim: `gqa-smaller`. Sources: ainslie2023 §2.2, llmsize-math.
+5. **The memory budget** (main widget, sticky). The weights bar stays fixed.
+   KV = per-request bytes × requests. Drag context, then drag concurrency past
+   the limit.
+   - The default state fits: Llama-3.1-8B, A10G, bf16, 8K tokens, 4 requests.
+     At 8 requests it does not fit.
+   - Claims: `weights-fixed`, `kv-linear`, `default-crosses`.
+   - Sources: kwon2023 §1 (weights persist; KV is allocated per request) and §3;
+     llmsize-math.
+6. **Takeaway.** Max concurrency ≈ free memory ÷ KV bytes per request.
+   - Doubling context halves it. fp8 KV doubles it.
+   - Memory, not compute, is what caps the batch (kwon2023 §3).
+   - Teaser: real requests are shorter than the max. How the engine reserves
+     memory for them decides how close it gets to this number. That is the next
+     chapter.
+   - Claims: `max-conc-formula`, `double-context-halves`, `fp8-doubles`.
+- **CheckYourself:** "Qwen2.5-7B stores 56 KiB per token. On an A10G, about how
+  many 16K-token requests fit? What happens with fp8?" Numbers come from data
+  through `<Num>`, and the answer is revealed with its working.
+- **What this leaves out:**
+  - activation, CUDA-graph, logits, and runtime memory (llmsize-math, Overhead)
+  - vLLM's 8% holdback (vllm-src)
+  - the `max_num_seqs` cap of 256 in `vllm serve` on GPUs under 70 GB (vllm-src)
+  - every request held at full context (chapter 2)
+  - prefix sharing (chapter 4)
+  - one GPU, no tensor parallelism
+  - dense full-attention models only, so no MLA, sliding window, or hybrid models
+    (llmsize-math)
+  - fp8 for the KV cache only, with the weights still bf16
+  - the no-cache count is token positions, not FLOPs or time
+- **Go deeper:** kwon2023 §2–3, ainslie2023, llmsize-math, and the llmsize app
+  for full planning.
+
+### Widget spec
+
+**MemoryBudget** (`src/chapters/kv-cache/MemoryBudget.tsx`). The pure math lives
+in `budget.ts`.
+
+- **Controls,** in this order:
+  - Model and GPU: `Select`.
+  - KV dtype: a native radio pair, bf16 and fp8. Arrow keys work natively.
+  - Context: a `Slider` over log stops 256, 384, 512, 768, 1K, … 96K, 128K. Stops
+    above the model's max are dropped, and the max itself is added if it is not
+    a stop. When the model changes, context is clamped to the new max and a
+    polite live region says so.
+  - Concurrency: a `Slider` over 1, 2, 3, 4, 6, 8, 12, … 384, 512. That is a log
+    scale; a linear 1–512 slider is unusable at small values.
+- **Stacked bar:** fixed SVG height and a fixed scale, so there is no layout
+  shift.
+  - Weights, KV, and free segments are each labeled with GiB, using pattern plus
+    token color, never color alone.
+  - **Does not fit:** past the capacity line, KV runs into a hatched overflow
+    zone with a break mark. The heading reads "Does not fit: needs X GiB of
+    Y GiB."
+  - **Weights alone too big:** the bar shows only the overflow, and the readout
+    gives 0 with the reason.
+- **Readout:** "Max concurrency at 8,192 tokens: 7" (`computed`).
+- **Line chart:** log–log, with context on x and max concurrency on y. A slope of
+  −1 shows "double the context, half the requests."
+  - The current point is marked. The curve stops below 1 request, with the label
+    "no request fits past N tokens."
+  - Focus and hover show a tooltip; a table view sits under `<details>`.
+- **Simplification callout:** the overheads and the holdback above, with a link
+  to llmsize.
+- **375 px:** controls stack above the figure, and the bar and chart go full
+  width.
+
+**TokenGrid** (`src/chapters/kv-cache/TokenGrid.tsx`): figures for steps 1–2.
+
+- 32 × 12 cells (384 SVG rects), driven by one sim run's event log.
+- The `PlaybackBar` scrubs engine steps 0–5.
+- Under reduced motion: no transitions, step buttons only.
+
+**Presets** (`src/chapters/kv-cache/presets.ts`) export the TokenGrid run config
+and the MemoryBudget defaults. Both the chapter and its tests import them.
+
+### Tests
+
+**`tests/chapters/kv-cache.test.ts`** (vitest), one test per claim id:
+- `formula-matches-data`: for every picker model and dtype, 2 × L × n_kv × d_h × s
+  equals `models.json` and `kv-ref.json` (llmsize).
+- `max-conc-formula`: the widget's max concurrency equals
+  ⌊(usable − weights) / kvBytesForSequence⌋. Checked from kv-ref for every
+  model × GPU × dtype × context stop.
+- `double-context-halves`: wherever the model fits and both c and 2c are stops,
+  mc(2c) = ⌊mc(c) / 2⌋. This is exact, because every stop is a multiple of 16.
+- `fp8-doubles`: mc(fp8) is 2·mc(bf16) or 2·mc(bf16) + 1 (floor rounding).
+- `weights-fixed`, `kv-linear`, `default-crosses`, `gqa-smaller` (ratio ≥ 3 in KV,
+  ≤ 1.25 in weights).
+- `no-cache-work`, `cache-one-column`, `cache-total`: from the TokenGrid preset's
+  sim log.
+- Meta-test: the claim ids in `kv-cache.mdx` match the test ids exactly.
+
+**`tests/chapters/writing.test.ts`** (all chapters): sentence length, hype words,
+GlossaryTerm ids, and SourceLink ids.
+
+**`e2e/kv-cache.spec.ts`** (Playwright):
+- Screenshots at 375 and 1440 px, light and dark.
+- MemoryBudget: arrow-key concurrency from 4 to 8 shows "Does not fit". Changing
+  context changes the readout. fp8 doubles it.
+- TokenGrid: Step changes the counter.
+- Formula: changing the model changes the product.
+- CLS is 0, there are no console errors, and axe passes.
+- Performance: Event Timing max and p95, and rAF intervals during TokenGrid
+  playback, with and without 4× CPU throttling.
+
+**Capture** (`scripts/capture.ts kv-cache`):
+- Playwright `recordVideo` at 1280×720 runs an 8 s script: context from 1K to
+  32K, then fp8, then concurrency past the limit.
+- ffmpeg writes an H.264 mp4 and a 12 fps GIF at 720 px with a generated
+  palette. The script asserts the GIF is under 3 MB.
+
+**Review and route:** a fresh-eyes review by a sub-agent (DoD item 17). The
+route `/kv-cache/` gets the title "The KV cache", its description, and
+`og/kv-cache.png`.
+
+**Glossary terms added:**
+- token, context length, layer
+- key, value, KV cache
+- attention head, KV head, head dimension
+- MHA, GQA
+- bf16, fp8, GiB
+- prefill, decode, concurrency
