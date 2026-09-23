@@ -4,6 +4,12 @@ Mistakes, corrections, and surprises. Newest first.
 
 ## 2026-10-01
 
+- **Prompts can carry technical slips too.** Prompt 3 said that without a cache
+  each token "recomputes attention over every earlier token." With a cache it
+  still attends to every earlier token; what the cache saves is rebuilding their
+  keys and values. Rule: check a prompt's technical wording against the sources
+  before it becomes prose.
+
 - **Check that a prompt's inputs exist.** Prompt 1 said to read DESIGN.md and
   tasks/, but the setup session had stopped at an approval gate before writing
   them. Rule: at session start, list every file the prompt names and report any
