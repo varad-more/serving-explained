@@ -20,15 +20,15 @@ engine, so the reader sees the engine change one step at a time.
 Source ids resolve in docs/SOURCES.md.
 
 ### 1. KV cache
-- **Learning objective:** explain that the engine stores keys and values for
-  every token so later tokens can attend to them without recomputing them.
-  That store grows with every prompt and output token, per request.
+- **Learning objective:** say that the KV cache stores keys and values for every
+  token in every layer, and that it grows linearly with tokens. Say that it, not
+  compute, usually limits how many requests a GPU can serve at once. Estimate it
+  for a model.
 - **Knob to predict:** context length. Longer contexts mean fewer requests fit
   in the same memory.
-- **Misconception corrected:** "Once the weights fit on the GPU, memory is
-  solved." Each request holds its own KV cache, and that cache caps how many
-  requests run at once.
-- **Sources:** kwon2023, llmsize-math.
+- **Misconception corrected:** "Model weights are what fill GPU memory." Weights
+  are fixed. The KV cache is what grows with context and concurrency.
+- **Sources:** kwon2023, ainslie2023, llmsize-math.
 
 ### 2. Paged attention
 - **Learning objective:** explain that the engine splits each request's KV cache

@@ -31,7 +31,7 @@ requirement alone would leave room to argue.
    - no word from the banned hype list
    - every `GlossaryTerm` id exists in the glossary
    - one idea per scroll step, US English, every term defined at first use,
-     checked in the fresh-eyes review (item 17)
+     checked in the fresh-eyes review (item 20)
 6. **End sections.** The chapter ends with "What this leaves out," one line per
    simplification with its source or SIM.md §9 entry. Then comes "Go deeper,"
    which links SOURCES.md ids only.
@@ -69,13 +69,13 @@ trace (`browser.startTracing`) under `test-results/` for inspection.
 
 ## Tests and review
 
-- **Screenshots:** Playwright screenshot tests at 375 and 1440 px, light and
-  dark: 4 baselines.
-- **Interaction:** one Playwright test per widget. It moves a control and asserts
-  that the visible result changes, checking rendered text, not just the DOM.
-- **Checks:** `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass.
-
-17. **Fresh-eyes review.** A sub-agent that did not write the chapter reads it as
+17. **Screenshots.** Playwright screenshot tests at 375 and 1440 px, light and
+    dark: 4 baselines.
+18. **Interaction.** One Playwright test per widget. It moves a control and
+    asserts that the visible result changes, checking rendered text, not just
+    the DOM.
+19. **Checks.** `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass.
+20. **Fresh-eyes review.** A sub-agent that did not write the chapter reads it as
     a skeptical expert.
     - It checks each claim against its cited source.
     - It checks the text against CLAUDE.md's writing rules.
@@ -85,11 +85,11 @@ trace (`browser.startTracing`) under `test-results/` for inspection.
 
 ## Launch assets
 
-18. **Capture.** `pnpm capture <slug>` records 6 to 10 seconds of the main
+21. **Capture.** `pnpm capture <slug>` records 6 to 10 seconds of the main
     widget, with Playwright driving a scripted interaction.
     - It writes `media/<slug>.mp4` (H.264) and `media/<slug>.gif`.
     - The script fails if the GIF is 3 MB or larger.
-19. **Route HTML.** `dist/<slug>/index.html` has its own title, description,
+22. **Route HTML.** `dist/<slug>/index.html` has its own title, description,
     canonical URL, `og:*` and `twitter:*` tags, and a 1200×630 preview image at
     `og/<slug>.png`. This is checked by the postbuild test and by the smoke test
     against the live site.

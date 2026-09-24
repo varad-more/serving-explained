@@ -210,9 +210,11 @@ _Empty until the steps run._
 
 ## Prompt 3: KV cache chapter (PLAN, waiting for approval)
 
-- [x] Part A: docs/CHAPTER_DOD.md written (19 items, plus tests and review).
+- [x] Part A: docs/CHAPTER_DOD.md written (22 items).
 - [x] Sources: added ainslie2023 (GQA), verified on the ACL Anthology. Note 10
       records an llmsize vs. vLLM gap on memory utilization.
+- [x] PRODUCT.md chapter 1 objective and misconception updated to Prompt 3's
+      wording, so DoD item 1 checks the current objective.
 - [ ] Part B: the chapter, after approval.
 
 ### Depends on
@@ -312,7 +314,14 @@ Each step has one idea, one figure state, its claim ids, and its sources.
    the limit.
    - The default state fits: Llama-3.1-8B, A10G, bf16, 8K tokens, 4 requests.
      At 8 requests it does not fit.
-   - Claims: `weights-fixed`, `kv-linear`, `default-crosses`.
+   - **The misconception, stated honestly.** On an A10G, the weights do take two
+     thirds of usable memory (14.96 of 22.50 GiB). What they leave over is what
+     sets concurrency. Switch to an H100 and the weights stay 14.96 GiB. At 8K
+     tokens, 64 requests then hold 64 GiB of KV, 4.3× the weights. So weights
+     are a fixed cost, and the KV cache is what grows.
+   - Claims: `weights-fixed`, `kv-linear`, `default-crosses`,
+     `kv-outgrows-weights` (on the H100 at 8K tokens and max concurrency, KV is
+     more than 4× the weights).
    - Sources: kwon2023 §1 (weights persist; KV is allocated per request) and §3;
      llmsize-math.
 6. **Takeaway.** Max concurrency ≈ free memory ÷ KV bytes per request.
@@ -393,8 +402,8 @@ and the MemoryBudget defaults. Both the chapter and its tests import them.
 - `double-context-halves`: wherever the model fits and both c and 2c are stops,
   mc(2c) = ⌊mc(c) / 2⌋. This is exact, because every stop is a multiple of 16.
 - `fp8-doubles`: mc(fp8) is 2·mc(bf16) or 2·mc(bf16) + 1 (floor rounding).
-- `weights-fixed`, `kv-linear`, `default-crosses`, `gqa-smaller` (ratio ≥ 3 in KV,
-  ≤ 1.25 in weights).
+- `weights-fixed`, `kv-linear`, `default-crosses`, `kv-outgrows-weights`,
+  `gqa-smaller` (ratio ≥ 3 in KV, ≤ 1.25 in weights).
 - `no-cache-work`, `cache-one-column`, `cache-total`: from the TokenGrid preset's
   sim log.
 - Meta-test: the claim ids in `kv-cache.mdx` match the test ids exactly.
@@ -418,7 +427,7 @@ GlossaryTerm ids, and SourceLink ids.
 - ffmpeg writes an H.264 mp4 and a 12 fps GIF at 720 px with a generated
   palette. The script asserts the GIF is under 3 MB.
 
-**Review and route:** a fresh-eyes review by a sub-agent (DoD item 17). The
+**Review and route:** a fresh-eyes review by a sub-agent (DoD item 20). The
 route `/kv-cache/` gets the title "The KV cache", its description, and
 `og/kv-cache.png`.
 
@@ -429,3 +438,30 @@ route `/kv-cache/` gets the title "The KV cache", its description, and
 - MHA, GQA
 - bf16, fp8, GiB
 - prefill, decode, concurrency
+
+### DoD checklist (docs/CHAPTER_DOD.md)
+
+Each item is ticked with how it was verified.
+
+- [ ] 1 objective and CheckYourself
+- [ ] 2 sources
+- [ ] 3 provenance
+- [ ] 4 claims tested
+- [ ] 5 writing rules
+- [ ] 6 end sections
+- [ ] 7 keyboard
+- [ ] 8 labels
+- [ ] 9 playback
+- [ ] 10 reduced motion
+- [ ] 11 sizes and themes
+- [ ] 12 no layout shift
+- [ ] 13 no console errors
+- [ ] 14 axe
+- [ ] 15 interactions within 100 ms
+- [ ] 16 60 fps
+- [ ] 17 screenshots
+- [ ] 18 interaction tests
+- [ ] 19 checks pass
+- [ ] 20 fresh-eyes review
+- [ ] 21 capture
+- [ ] 22 route HTML
