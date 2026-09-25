@@ -47,6 +47,11 @@ arXiv, and GitHub.
    "0.6.x" in prose). The result JSONs do not record GPU or engine version.
    `prefix_sharing_benefit` prompts are 56–59 tokens and have no cache-off run,
    so they cannot back a measured prefix-caching speedup.
+   - **Exception:** the `results_concurrency64/` runs are traceable through the
+     committed log `logs/phase2_resume_20260418T042547.log`. It records the GPU
+     (A10G, `:7`), the image tags (`:15–16`), the model (`:36`), and the result
+     filenames (`:57`, `:98`).
+   - The main `results/` matrix has no such log.
 8. **bench-kvtt.** The README headline (~7.4 GB/s) disagrees with RESULTS.md
    §6b, which calls that number the wrong one to quote (~0.28 GB/s end to end).
    Use RESULTS.md's "Where each number comes from" table and the result files.

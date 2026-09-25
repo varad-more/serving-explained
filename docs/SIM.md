@@ -231,7 +231,8 @@ interface SimMetrics {
     makespan: number               // last Finish − first Arrive, seconds
     outputTokensPerS: number       // DecodeToken count / makespan
     requestsPerS: number
-    ttft: Dist; itl: Dist; e2e: Dist
+    ttft: Dist; e2e: Dist          // over requests
+    itl: Dist                      // pooled over every inter-token gap of every request
     prefixHitRate: number | null   // hitTokens / queryTokens, first admissions only; null with caching off
     preemptions: number
     evictions: number
@@ -546,8 +547,11 @@ type LengthDist =
   | { kind: 'fixed'; value: number }
   | { kind: 'uniform'; min: number; max: number }
   | { kind: 'lognormal'; median: number; sigma: number; min: number; max: number }
+  | { kind: 'mixture'; parts: readonly { weight: number; dist: Exclude<LengthDist, { kind: 'mixture' }> }[] }
 ```
 
+- **Mixture** picks a part with probability proportional to its weight, then
+  samples that part. It models "mostly short, sometimes very long" prompts.
 - **Poisson** inter-arrival is `−ln(1−u)/rate`. **Lognormal** samples
   `median·exp(sigma·z)` with z from Box–Muller, rounded and clamped.
 - **Shared prefixes.** `k` prefixes of `L` tokens are drawn once. Each request
@@ -571,6 +575,8 @@ They are not measurements of real traffic, and the UI says so.
 | `batch-summarize` | 64 | burst | uniform 800–2000 | fixed 200 | 1 × 64, p 1.0 (one instruction) | static vs. continuous on a full queue, memory pressure |
 | `agent-loop` | 150 | Poisson 4/s | uniform 32–256 | lognormal median 60, σ 0.6, 8–256 | 4 × 2048, p 0.9 (tool and context prefix) | prefix caching, eviction |
 | `paged-vs-contiguous` | 40 | Poisson 1.5/s | uniform 32–128 | lognormal median 100, σ 0.6, 16–256 | none | contiguous vs. paged allocation (chapter 2) |
+| `batching-basics` | 48 | Poisson 1.2/s | uniform 32–256 | lognormal median 80, σ 1.0, 8–512 | none | static vs. continuous batching (chapter 3) |
+| `long-prompt-stall` | 80 | Poisson 1.5/s | mixture: 85% uniform 64–256, 15% uniform 6000–7500 | lognormal median 50, σ 0.5, 16–200 | none | prefill stalls, token budget, chunked prefill (chapter 3) |
 
 **`paged-vs-contiguous` overrides** (tentative; tuned once the engine runs):
 - `seed` 7.
@@ -587,6 +593,28 @@ They are not measurements of real traffic, and the UI says so.
 - This is a toy GPU. An A10G has 61,787 tokens free after Llama-3.1-8B's
   weights, about 48× more. Step times still come from the Llama-3.1-8B on
   A10G roofline.
+
+**`batching-basics` overrides** (tentative; tuned once the engine runs):
+- `seed` 11. `maxModelLen` 1024. `maxNumSeqs` 8 (DESIGN.md's limit of 8 live
+  requests).
+- The default KV capacity (2,000 blocks) means memory never binds, so the
+  scheduler is the only difference.
+- Prefix caching is off. The budget is 2048, with chunked prefill on.
+- Tuning targets, each asserted by a chapter test: continuous has a lower mean
+  and p99 TTFT and higher throughput than static. Static shows idle slots within
+  20 s.
+
+**`long-prompt-stall` overrides** (tentative):
+- `seed` 13. `maxModelLen` 8192. `maxNumSeqs` 8.
+- `numBlocks` 3861 (61,776 tokens). That is llmsize's free KV for
+  Llama-3.1-8B on an A10G, without engine overheads (see Q6).
+- Prefix caching is off.
+- Two settings are compared:
+  - chunked prefill on, budget 2048
+  - chunked prefill off, budget 8192 (raised to `maxModelLen`, as vLLM does)
+- Long prompts are frequent enough (15%) that their stalls are more than 1% of
+  all inter-token gaps, both with and without chunking. Otherwise p99 ITL could
+  not see them.
 
 **CLI.** `pnpm sim --preset chatbot --scheduler continuous --allocator paged`.
 - Other flags: `--prefix-cache on|off` and `--chunked-prefill on|off` (both
@@ -812,6 +840,11 @@ does not gate.
 5. **Q5: step overhead.** It is 0 by default. We could calibrate it from bench-ieb
    `single_request_latency` (measured TPOT minus the roofline) on Llama-3.1-8B
    and A10G. That makes it a derived, measured constant with a file link.
+   - **Checked for Prompt 5: this does not work.** bench-ieb's concurrency-1 run
+     decodes about 33 ms per token on the A10G (30.2 tok/s). The roofline
+     predicts 38.5 ms, so the leftover is negative.
+   - The measurement implies an MBU near 0.76, against llmsize's 0.65.
+   - Recommendation: keep the overhead at 0, keep llmsize's MBU, and say so.
 6. **Q6: default `numBlocks`.** 2000 is a teaching value. Alternatively,
    gen-data could compute the real vLLM KV pool for Llama-3.1-8B on A10G with
    llmsize's planner and use that.

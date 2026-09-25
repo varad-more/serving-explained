@@ -759,3 +759,381 @@ share the frame builder.
 - [ ] 20 fresh-eyes review
 - [ ] 21 capture
 - [ ] 22 route HTML
+
+## Prompt 5: continuous batching chapter (PLAN, waiting for approval)
+
+- [x] Read yu2022 §3 (C1, S1) and agrawal2024 §1, §2.4, §3.1–3.2, and
+      §4.1–4.3 from the PDF text. A sub-agent checked agrawal2023 and bench-ieb.
+- [x] PRODUCT.md chapter 3 updated to Prompt 5's objective and misconception.
+      Prefill stalls now belong in this chapter, not a later one.
+- [x] SIM.md draft changes:
+  - presets `batching-basics` and `long-prompt-stall`
+  - a `mixture` length distribution
+  - ITL percentiles pooled over every inter-token gap
+- [x] DESIGN.md draft changes: slots are assigned at admission, and request
+      phases are encoded with ink and pattern (both pending approval).
+- [ ] The chapter, after approval.
+
+### What the sources say
+
+- **Request-level scheduling** keeps a batch fixed until every request in it
+  finishes (yu2022 §3, C1).
+  - A finished request cannot return early.
+  - A new arrival waits for the whole batch.
+  - The engine even keeps computing for finished requests.
+- **Iteration-level scheduling** picks requests at every iteration (yu2022 §3,
+  S1). The scheduler sees each finish at once, and a new request can start
+  after the current iteration.
+- **Prefill is compute-bound and decode is memory-bound** (agrawal2024 §1, §3.1,
+  Fig. 5).
+  - Prefill processes every prompt token in parallel; decode processes one
+    token per request.
+  - Decode batches leave compute idle, so extra tokens can ride along at little
+    cost (Takeaway-2).
+- **TTFT and TBT** (agrawal2024 §2.4). TTFT runs from arrival to the first
+  output token. TBT is the gap between consecutive output tokens. The prompt's
+  ITL is the same quantity; the glossary gives both names.
+- **Generation stalls** (agrawal2024 §3.2). A prefill scheduled between a
+  request's decodes delays them. Even with mixed prefill and decode batches, as
+  in Orca, a batch that holds a long prompt stays slow. That is exactly our
+  engine with chunking off (SIM.md §8).
+- **Chunked prefill and stall-free batching** (agrawal2024 §4.1–4.2).
+  - The scheduler packs decodes first, then prefill chunks into the leftover
+    token budget, as vLLM V1 does.
+  - Chunked prefill itself was introduced in agrawal2023.
+- **The token budget trade-off** (agrawal2024 §4.3). A smaller budget lowers
+  TBT. It also adds chunking overhead: lower GPU utilization, and repeated reads
+  of earlier chunks' KV.
+
+### Numbers behind this plan
+
+These come from the SIM.md §5 roofline with llmsize's constants, for Llama-3.1-8B.
+
+- **A10G:** a decode step takes 38.5 ms and is memory-bound. Compute time
+  overtakes memory time at about 135 tokens per step.
+  - A 7,000-token prefill takes about 2.0 s of dense compute plus about 0.23 s
+    of attention.
+  - A 2,048-token chunk takes about 0.59 s.
+- **H100:** the crossover is at about 191 tokens per step.
+- llmsize lists the A10G at 125 bf16 TFLOPS. I have not checked that figure
+  against NVIDIA's spec; it only moves the crossover.
+
+### Decisions for the author
+
+1. **Slots are assigned at admission** (DESIGN.md draft). The old rule assigned
+   slots in arrival order, wrapping after 8, which breaks once a queue holds
+   more than 8 requests.
+   - Now a request takes the lowest free slot when it is admitted.
+   - Waiting requests are drawn neutral with their id.
+   - Chapter 2 works under either rule.
+2. **Phases use ink and pattern, not request hues** (DESIGN.md draft):
+   - queued: a dashed outline
+   - prefill: a striped dark fill
+   - decode: a solid mid fill
+   - bubble: the gray waste hatch
+   - A slot-color tab and the id label carry the request's identity. This
+     follows the prompt's "each with its own color and pattern" without clashing
+     with the 8 request hues.
+3. **The timeline's x axis is sim time, not step index.** Each step is as wide
+   as it is long, so a stalled step shows as a wide column across every lane.
+   Steps over 5× the median get a labeled band. Lockstep comparison is by time
+   too, as in chapter 2.
+4. **Static mode streams tokens as they are made.** That flatters static. Orca
+   says request-level systems return results only when the whole batch ends
+   (yu2022 §3). TTFT counts the first token generated, and E2E counts the batch
+   end. This goes in "What this leaves out".
+5. **Chunking off.** The widget raises the budget to `max_model_len` (8,192) and
+   shows that it did, as vLLM does (vllm-src `arg_utils.py`). The engine keeps
+   its config error (SIM.md §8).
+6. **`max_num_seqs` runs 1–8,** because of DESIGN.md's limit of 8. The chapter
+   says vLLM's default is 256.
+7. **`long-prompt-stall` uses the real A10G KV capacity:** 61,776 tokens, the
+   free memory llmsize computes for Llama-3.1-8B. That is a partial answer to
+   SIM.md Q6.
+8. **Our cost model may not show the throughput side of the trade-off.**
+   - GPU efficiency is constant and the step overhead is 0 (SIM.md Q5). So
+     splitting a prompt into small chunks costs almost no throughput in the sim.
+     Real kernels lose efficiency on small chunks (agrawal2024 §4.3).
+   - Option (a): give these presets a step overhead calibrated from bench-ieb
+     (Q5), if the files allow it (see "Measured callout").
+   - Option (b): keep 0 and say plainly that the sim leaves this cost out.
+   - **Update after checking bench-ieb: (a) is not possible.** At concurrency 1,
+     vLLM decoded 30.2 tok/s on the A10G, about 33 ms per token. Our roofline
+     predicts 38.5 ms. The roofline is slower than the measurement, so the
+     leftover that would give a fixed overhead is negative.
+   - I recommend (b). The finding also goes into SIM.md Q5.
+9. **The misconception's TTFT half is not yet shown.** I can see how bigger
+   token budgets hurt p99 ITL in the sim. I cannot yet show from reasoning alone
+   that bigger batches hurt TTFT on these presets.
+   - The claim is worded after the sim runs.
+   - If no preset shows TTFT getting worse, I stop and report. The prose would
+     then narrow to ITL.
+10. **A nuance I will test.** When long prompts are rare, chunking can *raise*
+    p99 ITL. It turns one big stall (under 1% of gaps, so invisible to p99) into
+    several smaller ones (over 1%).
+    - The prompt's claim holds on `long-prompt-stall`, because 15% of prompts
+      are long.
+    - If the sim shows the reversal at 2% long prompts, the chapter says so
+      (claim `chunking-spreads-stalls`).
+
+### Measured callout (optional per the prompt: traceable, so included)
+
+**Where it goes:** step 6, next to the misconception. A real engine shows the
+same trade-off at scale: throughput climbs with concurrency, and so does TTFT.
+
+**Files** (bench-ieb at `1c964318`):
+- `results_concurrency64/llama-3-1-8b-instruct/throughput_ramp_extended_vllm_1776486559.json`
+- `results_concurrency64/llama-3-1-8b-instruct/throughput_ramp_extended_sglang_1776488646.json`
+- `logs/phase2_resume_20260418T042547.log`
+
+**What the log records:**
+- `:7` GPU "NVIDIA A10G, 23028 MiB"
+- `:15–16` image tags `vllm/vllm-openai:v0.18.0-cu130` and
+  `lmsysorg/sglang:v0.5.10.post1-cu130`
+- `:36` model `meta-llama/Llama-3.1-8B-Instruct`
+- `:57` and `:98` the two result filenames
+- The result JSONs themselves record only the model and the engine.
+
+**How each number is computed** (I recomputed it myself, and it matches the
+sub-agent's script):
+- Each file has 900 requests, 150 per concurrency level (1, 4, 8, 16, 32, 64).
+  There are no failures, and every request has 256 output tokens.
+- The level is the request index // 150, because `request_id` restarts at 0 for
+  each level.
+- TTFT comes from `requests[].ttft_ms`.
+- Throughput per level is 150 × 256 output tokens divided by the time between
+  that level's "throughput ramp level" log line and the next one. For the last
+  level, the next line is "saved results".
+
+| engine | concurrency | p50 TTFT | output tok/s |
+|---|---|---|---|
+| vLLM | 1 | 41.2 ms | 30.2 |
+| vLLM | 64 | 162.8 ms | 1,279.6 |
+| SGLang | 1 | 69.9 ms | 30.2 |
+| SGLang | 64 | 156.1 ms | 1,271.1 |
+
+**The callout text** (`measured` badge, linked to all three files):
+- From 1 to 64 concurrent requests, output throughput rose about 42× on both
+  engines. Median TTFT rose 4.0× on vLLM and 2.2× on SGLang.
+- The callout also states the hardware, model, and engine tags.
+
+**Caveats, shown in the callout:**
+- one run per engine
+- 150 requests per level, so p99 is close to the second-highest sample (that is
+  why it shows p50)
+- the 4 prompts are 13–18 words, reused with prefix caching on, so TTFT here is
+  mostly queueing, not prefill
+- throughput includes each level's drain tail
+- engine versions come from Docker tags, not digests
+- `output_tokens` counts streamed chunks (`engines/base_client.py:116–132`)
+
+**What it does not show:** static vs. continuous batching. Both engines batch
+continuously. The callout says so, and makes no engine-vs-engine claim.
+
+### Presets (SIM.md §7, tentative; tuned until the tests pass)
+
+- **`batching-basics`:**
+  - seed 11; 48 requests, Poisson at 1.2/s
+  - prompt body uniform 32–256
+  - output lognormal, median 80, σ 1.0, 8–512 (a wide spread)
+  - `max_num_seqs` 8, budget 2048, chunked prefill on
+  - KV plentiful (2,000 blocks), prefix caching off
+- **Why `batching-basics` should show the gap:**
+  - Continuous: 8 slots, with each request taking about 4 s, serves about
+    1.8 requests/s.
+  - Static: a batch lasts as long as its longest output (about 11 s for 8
+    requests) and serves about 0.7 requests/s.
+  - At 1.2 arrivals/s, static's queue grows and continuous keeps up.
+- **`long-prompt-stall`:**
+  - seed 13; 80 requests, Poisson at 1.5/s
+  - prompt body: 85% uniform 64–256, 15% uniform 6,000–7,500
+  - output lognormal, median 50, σ 0.5, 16–200
+  - `max_model_len` 8192, `max_num_seqs` 8, 3,861 blocks
+  - compared: chunking on with budget 2048, vs. chunking off with budget 8192
+- **Why `long-prompt-stall` should show the stall:**
+  - Without chunking, each long prompt makes one step of about 2.2 s, and up to
+    7 decodes wait in it. That is about 1.9% of all gaps, so it shows in p99.
+  - With chunking, each long prompt makes about 4 steps of about 0.6 s.
+  - The long prompt's own TTFT rises by its steps' decode compute, about 3–5%.
+
+### Scroll steps
+
+1. **Two phases.** Figure `PhaseBars`, for the model and GPU picked inline.
+   - A one-request sim run (prompt 1,024, output 4) shows compute time and
+     memory time for the prefill step and for a decode step, labeled with the
+     bound.
+   - The crossover in tokens per step is shown via `<Num>` (simulated).
+   - Model and GPU pairs whose weights do not fit are disabled, with the reason.
+   - Claims: `prefill-compute-bound`, `decode-memory-bound`.
+   - Sources: agrawal2024 §1 and §3.1, kwon2023 §2.2.
+2. **Static batching.** The timeline runs `batching-basics` in static mode.
+   - Lanes fill as one batch.
+   - Short requests finish and turn into gray bubbles until the longest one
+     ends.
+   - New arrivals pile up in the queue band.
+   - Claims: `static-never-admits-mid-batch`, `static-has-bubbles`,
+     `static-queue-grows`.
+   - Sources: yu2022 §3 (C1).
+3. **Continuous batching.** Compare mode: static vs. continuous, same seed, one
+   `PlaybackBar`.
+   - On the continuous side, the bubbles are gone and the queue stays short.
+   - TTFT and ITL are defined here, at first use.
+   - Claims: `continuous-lower-ttft` (mean and p99),
+     `continuous-higher-throughput`, `continuous-shorter-queue`,
+     `continuous-admits-promptly`.
+   - Sources: yu2022 §3 (S1), agrawal2024 §2.4.
+4. **The cost.** `long-prompt-stall` with chunking off.
+   - A long prompt's step is a wide band across every lane.
+   - The ITL histogram grows a cluster far to the right, labeled "waited for
+     one long prefill".
+   - Claim: `long-prefill-stalls`. Sources: agrawal2024 §3.2.
+5. **Token budget and chunked prefill.** Compare mode: chunking off vs. on.
+   - The band splits into about 4 shorter ones, and p99 ITL drops.
+   - The long prompts' TTFT rises a little. The exact rise is shown via `<Num>`
+     (simulated).
+   - Prose: a lower budget flattens the steps further; the reader can drag it.
+   - Claims: `chunking-lowers-p99-itl`, `chunking-raises-long-ttft`.
+   - Sources: agrawal2023, agrawal2024 §4.1–4.3.
+6. **Takeaway: no free setting.** Figure `BudgetSweep`: budgets 512, 1024,
+   2048, 4096, and 8192 on `long-prompt-stall`.
+   - Three small charts: throughput, p99 ITL, and mean TTFT of the long
+     prompts. The current setting is marked.
+   - Claims: `no-free-setting`, and the misconception claim worded after the sim
+     (decision 9).
+- **CheckYourself** (predict, then run): "Widen the output-length spread. Does
+  the gap between static and continuous grow or shrink?" The knob is PRODUCT.md's.
+  - Claim: `spread-widens-gap`. Static's mean TTFT minus continuous's grows with
+    σ.
+- **What this leaves out:**
+  - Static streams tokens and stops computing finished requests (yu2022 §3).
+  - There is no batching timeout.
+  - GPU efficiency is constant, so small chunks are not penalized (agrawal2024
+    §4.3), and the step overhead is decision 8.
+  - Scheduling is synchronous, while vLLM's is async (SIM.md §9).
+  - At most 8 seqs, against vLLM's default of 256.
+  - FCFS with head-of-line blocking only.
+  - No pipeline-parallel bubbles (agrawal2024 §3.3), and no disaggregated
+    prefill.
+- **Go deeper:** yu2022, agrawal2023, agrawal2024, kwon2023 §4.5, and vllm-src
+  (`scheduler.py`).
+
+### Widget spec
+
+**RequestTimeline** (`src/chapters/continuous-batching/RequestTimeline.tsx`)
+
+- **Layout:**
+  - One lane per slot, up to `max_num_seqs` (at most 8), 24 px each.
+  - A queue band above the lanes shows neutral chips with ids, and "+n" past
+    12.
+- **x axis:** sim time.
+  - A 30 s window on desktop and 12 s on mobile, with the playhead at
+    two-thirds of the window.
+  - Segments: prefill, decode, and bubble, plus stall bands, each with a slot
+    tab and an id label when 28 px or wider.
+- **Charts below:**
+  - queue length over time (a line)
+  - TTFT histogram
+  - ITL histogram on a log x axis
+  - p50 and p99 are drawn as labeled rules.
+  - In compare mode the histograms become small multiples, one row per run,
+    sharing the x axis. Queue is one chart with 2 series, a legend, and direct
+    labels.
+  - Hover and focus show tooltips; each chart has a table view under
+    `<details>`.
+- **Readouts** (`simulated`): output tokens/s, mean and p99 TTFT, p50 and p99
+  ITL, both so far and at the end of the run.
+- **Controls:**
+  - scheduler: radio, static or continuous
+  - arrival rate: slider
+  - output spread: slider over σ, 0–1.5
+  - `max_num_seqs`: slider, 1–8
+  - `max_num_batched_tokens`: slider stops 256–8192
+  - chunked prefill: `Toggle`. When it is off, the budget control is locked at
+    `max_model_len` with the note "raised to 8,192, as vLLM does".
+  - preset: set per scroll step
+- **Compare mode** takes two configs:
+  - static vs. continuous in steps 2–3
+  - chunking off vs. on in steps 4–5
+  - Lockstep is by sim time. Step jumps to the next `StepEnd` in either run.
+- **Elements:** about 240 segments plus chart marks, well under 2,000, so SVG.
+- **375 px:** 8 lanes are 192 px tall, the window is 12 s, and the charts stack.
+
+**Small figures:** `PhaseBars` (step 1) and `BudgetSweep` (step 6). Both use
+SVG and the chart rules in the dataviz references.
+
+### Tests
+
+**`tests/chapters/continuous-batching.test.ts`** (on the exact presets):
+
+- **`prefill-compute-bound`, `decode-memory-bound`:** for every model × GPU pair
+  that fits, the bound of the run's first `StepEnd` is compute, and of a decode
+  step it is memory.
+- **`static-never-admits-mid-batch`:** re-derived from the event log,
+  independently of the engine's own invariant 5.
+- **`static-has-bubbles`:** idle slot-seconds are more than 25% of held
+  slot-seconds in the first 20 s.
+- **`static-queue-grows`, `continuous-shorter-queue`:** compared by time-averaged
+  queue length.
+- **`continuous-lower-ttft`** (mean and p99) and
+  **`continuous-higher-throughput`:** the prompt's tests.
+- **`continuous-admits-promptly`:** whenever a slot is free at the start of a step
+  and a request waits, it is admitted in that step. This holds while memory and
+  budget allow, as they do on this preset.
+- **`long-prefill-stalls`:** without chunking, p99 ITL is at least 20× p50 ITL.
+- **`chunking-lowers-p99-itl`:** the prompt's test.
+- **`chunking-raises-long-ttft`:** the prompt's test. If it fails, I stop and
+  report; I do not edit the test to pass.
+- **`no-free-setting`, the misconception claim, `spread-widens-gap`, and
+  `chunking-spreads-stalls`** (if it is kept).
+- **Meta-test:** claim ids match test ids.
+
+**`e2e/continuous-batching.spec.ts`** (Playwright):
+- Screenshots at 375 and 1440 px, light and dark, paused at t = 15 s.
+- **RequestTimeline:**
+  - Static → continuous changes the mean TTFT readout.
+  - The chunked toggle changes the p99 ITL readout.
+  - The budget slider changes it too.
+  - Step advances the playhead time.
+- **PhaseBars:** changing the GPU changes the times.
+- **BudgetSweep:** the current marker moves with the budget.
+- CLS 0, no console errors, axe passes.
+- **Performance:** Event Timing on control changes, which re-run two
+  80-request sims; rAF during compare playback.
+
+**Capture, review, and route:**
+- **Capture:** 8 s of static vs. continuous at 2×.
+- **Fresh-eyes review:** done by a sub-agent.
+- **Route:** `/continuous-batching/`, with the title "Continuous batching".
+
+**Glossary terms added:**
+- prefill, decode, compute-bound, memory-bound
+- batch, static batching, request-level scheduling, iteration-level
+  scheduling, continuous batching
+- bubble, TTFT, ITL (TBT), p50, p99, throughput
+- token budget (`max_num_batched_tokens`), `max_num_seqs`
+- chunked prefill, generation stall, head-of-line blocking
+
+### DoD checklist (docs/CHAPTER_DOD.md)
+
+- [ ] 1 objective and CheckYourself
+- [ ] 2 sources
+- [ ] 3 provenance
+- [ ] 4 claims tested
+- [ ] 5 writing rules
+- [ ] 6 end sections
+- [ ] 7 keyboard
+- [ ] 8 labels
+- [ ] 9 playback
+- [ ] 10 reduced motion
+- [ ] 11 sizes and themes
+- [ ] 12 no layout shift
+- [ ] 13 no console errors
+- [ ] 14 axe
+- [ ] 15 interactions within 100 ms
+- [ ] 16 60 fps
+- [ ] 17 screenshots
+- [ ] 18 interaction tests
+- [ ] 19 checks pass
+- [ ] 20 fresh-eyes review
+- [ ] 21 capture
+- [ ] 22 route HTML

@@ -15,8 +15,21 @@ values and the look differ, so code never depends on which one wins.
   for everything.
 - **Request identity:** every request has a slot (1–8), a color, a glyph, and an
   id label ("r3"). Color is never the only cue.
-- **Slot assignment:** requests take slots in arrival order and wrap after 8.
-  A widget never shows more than 8 live requests at once.
+- **Slot assignment:** a request takes the lowest free slot when it is
+  admitted, and keeps it until it leaves. A widget never shows more than 8
+  running requests at once, so no two live requests share a slot. Waiting
+  requests have no slot yet: they are drawn in neutral ink with their id label.
+  (Changed for chapter 3, whose queues hold more than 8 requests; pending
+  approval.)
+- **Request phases** (the chapter 3 timeline) are encoded with ink tones and
+  patterns, never request hues, so phase and identity never collide:
+  - queued: a dashed `--ink-2` outline with no fill
+  - prefill: a `--ink` fill with diagonal stripes
+  - decode: a solid `--ink-2` fill
+  - finished but holding its slot (a bubble): the gray waste hatch
+  - A 4 px tab in the slot's color and glyph starts each segment, and the
+    segment carries the id label. Contrast is checked with the palette
+    validator once a direction is chosen.
 - **Provenance badges** use the same ink in every case and differ in shape and
   text: `simulated` has a dashed outline, `computed` a solid outline, and
   `measured` is filled and carries a link arrow.

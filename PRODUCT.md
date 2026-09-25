@@ -44,16 +44,17 @@ Source ids resolve in docs/SOURCES.md.
 - **Sources:** kwon2023, yu2022, vllm-pa-doc.
 
 ### 3. Continuous batching
-- **Learning objective:** explain that the scheduler rebuilds the batch at every
-  model step. Finished requests leave right away, and waiting requests join
-  right away.
+- **Learning objective:** explain that static batching makes every request wait
+  for the longest one in its batch. Iteration-level (continuous) scheduling
+  lets requests join and leave every step. Prefill and decode stress the GPU
+  differently, which is why engines cap tokens per step and can chunk long
+  prompts.
 - **Knob to predict:** spread of output lengths. The wider the spread, the more
   slots static batching holds for finished requests, and the bigger the gap.
-- **Misconception corrected:** "Batching means each request waits for the
-  slowest one in its batch." That is request-level batching. Iteration-level
-  scheduling removes the wait.
-- **Sources:** yu2022, kwon2023. Prefill stalling decode is listed under "What
-  this leaves out" and points to agrawal2024 for a later chapter.
+- **Misconception corrected:** "Bigger batches are always better." They raise
+  throughput, but they can hurt time to first token (TTFT) and inter-token
+  latency (ITL).
+- **Sources:** yu2022, agrawal2023, agrawal2024, kwon2023.
 
 ### 4. Prefix caching
 - **Learning objective:** explain that when requests share a prompt prefix, the
