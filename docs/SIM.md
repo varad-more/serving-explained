@@ -534,8 +534,14 @@ interface WorkloadSpec {
   maxModelLen: number            // the body is clipped first, then the output
   vocabSize?: number             // default 32000
 }
-type PresetName = 'chatbot' | 'rag' | 'batch-summarize' | 'agent-loop'
-interface Preset { workload: WorkloadSpec; description: string }   // engine defaults are shared, below
+type PresetName = 'chatbot' | 'rag' | 'batch-summarize' | 'agent-loop' | 'paged-vs-contiguous'
+interface Preset {
+  workload: WorkloadSpec
+  description: string
+  seed: number                                    // fixed per preset
+  kv?: Partial<SimConfig['kv']>                   // overrides of the engine defaults below
+  scheduler?: Partial<SimConfig['scheduler']>
+}
 type LengthDist =
   | { kind: 'fixed'; value: number }
   | { kind: 'uniform'; min: number; max: number }
@@ -550,8 +556,8 @@ type LengthDist =
 
 **Presets.** These are invented shapes chosen to exercise one mechanism each.
 They are not measurements of real traffic, and the UI says so.
-- All presets use the same engine defaults: Llama-3.1-8B-Instruct on a10g-24,
-  the hardware of the author's benchmarks.
+- All presets use the same engine defaults, unless the preset overrides them:
+  Llama-3.1-8B-Instruct on a10g-24, the hardware of the author's benchmarks.
 - `blockSize` is 16 and `maxModelLen` is 4096.
 - `numBlocks` is 2000, a teaching value (see Q6).
 - The scheduler settings use the `vllm serve` defaults for a GPU under 70 GB
@@ -564,6 +570,23 @@ They are not measurements of real traffic, and the UI says so.
 | `rag` | 100 | Poisson 0.5/s | uniform 1500–2500 | lognormal median 120, σ 0.5, 16–512 | 8 × 1024, p 0.6 (repeated documents) | long prefill, chunking, prefix hits |
 | `batch-summarize` | 64 | burst | uniform 800–2000 | fixed 200 | 1 × 64, p 1.0 (one instruction) | static vs. continuous on a full queue, memory pressure |
 | `agent-loop` | 150 | Poisson 4/s | uniform 32–256 | lognormal median 60, σ 0.6, 8–256 | 4 × 2048, p 0.9 (tool and context prefix) | prefix caching, eviction |
+| `paged-vs-contiguous` | 40 | Poisson 1.5/s | uniform 32–128 | lognormal median 100, σ 0.6, 16–256 | none | contiguous vs. paged allocation (chapter 2) |
+
+**`paged-vs-contiguous` overrides** (tentative; tuned once the engine runs):
+- `seed` 7.
+- KV capacity is 1,280 tokens: `numBlocks` 80 at `blockSize` 16. The chapter's
+  block-size control keeps 1,280 tokens and sets `numBlocks = 1280 / B`.
+- `maxModelLen` 512. The workload's own `maxModelLen` is 384, so every
+  `maxModelLen` option (384–1024) leaves the requests unchanged.
+- `maxNumSeqs` 8, because DESIGN.md shows at most 8 live requests per widget.
+- Prefix caching is off; the continuous scheduler is used for both allocators.
+- Tuning targets, each asserted by a chapter test:
+  - within 20 s of sim time, contiguous peaks at 2 running with a growing queue
+  - paged reaches at least 6 running
+  - paged preempts at most twice
+- This is a toy GPU. An A10G has 61,787 tokens free after Llama-3.1-8B's
+  weights, about 48× more. Step times still come from the Llama-3.1-8B on
+  A10G roofline.
 
 **CLI.** `pnpm sim --preset chatbot --scheduler continuous --allocator paged`.
 - Other flags: `--prefix-cache on|off` and `--chunked-prefill on|off` (both

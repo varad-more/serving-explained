@@ -31,16 +31,17 @@ Source ids resolve in docs/SOURCES.md.
 - **Sources:** kwon2023, ainslie2023, llmsize-math.
 
 ### 2. Paged attention
-- **Learning objective:** explain that the engine splits each request's KV cache
-  into fixed-size blocks that can sit anywhere in memory, tracked by a block
-  table. Memory is claimed one block at a time, so waste stays within the last
-  block of each request.
+- **Learning objective:** explain that reserving one contiguous region per
+  request for its maximum length wastes most of the KV memory. Fixed-size blocks
+  plus a per-request block table cut that waste to at most one partly filled
+  block per request, so more requests fit.
 - **Knob to predict:** block size. Bigger blocks leave more empty slots in each
   request's last block. Smaller blocks mean more table entries to track.
-- **Misconception corrected:** "PagedAttention is a faster attention algorithm."
-  It is a memory layout. More requests fit in a batch, which raises throughput.
-  The attention kernel itself runs slower, partly from block-table lookups.
-- **Sources:** kwon2023, vllm-pa-doc.
+- **Misconception corrected:** "Paged attention makes attention faster." It is
+  mainly a memory-management technique: the attention kernel reads blocks that
+  are not contiguous. The paper measures that kernel as slower. Its throughput
+  gain comes from fitting more requests in a batch.
+- **Sources:** kwon2023, yu2022, vllm-pa-doc.
 
 ### 3. Continuous batching
 - **Learning objective:** explain that the scheduler rebuilds the batch at every

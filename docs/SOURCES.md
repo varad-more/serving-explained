@@ -9,7 +9,7 @@ arXiv, and GitHub.
 
 | id | title | authors | venue or publisher | year | url | cited for | status |
 |---|---|---|---|---|---|---|---|
-| kwon2023 | Efficient Memory Management for Large Language Model Serving with PagedAttention | Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, et al. | SOSP '23, ACM, pp. 611–626 | 2023 | https://doi.org/10.1145/3600006.3613165 | KV cache size per token (§3); reservation and fragmentation waste in prior systems (§3.1, Fig. 2–3); blocks, block tables, waste limited to the last block (§4.2–4.3); preemption by recompute or swap (§4.5); kernel overhead (§7.1); block size ablation, default 16 (§7.2). arXiv: https://arxiv.org/abs/2309.06180 | verified |
+| kwon2023 | Efficient Memory Management for Large Language Model Serving with PagedAttention | Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, et al. | SOSP '23, ACM, pp. 611–626 | 2023 | https://doi.org/10.1145/3600006.3613165 | KV cache size per token (§3); reservation and fragmentation waste in prior systems (§3.1, Fig. 2–3); blocks, block tables, waste limited to the last block (§4.2–4.3); preemption by recompute or swap (§4.5); kernel overhead (§7.1); block size ablation, default 16 (§7.2); PagedAttention called "an attention algorithm" (§1); token states use 20.4–38.2% of KV memory in the Orca baselines vs. 96.3% in vLLM (§1, Fig. 2); Orca Max, Pow2, and Oracle baselines (§6.1); 2.2× and 4.3× more concurrent requests than Orca Oracle and Max (§6.2, Fig. 13a); 2–4× throughput at similar latency (abstract, §9); paging can hurt compute-bound workloads (§8). arXiv: https://arxiv.org/abs/2309.06180 | verified |
 | yu2022 | Orca: A Distributed Serving System for Transformer-Based Generative Models | Gyeong-In Yu, Joo Seong Jeong, Geon-Woo Kim, Soojeong Kim, Byung-Gon Chun | USENIX OSDI '22, pp. 521–538 | 2022 | https://www.usenix.org/conference/osdi22/presentation/yu | Problem with request-level batching; iteration-level scheduling; selective batching (§3); per-request max-token reservation (§4.2, Alg. 1) | verified |
 | zheng2024 | SGLang: Efficient Execution of Structured Language Model Programs | Lianmin Zheng, Liangsheng Yin, Zhiqiang Xie, et al. | NeurIPS 2024 (Advances in Neural Information Processing Systems 37), pp. 62557–62583 | 2024 | https://proceedings.neurips.cc/paper_files/paper/2024/hash/724be4472168f31ba1c9ac630f15dec8-Abstract-Conference.html | RadixAttention: radix tree over token sequences, LRU leaf eviction, ref-counted nodes, cache-aware scheduling (§3) — the alternative to block hashing. arXiv: https://arxiv.org/abs/2312.07104 | verified |
 | agrawal2023 | SARATHI: Efficient LLM Inference by Piggybacking Decodes with Chunked Prefills | Amey Agrawal, Ashish Panwar, Jayashree Mohan, et al. | arXiv preprint | 2023 | https://arxiv.org/abs/2308.16369 | Where chunked prefill was first proposed | verified (preprint) |
@@ -60,3 +60,8 @@ arXiv, and GitHub.
     vLLM's default `gpu_memory_utilization` is 0.92 (`vllm/config/cache.py` L101
     at `cfd54ca8`). The KV cache chapter does not use either value, but its
     callout links to llmsize's planner.
+11. **kwon2023 numbers come from the PDF.** The arXiv HTML drops figures such as
+    "2.2×" and "1.7×–2.7×" from §6.2. Read them from the PDF text. Fig. 2's
+    values (20.4, 26.8, 38.2, and 96.3% token states) come from the PDF's figure
+    labels. Cite only the token-state shares, not the per-category split, which
+    was not checked against the rendered figure.

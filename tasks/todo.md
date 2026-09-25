@@ -465,3 +465,297 @@ Each item is ticked with how it was verified.
 - [ ] 20 fresh-eyes review
 - [ ] 21 capture
 - [ ] 22 route HTML
+
+## Prompt 4: paged attention chapter (PLAN, waiting for approval)
+
+- [x] Read kwon2023 §1, §3, §4.1–4.4, §6.1–6.2, §7.1–7.2, §8, and §9 for this
+      plan. The text comes from the PDF, because the arXiv HTML drops numbers
+      such as "2.2×" (SOURCES.md note 11).
+- [x] PRODUCT.md chapter 2 updated to Prompt 4's objective and misconception.
+- [x] SIM.md draft: added the preset `paged-vs-contiguous` and per-preset engine
+      overrides (`seed`, `kv`, `scheduler`) to the `Preset` type. SIM.md is not
+      approved yet, so this is still a draft change.
+- [ ] The chapter, after approval.
+
+### Depends on
+
+- Everything chapter 1 depends on, plus chapter 1 itself, for the recap link.
+- The engine's contiguous-max allocator and the `StepEnd.kv` fields from
+  SIM.md §2.2.
+
+### What the paper says, for the misconception and the reality check
+
+All of these are from kwon2023, checked in the PDF.
+
+- **It calls PagedAttention "an attention algorithm"** (§1). The kernel was
+  rewritten to read keys and values from blocks that are not contiguous.
+- **That kernel is slower:** 20–26% higher attention-kernel latency than
+  FasterTransformer's (§7.1, Fig. 18a). The causes are block-table access,
+  extra branches, and variable lengths.
+- **The gain is end to end:** 2–4× throughput at similar latency against
+  FasterTransformer and Orca (abstract, §9). It comes from batching more
+  requests (§6.2, §9). On ShareGPT with OPT-13B, vLLM runs 2.2× more requests at
+  once than Orca (Oracle) and 4.3× more than Orca (Max) (§6.2, Fig. 13a).
+- **Paging can hurt** when a workload is compute-bound and memory is not the
+  limit (§8).
+- **Waste in earlier systems:** in the §6.2 experiments, token states filled
+  only 20.4–38.2% of KV memory in the paper's Orca baselines, vs. 96.3% in vLLM
+  (§1, Fig. 2). Orca (Max) reserves the model's maximum length, as our
+  contiguous allocator does (§6.1).
+
+### Decisions for the author
+
+1. **At most 8 live requests per grid.** DESIGN.md caps every widget at 8 live
+   requests, so each one has its own color and glyph.
+   - The preset sets `max_num_seqs` to 8, and shrinks KV to 1,280 tokens so that
+     memory binds at about the same point.
+   - The chapter says vLLM's default cap is 256 (vllm-src).
+   - The alternative is to let colors repeat beyond 8. I advise against it,
+     because two live requests would then look the same.
+2. **A toy GPU.** 1,280 tokens is about 1/48 of the 61,787 tokens an A10G has
+   free after Llama-3.1-8B's weights (computed). The widget labels it "toy GPU:
+   1,280 tokens of KV". Step times still come from the Llama-3.1-8B on A10G
+   roofline, so playback runs at a plausible pace.
+3. **"Gaps between regions."** With equal `max_model_len` regions, a freed
+   region always fits the next request exactly. So the only gap is the leftover
+   at the end of memory, capacity mod `max_model_len`.
+   - At the default 512, that is 256 tokens, 20% of capacity, and the
+     `max_model_len` control changes it.
+   - The paper's baselines also had gaps from buddy allocation (Fig. 3), which
+     we do not model. The chapter labels the gap "free space too small for a
+     region" and says this.
+   - Real gaps between regions would need SIM.md Q4 (regions sized per request).
+     This chapter's tests do not need it.
+4. **"Requests admitted"** means admitted and not yet finished, so it is the
+   running count. The peak-concurrency test uses it.
+5. **Paged can preempt.** Packing more requests in means memory can run out
+   mid-generation. The preset is tuned so this is rare (at most 2). The paged
+   readout shows a preemption count whenever it is nonzero, rather than hiding
+   it. Preemption itself is explained in chapter 3.
+6. **Lockstep is by sim time, not step index.** The two allocators run batches
+   of different sizes, so their steps have different durations. One
+   `PlaybackBar` sets time t, and each grid shows its own latest `StepEnd` at or
+   before t. Arrivals line up, which a shared step index would not do.
+
+### Preset `paged-vs-contiguous` (SIM.md §7, tentative)
+
+- **Workload:** seed 7; 40 requests, Poisson at 1.5/s.
+  - Prompt body uniform 32–128 tokens, with no shared prefix.
+  - Output lognormal, median 100, σ 0.6, clipped to 16–256.
+- **Lengths:** the workload's `maxModelLen` is 384, and the engine's
+  `max_model_len` defaults to 512. Every `max_model_len` option (384, 512, 640,
+  768, 1024) therefore leaves the requests unchanged, so the control isolates
+  the reservation.
+- **KV:** 1,280 tokens (80 blocks at B 16), prefix caching off.
+- **Scheduler:** continuous, `max_num_seqs` 8, budget 2048, chunked prefill on.
+  The cost model is Llama-3.1-8B on a10g-24.
+- **Why it shows the difference within about 20 s at 1× playback:**
+  - A decode step takes about 38 ms, so a request takes about 4 s.
+  - Contiguous fits 2 regions (1,024 tokens plus the 256-token gap), so it serves
+    about 0.5 requests/s. At 1.5 arrivals/s, its queue grows by about 1 per
+    second.
+  - Paged holds about 140 tokens per request, so about 8 fit, enough for about
+    2 requests/s.
+- These are estimates. I tune the numbers until the tests in "Tests" pass, then
+  write the final values into SIM.md.
+
+### Scroll steps
+
+1. **Recap.** Each token adds KV in every layer. For Llama-3.1-8B that is
+   128 KiB per token, via `<Num>` (computed). Links to chapter 1.
+2. **Contiguous reservation.** The grid runs the preset with the contiguous
+   allocator only.
+   - Each arriving request reserves 512 tokens at once. Filled slots grow;
+     the rest of the region stays hatched as "reserved, not holding KV."
+   - The leftover at the end is marked "gap."
+   - Prose: the paper splits our "reserved" into slots kept for future tokens
+     and slots never used (Fig. 3).
+   - Claims: `contiguous-wastes-most`, `contiguous-waste-split`.
+   - Sources: kwon2023 §3.1 and Fig. 3; yu2022 §4.2.
+3. **The paged idea.** The same preset with the paged allocator only.
+   - Blocks of 16 tokens fill left to right. A new block is taken only when the
+     last one is full, like pages in an operating system.
+   - Claims: `paged-on-demand`, `paged-waste-bound`.
+   - Sources: kwon2023 §4.2–4.3.
+4. **The block table.** One running request's tokens are shown as a strip
+   grouped into logical blocks, next to its table and the physical grid.
+   - Hovering, tapping, or arrowing to a token highlights its logical block,
+     its table row, and its physical block.
+   - The figure pauses at a step where that request's blocks are scattered.
+   - Claim: `table-scattered`. Sources: kwon2023 §4.1–4.2.
+5. **Side by side.** Compare mode, with one `PlaybackBar` over sim time.
+   - Readouts on each side: running, waiting, KV used, waste percent.
+   - **Reality-check callout:** the paper's Fig. 2 numbers, labeled as the
+     paper's, and next to them a line saying ours are simulated on a toy preset.
+   - **Misconception callout:** the four facts from "What the paper says."
+   - Claims: `paged-admits-more`, `paged-less-waste`, `visible-in-20s`.
+   - Sources: kwon2023 §1, §6.2, §7.1, §8, §9.
+6. **Block size.** A slider over 8, 16, 32, 64, and 128, with capacity fixed at
+   1,280 tokens. The grid redraws with the new block size.
+   - Two small charts come from 5 preset runs: mean paged waste percent vs.
+     block size, and mean table length per running request vs. block size. They
+     are drawn as two charts, not one with two axes.
+   - Prose on speed stays qualitative: too small a block underuses the GPU's
+     parallelism (kwon2023 §7.2).
+   - The paper's own numbers are quoted with their source: on ShareGPT, sizes
+     16–128 did best; on Alpaca, 16 and 32. vLLM's default is 16 (§7.2).
+   - Claims: `block-size-raises-waste`, `block-size-shortens-tables`.
+7. **Teaser: shared blocks.** A tiny sim run: block size 4, two requests sharing
+   an 8-token prefix, prefix caching on. Both tables point at the same physical
+   blocks, each with reference count 2. Links to chapter 4.
+   - Claim: `shared-refcount`. Sources: kwon2023 §4.4, vllm-apc-doc.
+- **CheckYourself** (predict, then run): "Raise `max_model_len` from 512 to
+  1024. What happens to contiguous's running count? To paged's?" The answer
+  says contiguous drops to 1 and paged does not change at all. The control is
+  then unlocked to try it.
+  - Claim: `max-model-len-hurts-contiguous-only`.
+- **What this leaves out:**
+  - buddy allocation and its gaps (kwon2023 Fig. 3)
+  - the toy capacity and the cap of 8; vLLM's default `max_num_seqs` is 256
+  - the paged kernel's slowdown is not charged to step time (SIM.md §9.4)
+  - copy-on-write, beam search, and parallel sampling (kwon2023 §4.4)
+  - CPU swapping (kwon2023 §4.5); V1 recomputes instead
+  - the null block, lookahead, and async scheduling (SIM.md §9)
+  - one table per request for all layers (kwon2023 §4.1 footnote: no
+    performance difference)
+  - block-size effects on kernel speed are left qualitative
+- **Go deeper:** kwon2023 §3–4 and §7, vllm-pa-doc (kernel history), vllm-src
+  (`block_pool.py`, `kv_cache_manager.py`), yu2022 §4.2.
+
+### Widget spec
+
+**BlockGrid** (`src/chapters/paged-attention/BlockGrid.tsx`). Frames are
+rebuilt from the event log in `frames.ts`.
+
+- **Geometry:** one cell is one block (B slots) for both allocators. The
+  contiguous address space uses the same cells, so the two grids line up.
+  - Desktop has 16 columns of cells about 28 px wide. Mobile has 8 columns,
+    about 40 px.
+  - At B 16 that is 80 cells. B 8 has 160 and B 128 has 10.
+- **Cell encoding:**
+  - request slot color (DESIGN.md `--req-k`), plus glyph, plus an "r3" label
+    when the cell is at least 24 px
+  - fill level as a bar growing from the bottom, filled / B
+  - reserved, unused slots in the gray hatch (DESIGN.md block states)
+  - the gap with a dotted outline and a "gap" label
+  - free blocks as an outline only
+- **Mobile (375 px):** at most 48 cells per grid, with a zoom-out summary bar.
+  - The bar is an 8 px strip of every block, colored and patterned by state,
+    with a bracket marking the visible window.
+  - Prev and next buttons move the window. Cells never shrink below 40 px.
+- **SVG:** compare mode at B 8 has about 960 elements, under DESIGN's
+  2,000-element limit, so no Canvas.
+- **Selection:**
+  - Tapping or clicking a cell selects its request.
+  - From the keyboard, the grid is one tab stop: arrow keys move a cell cursor
+    and Enter selects (roving focus, `role="grid"`).
+  - A request `Select` is the fallback.
+- **BlockTablePanel:**
+  - paged: rows of logical i → physical id, with fill out of B
+  - contiguous: region start, length, and used
+- **PlaybackBar:**
+  - Time t runs from 0 to the end; 1× is 1 sim second per wall second, with
+    speeds of 0.5×, 1×, 2×, and 4×.
+  - Step jumps to the next `StepEnd`.
+  - The rendered frame is a pure function of t and the log. rAF only moves the
+    playhead.
+- **Controls:** each change re-runs both sims (40 requests, a few ms) and keeps
+  t.
+  - block size: a slider over 5 stops
+  - arrival rate: a slider, 0.5–3/s in steps of 0.25
+  - output spread: a slider over lognormal σ, 0–1.0 in steps of 0.1, with the
+    median fixed
+  - `max_model_len`: a select over 384, 512, 640, 768, and 1024
+- **Readouts per grid** (`simulated`):
+  - running, waiting, and KV used %
+  - waste % (contiguous: reserved-unused % + gap %; paged: last-block %)
+  - preemptions, when nonzero
+  - The live region speaks on pause and step only, not during play.
+
+**TokenStrip** (step 4) and **SharedBlocks** (step 7) are small figures. They
+share the frame builder.
+
+### Tests
+
+**`tests/chapters/paged-attention.test.ts`** (vitest, on the exact
+`paged-vs-contiguous` preset):
+
+- **`paged-admits-more`:** peak running, paged > contiguous (strictly).
+- **`paged-waste-bound`:** at every step, for every request holding blocks,
+  blocks × B − computed tokens ≤ B − 1. Checked at every block-size option.
+- **`contiguous-waste-split`:** reserved-unused + gaps equals the total waste,
+  where the total is computed independently from the snapshot regions as
+  capacity − tokens held − usable free space.
+- **`block-size-raises-waste`:** mean paged waste rises strictly over 8, 16, 32,
+  64, and 128.
+- **`contiguous-wastes-most`:** mean contiguous waste over the first 20 s is more
+  than 50% of capacity.
+- **`paged-less-waste`:** paged mean waste is below contiguous's.
+- **`paged-on-demand`:** at every step, every block in a table except the last
+  is full.
+- **`table-scattered`:** at the step-4 figure's step, the selected request's
+  physical blocks are not consecutive.
+- **`visible-in-20s`:** the three tuning targets in "Preset".
+- **`block-size-shortens-tables`:** mean table length falls as B rises.
+- **`max-model-len-hurts-contiguous-only`:** at 1024, contiguous's peak running
+  falls, and the paged run's `hashEvents` is identical to the one at 512.
+- **`shared-refcount`:** the shared blocks have reference count 2 while both
+  requests run.
+- **`frames-match-snapshots`:** replaying the log rebuilds the engine snapshot at
+  every step, so the widget draws what the engine did.
+- **Meta-test:** claim ids match test ids.
+
+**`e2e/paged-attention.spec.ts`** (Playwright):
+- Screenshots at 375 and 1440 px, light and dark, paused at t = 12 s.
+- **BlockGrid:**
+  - Step changes the readouts.
+  - Block size 16 → 64 changes the paged waste %.
+  - `max_model_len` 512 → 1024 changes contiguous's running count.
+- **TokenStrip:** an arrow key moves the highlighted row ("logical 2 → physical
+  37").
+- **SharedBlocks:** Step shows "ref count 2".
+- **At 375 px:** at most 48 cells, a visible summary bar, and Next moves the
+  window.
+- CLS 0, no console errors, axe passes.
+- **Performance** (with and without 4× throttling):
+  - Event Timing on control changes, which re-run both sims.
+  - rAF intervals during compare playback at B 8, the heaviest frame.
+
+**Capture, review, and route:**
+- **Capture:** 8 s of compare mode at 2× from t = 0, as mp4 and GIF.
+- **Fresh-eyes review:** done by a sub-agent.
+- **Route:** `/paged-attention/` with the title "Paged attention" and
+  `og/paged-attention.png`.
+
+**Glossary terms added:**
+- block, block size, block table
+- logical block, physical block
+- contiguous allocation, reservation
+- internal fragmentation, external fragmentation, gap
+- reference count
+- `max_model_len`, page
+
+### DoD checklist (docs/CHAPTER_DOD.md)
+
+- [ ] 1 objective and CheckYourself
+- [ ] 2 sources
+- [ ] 3 provenance
+- [ ] 4 claims tested
+- [ ] 5 writing rules
+- [ ] 6 end sections
+- [ ] 7 keyboard
+- [ ] 8 labels
+- [ ] 9 playback
+- [ ] 10 reduced motion
+- [ ] 11 sizes and themes
+- [ ] 12 no layout shift
+- [ ] 13 no console errors
+- [ ] 14 axe
+- [ ] 15 interactions within 100 ms
+- [ ] 16 60 fps
+- [ ] 17 screenshots
+- [ ] 18 interaction tests
+- [ ] 19 checks pass
+- [ ] 20 fresh-eyes review
+- [ ] 21 capture
+- [ ] 22 route HTML

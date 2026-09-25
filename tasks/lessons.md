@@ -4,6 +4,13 @@ Mistakes, corrections, and surprises. Newest first.
 
 ## 2026-10-01
 
+- **The arXiv HTML drops numbers.** kwon2023's HTML lost "2.2×" and "1.7×–2.7×"
+  from §6.2, leaving "vLLM processes more requests". Rule: read quoted numbers
+  from the PDF text (pypdf), and get figure values from the PDF's text labels.
+- **Design rules constrain presets.** DESIGN.md's "at most 8 live requests" caps
+  every widget preset at `max_num_seqs` 8. Check DESIGN.md before choosing
+  preset sizes.
+
 - **Prompts can carry technical slips too.** Prompt 3 said that without a cache
   each token "recomputes attention over every earlier token." With a cache it
   still attends to every earlier token; what the cache saves is rebuilding their
