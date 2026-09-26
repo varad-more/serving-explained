@@ -4,6 +4,11 @@ Mistakes, corrections, and surprises. Newest first.
 
 ## 2026-10-01
 
+- **Check that a linked repo does what the prompt implies.** Prompt 6 suggested
+  linking kv-transfer-tax's "replica load-balancing work" for prefix-aware
+  routing. Its balancer routes by load only (`proxy/replica_lb.py` L56–75).
+  Rule: read the linked code before writing the sentence that links it.
+
 - **Check the sign before calibrating with a leftover.** SIM.md Q5 planned to get
   a step overhead as measured TPOT minus the roofline. The roofline turned out
   slower than the measurement (38.5 vs. 33 ms), so the leftover was negative.

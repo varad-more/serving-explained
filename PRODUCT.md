@@ -57,15 +57,16 @@ Source ids resolve in docs/SOURCES.md.
 - **Sources:** yu2022, agrawal2023, agrawal2024, kwon2023.
 
 ### 4. Prefix caching
-- **Learning objective:** explain that when requests share a prompt prefix, the
-  engine reuses KV blocks it already computed and skips that part of prefill.
-  Only an exact token match from the first token counts, in whole blocks.
+- **Learning objective:** explain that requests sharing a prefix (a system
+  prompt, chat history, few-shot examples) can reuse KV blocks already computed
+  instead of recomputing them. Only full blocks are matched. The hit rate
+  depends on the workload and on eviction.
 - **Knob to predict:** shared prefix length. A longer shared system prompt means
   fewer prefill tokens per request and a shorter time to first token.
-- **Misconception corrected:** "Prefix caching stores responses, so a repeated
-  prompt returns instantly." It stores computed prompt state, not output.
-  Every output token is still generated.
-- **Sources:** vllm-apc-doc, zheng2024.
+- **Misconception corrected:** "Prefix caching makes every request faster." It
+  saves prefill work only when prefixes repeat and the blocks are still cached.
+  It does nothing for decode speed or for unique prompts.
+- **Sources:** vllm-apc-doc, vllm-src, zheng2024, bench-kvtt (teaser only).
 
 ### Sandbox
 - **Learning objective:** combine all four mechanisms on a workload preset, and

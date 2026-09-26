@@ -36,6 +36,13 @@ values and the look differ, so code never depends on which one wins.
 - **KV block states:** free blocks have an outline in `--ink-2` (at least 3:1)
   and a fill near the surface color. Wasted slots use a gray hatch. Shared
   prefix blocks get a double outline. Evicted blocks get a dashed outline.
+- **Prefix cache states** (chapter 4; pending approval):
+  - **cached:** no references, still keyed. A dotted `--ink-2` fill with its LRU
+    rank (1 = next to evict).
+  - **shared:** reference count ≥ 2. The double outline plus a "×n" badge,
+    filled in `--ink-2`, not one owner's hue.
+  - **selected chain:** the selected request's blocks get a `--highlight`
+    outline and their logical index.
 - **Motion:** transitions are driven by sim events. Under
   `prefers-reduced-motion`, every duration token is 0 ms.
 - **Focus:** a 2px ink ring with a 2px offset in the background color, on every

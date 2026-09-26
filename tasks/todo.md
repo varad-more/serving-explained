@@ -643,8 +643,13 @@ rebuilt from the event log in `frames.ts`.
   - The bar is an 8 px strip of every block, colored and patterned by state,
     with a bracket marking the visible window.
   - Prev and next buttons move the window. Cells never shrink below 40 px.
-- **SVG:** compare mode at B 8 has about 960 elements, under DESIGN's
-  2,000-element limit, so no Canvas.
+- **Canvas** (changed while planning chapter 4). Chapter 2 alone stays under
+  CLAUDE.md's 2,000-element SVG limit, but chapter 4 reuses this grid and
+  reaches about 4,000 elements in compare mode at B 8. One Canvas renderer
+  serves both chapters.
+  - Hit-testing is grid arithmetic.
+  - The canvas has `role="img"` with a text summary. The block table panel and
+    a polite live region carry the same information as text.
 - **Selection:**
   - Tapping or clicking a cell selects its request.
   - From the keyboard, the grid is one tab stop: arrow keys move a cell cursor
@@ -1112,6 +1117,292 @@ SVG and the chart rules in the dataviz references.
 - bubble, TTFT, ITL (TBT), p50, p99, throughput
 - token budget (`max_num_batched_tokens`), `max_num_seqs`
 - chunked prefill, generation stall, head-of-line blocking
+
+### DoD checklist (docs/CHAPTER_DOD.md)
+
+- [ ] 1 objective and CheckYourself
+- [ ] 2 sources
+- [ ] 3 provenance
+- [ ] 4 claims tested
+- [ ] 5 writing rules
+- [ ] 6 end sections
+- [ ] 7 keyboard
+- [ ] 8 labels
+- [ ] 9 playback
+- [ ] 10 reduced motion
+- [ ] 11 sizes and themes
+- [ ] 12 no layout shift
+- [ ] 13 no console errors
+- [ ] 14 axe
+- [ ] 15 interactions within 100 ms
+- [ ] 16 60 fps
+- [ ] 17 screenshots
+- [ ] 18 interaction tests
+- [ ] 19 checks pass
+- [ ] 20 fresh-eyes review
+- [ ] 21 capture
+- [ ] 22 route HTML
+
+## Prompt 6: prefix caching chapter (PLAN, waiting for approval)
+
+- [x] Re-read for this chapter:
+  - vllm-apc-doc: L13–22 (block key parts, "We only cache full blocks"),
+    L146–147 (touch, and evict on pop), L198 (free), L202–206 (LRU eviction)
+  - zheng2024 §3: radix tree, one-token pages, LRU leaf eviction, node
+    reference counts, longest-shared-prefix-first scheduling
+  - bench-kvtt `proxy/replica_lb.py` at `56b5ab5d`
+- [x] PRODUCT.md chapter 4 updated to Prompt 6's objective and misconception.
+- [x] SIM.md draft changes:
+  - presets `shared-system-prompt` and `cache-pressure`
+  - a public `blockKeys(tokens, blockSize)`, so the hash-chain figure and its
+    test use the engine's own keys
+- [x] DESIGN.md draft: the cached, shared, and selected-chain block states.
+- [ ] The chapter, after approval.
+
+### What the sources say
+
+- **Block key** (vllm-apc-doc L13–19). The key is a hash of the parent block's
+  key, the block's tokens, and extra keys (LoRA, multimodal, cache salt). Only
+  full blocks are cached (L22).
+- **A hit** (vllm-apc-doc L146; vllm-src `KVCacheManager`).
+  - The new request "touches" each matched block: reference count +1, and it
+    leaves the free queue if it was unused.
+  - A full prompt hit is capped at length − 1, rounded down to a block (SIM.md
+    §8). So even an identical prompt recomputes at least one token.
+- **Eviction** (vllm-apc-doc L202–206). Unreferenced blocks stay keyed in the
+  free queue. Allocation pops the head, the least recently used block; if that
+  block is cached, popping evicts it. Freed blocks go back in reverse order
+  (L198).
+- **Preempted blocks keep their keys** (vllm-src, SIM.md §8). A preempted
+  request can hit its own old blocks when it is re-admitted.
+- **RadixAttention** (zheng2024 §3).
+  - A radix tree maps token sequences to KV, stored in pages of one token, so
+    matching works token by token.
+  - Eviction removes the least recently used leaf first. A node with a nonzero
+    reference count is never evicted.
+  - Cache and running requests share one memory pool.
+  - A cache-aware scheduler runs requests in longest-shared-prefix-first order.
+  - Any comparison with vLLM is our synthesis (SOURCES.md note 4).
+- **Replicas** (bench-kvtt `proxy/replica_lb.py` L56–75). The balancer picks a
+  replica by fewest outstanding requests or round-robin, and never looks at
+  prompts. README L113–115: it runs N independent servers, so each one keeps
+  its own cache.
+
+### Decisions for the author
+
+1. **The teaser has to describe kv-transfer-tax's balancer accurately.** It is
+   a fair-baseline balancer, routing by load and not by prefix. Proposed
+   sentence: "With several replicas, a hit needs the request to land on the
+   replica that holds its prefix; the balancer in kv-transfer-tax routes by load,
+   not by prefix." It links `proxy/replica_lb.py` at the pinned commit.
+2. **Sharing saves memory too.** With caching off, each request holds its own
+   copy of the prefix, so fewer requests fit and the off run queues more. The
+   chapter says this, and the TTFT gap is not attributed to saved prefill alone.
+   Claim: `sharing-saves-memory`.
+3. **Unique prompts can still hit after a preemption.** A preempted request
+   reuses its own blocks if they are still cached (vllm-src).
+   - The misconception text gets that one exception.
+   - The prompt's exact-equality test runs on a config with no preemption.
+     "No preemption" is asserted first, so the test cannot pass for the wrong
+     reason.
+   - Claim: `self-hit-after-preemption`.
+4. **"Nothing for decode speed" is tested mechanically.** A decode step reads the
+   whole context whether it came from a hit or not, so its cost does not change.
+   Claim: `decode-cost-unchanged`, checked on the cost model.
+   - I do not claim that p50 ITL is unchanged. With caching on, more requests
+     fit, so each decode step reads more KV. The sim may show ITL rising
+     slightly, and the chapter would then say so.
+5. **The chapter 2 grid becomes Canvas,** as noted in the chapter 2 plan.
+6. **The KV capacity control keeps tokens fixed** when the block size changes. It
+   is shown as "256 blocks (4,096 tokens)", so block size and capacity do not
+   move together by accident.
+
+### Presets (SIM.md §7, tentative; tuned until the tests pass)
+
+- **`shared-system-prompt`:**
+  - seed 17; 60 requests, Poisson at 1.5/s
+  - one 600-token prefix, shared by 90% of requests
+  - prompt body uniform 32–256; output lognormal, median 100, σ 0.6, 16–256
+  - toy KV of 4,096 tokens, `max_num_seqs` 8, caching on
+  - With caching on, 8 running requests need about 38 + 8 × 17 = 174 blocks.
+    With caching off they need about 440, so about 4 fit.
+- **`cache-pressure`:**
+  - seed 19; 80 requests, Poisson at 2/s
+  - 12 prefixes of 256 tokens, shared by 90%
+  - prompt body uniform 32–128; output lognormal, median 60
+  - KV of 2,048 tokens. All prefixes together need 192 blocks against a pool of
+    128, so most are evicted before reuse.
+- **Unique-prompt config:** `shared-system-prompt` with share fraction 0. Its
+  largest possible load is 8 × 32 = 256 blocks, so it never preempts, and the
+  test asserts that.
+
+### Scroll steps
+
+1. **The waste.** Figure `RepeatedPrefill`: the first 12 requests of
+   `shared-system-prompt` with caching off.
+   - Each bar splits that request's prefill tokens into the shared prefix and
+     its own body.
+   - A counter shows the prefix recomputed n times, totaling X tokens, via
+     `<Num>` (simulated).
+   - Claim: `repeated-prefill`. Sources: vllm-apc-doc (introduction).
+2. **Block keys.** Figure `HashChain`: the shared prefix as a row of blocks.
+   Each shows its first tokens, its parent's key, and its own key, as 6 hex
+   digits from `blockKeys`.
+   - A "change one token" control is a slider for the position plus a
+     `Toggle`. The changed block's key and every later key are restyled and
+     relabeled.
+   - A note says vLLM hashes with sha256 by default, while the toy engine uses a
+     53-bit hash and checks the tokens on every hit (SIM.md §3).
+   - Claims: `one-token-changes-chain`, `full-blocks-only`.
+   - Sources: vllm-apc-doc L13–22.
+3. **A hit.** The grid with caching on.
+   - An arriving request's lookup is animated block by block, from its
+     `CacheHit` event: match, match, …, miss, then allocate.
+   - Reference-count badges rise on the shared blocks.
+   - Claims: `hit-walks-chain`, `refcount-counts-sharers`,
+     `sharing-saves-memory`.
+   - Sources: vllm-apc-doc L146–147.
+4. **Partial blocks.** Figure `PartialBlocks`: the 600-token prefix drawn at
+   B 8, 16, 32, 64, and 128.
+   - Shared tokens are 600, 592, 576, 576, and 512. Each request recomputes 0,
+     8, 24, 24, and 88.
+   - Prose also notes the full-hit cap: an identical prompt recomputes its last
+     block.
+   - Claims: `partial-not-reused`, `shared-tokens-floor`, `full-hit-cap`.
+   - Sources: vllm-apc-doc L22, vllm-src.
+5. **Eviction.** `cache-pressure` on the grid.
+   - Cached blocks show their LRU rank, and `Evict` events mark the evicted
+     block.
+   - The hit-rate meter falls. The capacity control shows hits recovering as
+     blocks are added.
+   - Claims: `pressure-lowers-hit-rate`, `evictions-happen`, `lru-evicts-head`,
+     `more-blocks-more-hits`.
+   - Sources: vllm-apc-doc L198–206.
+6. **Another design: RadixAttention.** One paragraph, no figure and no benchmark
+   numbers.
+   - The tree matches token by token, so no partial-block loss. Leaves are
+     evicted LRU, with reference counts, in one shared memory pool. The
+     scheduler favors requests with the longest cached prefix, while ours is
+     FCFS.
+   - It is marked as our comparison. Sources: zheng2024 §3, vllm-apc-doc.
+7. **Teaser: replicas.** The sentence from decision 1. Sources: bench-kvtt.
+- **Misconception callout** (in step 5).
+  - Caching cuts prefill only for repeated prefixes that are still cached.
+  - Unique prompts get no hits, except a preempted request reusing its own
+    blocks.
+  - A decode step costs the same.
+  - Claims: `unique-no-hits`, `self-hit-after-preemption`,
+    `decode-cost-unchanged`.
+- **CheckYourself** (predict, then run): "Set the shared prefix to 100 tokens at
+  block size 64. What fraction of each prefix is reused?"
+  - Answer: 64 of 100 tokens, one full block. The partial block is recomputed.
+  - It checks the full-block rule.
+  - Claim: `checkyourself-100-at-64`.
+- **What this leaves out:**
+  - extra keys (LoRA, multimodal, salt) and sha256 (SIM.md §9.8)
+  - no cache-aware scheduling, FCFS only
+  - single replica
+  - KV offload to CPU or disk
+  - toy capacity and the cap of 8
+  - hit rate counted in tokens on first admission only, as in vLLM
+  - the prefix cache's own bookkeeping cost
+- **Go deeper:** vllm-apc-doc, vllm-src (`block_pool.py`, `kv_cache_utils.py`),
+  zheng2024 §3, kwon2023 §4.4 (manual shared prefixes and copy-on-write), and
+  bench-kvtt.
+
+### Widget spec
+
+**SharedBlocksGrid** is the chapter 2 `BlockGrid` plus three layers:
+
+- **Block states:** shared blocks get the double outline and a "×n" badge.
+  Cached blocks get the dotted fill and their LRU rank. All are from the
+  DESIGN.md draft.
+- **Selecting a request** outlines its chain in `--highlight`, numbered by
+  logical index. The table panel adds a key column, 6 hex digits.
+- **Readouts** (`simulated`):
+  - a hit-rate meter: tokens hit ÷ tokens queried, first admissions only
+  - prefill tokens computed, and tokens saved
+  - mean TTFT
+  - evictions, and preemptions when nonzero
+- **Controls:** each change regenerates the workload from the same seed and
+  re-runs.
+  - prefix caching: `Toggle`
+  - shared prefix length: slider stops 0, 100, 250, 600, 1000, 1500
+  - distinct prefixes: slider, 1–16
+  - share fraction: slider, 0–1 in steps of 0.1
+  - KV capacity: slider in blocks, with tokens shown
+  - block size: 8, 16, 32, 64, 128
+- **Compare mode:** caching on vs. off, same seed, lockstep by sim time, one
+  `PlaybackBar`. Each side has its own readouts, and TTFT appears on both.
+- **Size:** at most 256 cells on desktop and 48 on mobile; beyond that, the
+  chapter 2 summary bar and window. Canvas renderer.
+
+**Small figures:** `RepeatedPrefill` (SVG bars), `HashChain` (SVG, about 40
+blocks), and `PartialBlocks` (SVG, 5 rows).
+
+### Tests
+
+**`tests/chapters/prefix-caching.test.ts`** (on the exact presets):
+
+- **`caching-lowers-ttft-and-prefill`:** the prompt's test, on
+  `shared-system-prompt`. Mean TTFT and total `PrefillChunk` tokens are both
+  lower with caching on.
+- **`partial-not-reused`:** the prompt's test. At every `CacheHit`, every hit
+  block has `filled == B`, and hit tokens are a multiple of B. Checked on all
+  presets and every block size.
+- **`one-token-changes-chain`:** the prompt's test, on `blockKeys`. Changing
+  token i leaves keys before block ⌊i/B⌋ unchanged and changes that block's key
+  and every later one. Checked for every i in a 64-token prompt at B 4, 8,
+  and 16.
+- **`pressure-lowers-hit-rate`, `evictions-happen`:** the prompt's tests.
+- **`unique-no-hits`:** the prompt's test.
+  - Precondition: 0 preemptions in both runs.
+  - Then the hit rate is 0, and per-request TTFTs are exactly equal (`===`)
+    with caching on and off.
+- **`repeated-prefill`:** with caching off, prefix tokens computed = (sharing
+  requests) × 600.
+- **`full-blocks-only`:** every `CacheInsert` is for a full block.
+- **`hit-walks-chain`:** each sharing request after the first hits
+  ⌊600/B⌋·B tokens while the prefix stays cached.
+- **`refcount-counts-sharers`:** a prefix block's reference count equals the
+  running requests that use it.
+- **`sharing-saves-memory`:** peak blocks per running request are lower with
+  caching on.
+- **`shared-tokens-floor`, `full-hit-cap`, `checkyourself-100-at-64`.**
+- **`lru-evicts-head`:** every `Evict` pops the block at the head of the free
+  queue (rank 1).
+- **`more-blocks-more-hits`:** on `cache-pressure`, the hit rate does not fall
+  as capacity grows over 5 settings, and the largest beats the smallest.
+- **`self-hit-after-preemption`:** a small config with unique prompts forces a
+  preemption. The re-admission's `CacheHit` has tokens > 0.
+- **`decode-cost-unchanged`:** cost(step) for the same q and c is identical
+  whether c came from a hit or from computed tokens.
+- **Meta-test:** claim ids match test ids.
+
+**`e2e/prefix-caching.spec.ts`** (Playwright):
+- Screenshots at 375 and 1440 px, light and dark, paused at t = 10 s.
+- **SharedBlocksGrid:**
+  - The caching toggle changes the hit rate from 0% to above 0.
+  - The capacity slider changes the evictions.
+  - Selecting a request shows its chain in the table.
+- **HashChain:** the change toggle changes the key text of the changed block and
+  every later block, and leaves earlier ones alone.
+- **PartialBlocks:** the block-size highlight moves.
+- CLS 0, no console errors, axe passes.
+- **Performance:** Event Timing on control changes, which regenerate and re-run
+  two sims; rAF during compare playback at B 8.
+
+**Capture, review, and route:**
+- **Capture:** 8 s of caching off vs. on at 2×.
+- **Fresh-eyes review:** done by a sub-agent.
+- **Route:** `/prefix-caching/`, with the title "Prefix caching".
+
+**Glossary terms added:**
+- prefix, system prompt, prefix caching
+- block key (hash), parent key
+- cache hit, hit rate
+- reference count, eviction, LRU
+- radix tree, replica
 
 ### DoD checklist (docs/CHAPTER_DOD.md)
 

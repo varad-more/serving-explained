@@ -70,6 +70,8 @@ export function metrics(events: readonly SimEvent[], config: SimConfig): SimMetr
 export function generateWorkload(spec: WorkloadSpec, seed: number): RequestSpec[]
 export const PRESETS: Record<PresetName, Preset>
 export function hashEvents(events: readonly SimEvent[]): string
+/** Chained keys of the full blocks of `tokens`, as the prefix cache computes them (§3). */
+export function blockKeys(tokens: readonly number[], blockSize: number): number[]
 export class ConfigError extends Error {}
 export class InvariantError extends Error { invariant: number; step: number }
 ```
@@ -576,6 +578,8 @@ They are not measurements of real traffic, and the UI says so.
 | `agent-loop` | 150 | Poisson 4/s | uniform 32–256 | lognormal median 60, σ 0.6, 8–256 | 4 × 2048, p 0.9 (tool and context prefix) | prefix caching, eviction |
 | `paged-vs-contiguous` | 40 | Poisson 1.5/s | uniform 32–128 | lognormal median 100, σ 0.6, 16–256 | none | contiguous vs. paged allocation (chapter 2) |
 | `batching-basics` | 48 | Poisson 1.2/s | uniform 32–256 | lognormal median 80, σ 1.0, 8–512 | none | static vs. continuous batching (chapter 3) |
+| `shared-system-prompt` | 60 | Poisson 1.5/s | uniform 32–256 | lognormal median 100, σ 0.6, 16–256 | 1 × 600, p 0.9 | prefix hits, shared blocks (chapter 4) |
+| `cache-pressure` | 80 | Poisson 2/s | uniform 32–128 | lognormal median 60, σ 0.6, 16–200 | 12 × 256, p 0.9 | eviction, falling hit rate (chapter 4) |
 | `long-prompt-stall` | 80 | Poisson 1.5/s | mixture: 85% uniform 64–256, 15% uniform 6000–7500 | lognormal median 50, σ 0.5, 16–200 | none | prefill stalls, token budget, chunked prefill (chapter 3) |
 
 **`paged-vs-contiguous` overrides** (tentative; tuned once the engine runs):
@@ -615,6 +619,25 @@ They are not measurements of real traffic, and the UI says so.
 - Long prompts are frequent enough (15%) that their stalls are more than 1% of
   all inter-token gaps, both with and without chunking. Otherwise p99 ITL could
   not see them.
+
+**`shared-system-prompt` overrides** (tentative):
+- `seed` 17. KV is 4,096 tokens (256 blocks at B 16, a toy GPU).
+  `maxModelLen` 1536. `maxNumSeqs` 8.
+- Prefix caching and chunked prefill are on, with budget 2048.
+- The prefix is 600 tokens, deliberately not a multiple of 16. At B 16 it fills
+  37 full blocks plus 8 tokens in a block shared with the body, so chapter 4
+  can show the partial block at every block size.
+- With caching off, each request holds its own copy of the prefix. Fewer fit,
+  so the off run also queues more. Chapter 4 says so; sharing saves memory as
+  well as prefill.
+
+**`cache-pressure` overrides** (tentative):
+- `seed` 19. KV is 2,048 tokens (128 blocks at B 16). `maxModelLen` 1024.
+  `maxNumSeqs` 8. Caching is on.
+- 12 prefixes of 256 tokens need 192 blocks to stay cached, more than the
+  whole pool. Running requests take most of it, so cached prefixes are evicted
+  before they are reused.
+- Tuning targets: evictions > 0, and a hit rate below `shared-system-prompt`'s.
 
 **CLI.** `pnpm sim --preset chatbot --scheduler continuous --allocator paged`.
 - Other flags: `--prefix-cache on|off` and `--chunked-prefill on|off` (both
