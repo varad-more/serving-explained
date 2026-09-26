@@ -4,6 +4,14 @@ Mistakes, corrections, and surprises. Newest first.
 
 ## 2026-10-01
 
+- **Check the sign before calibrating with a leftover.** SIM.md Q5 planned to get
+  a step overhead as measured TPOT minus the roofline. The roofline turned out
+  slower than the measurement (38.5 vs. 33 ms), so the leftover was negative.
+  Rule: compute the leftover before planning around it.
+- **A benchmark's run log can carry what its result files do not.** bench-ieb's
+  JSONs omit GPU and engine version, but `logs/phase2_resume_*.log` records both
+  for the concurrency-64 runs. Look for logs before calling a number untraceable.
+
 - **The arXiv HTML drops numbers.** kwon2023's HTML lost "2.2×" and "1.7×–2.7×"
   from §6.2, leaving "vLLM processes more requests". Rule: read quoted numbers
   from the PDF text (pypdf), and get figure values from the PDF's text labels.
