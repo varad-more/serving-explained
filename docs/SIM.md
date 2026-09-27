@@ -72,7 +72,8 @@ export const PRESETS: Record<PresetName, Preset>
 export function hashEvents(events: readonly SimEvent[]): string
 /** Chained keys of the full blocks of `tokens`, as the prefix cache computes them (§3). */
 export function blockKeys(tokens: readonly number[], blockSize: number): number[]
-export class ConfigError extends Error {}
+export class ConfigError extends Error { code: ConfigErrorCode }
+export const ENGINE_VERSION: number   // bumped whenever the same config can produce a different log
 export class InvariantError extends Error { invariant: number; step: number }
 ```
 
@@ -145,13 +146,18 @@ The model and GPU arrive as plain numbers, so `src/sim` never imports
 JSON. Both allocators get the same capacity, `numBlocks × blockSize` slots, so
 switching allocators compares like with like.
 
-`createSim` validates the config and throws `ConfigError` with a reason when:
-- `prefixCaching` is on with `contiguous-max`
-- a request has `prompt.length + outputLen > maxModelLen`
+`createSim` validates the config. It throws `ConfigError` with a `code` (in
+parentheses below) and a reason when:
+- `prefixCaching` is on with `contiguous-max` (`caching-needs-paged`)
+- a request has `prompt.length + outputLen > maxModelLen` (`request-too-long`)
 - `maxModelLen > numBlocks × blockSize`, so a request could never fit
+  (`kv-smaller-than-max-model-len`)
 - `chunkedPrefill` is off and `maxNumBatchedTokens < maxModelLen`, so a long
-  prompt could never be scheduled. vLLM enforces the same rule (§8).
-- ids are not unique, or arrivals are not finite and ≥ 0
+  prompt could never be scheduled (`budget-below-max-model-len`). vLLM
+  enforces the same rule (§8).
+- ids are not unique, or arrivals are not finite and ≥ 0 (`bad-requests`)
+
+The sandbox maps each code to a plain-language message (§12).
 
 ### 2.2 Events
 
@@ -879,3 +885,85 @@ does not gate.
    `cfd54ca8` (`BlockPool.free_blocks`) sends unhashed blocks to the front, for
    LIFO reuse, and hashed blocks to the tail. I follow the code, since it is
    what vLLM does today, and I note the doc's version in SOURCES.md. OK?
+
+## 12. Sandbox: limits and share links
+
+Added for Prompt 7. The sandbox clamps every input to these ranges before it
+builds a `SimConfig`. A test parses this table and checks it against the code's
+limits, so the two cannot drift.
+
+### 12.1 Limits
+
+| control | URL key | range | default |
+|---|---|---|---|
+| seed | `s` | integer 0 – 4,294,967,295 | preset's seed |
+| requests | `n` | 1 – 5,000 | preset |
+| arrival | `r` | 0.05 – 50 per s, or `burst` | preset |
+| prompt body length | `pl` | fixed, uniform, lognormal, or mixture (≤ 4 parts); lengths 1 – `ml` | preset |
+| output length | `ol` | same kinds; lengths 1 – `ml` | preset |
+| shared prefix | `sp` | groups 0 – 64, length 0 – `ml` − 1, fraction 0 – 1 | preset |
+| model | `m` | the 10 slugs in models.json | `llama-3.1-8b` |
+| GPU | `g` | the 5 ids in gpus.json | `a10g-24` |
+| KV dtype | `kd` | `bf16`, `fp8` | `bf16` |
+| GPU memory fraction | `gf` | 0.50 – 0.99 | 0.92 (vllm-src `gpu_memory_utilization`) |
+| KV capacity | `cap` | `gpu`, or 16 – 262,144 blocks | `gpu`; chapter presets set their toy pools |
+| allocator | `al` | `paged`, `contiguous-max` | `paged` |
+| block size | `bs` | 8, 16, 32, 64, 128 | 16 |
+| prefix caching | `pc` | 0, 1 | 1 |
+| scheduler | `sc` | `static`, `continuous` | `continuous` |
+| max_num_seqs | `ns` | 1 – 1,024 | 256 |
+| max_num_batched_tokens | `bt` | 16 – 131,072 | 2048 |
+| chunked prefill | `cp` | 0, 1 | 1 |
+| max_model_len | `ml` | 64 – the model's max context (≤ 131,072) | 4096 |
+
+**Rules across fields:**
+- Prefix caching is forced off with `contiguous-max`, with a notice.
+- With chunked prefill off, `bt` is raised to `ml`, as vLLM does, and the UI
+  says so.
+- The workload generator clips lengths to `ml`.
+- A run stops with a plain-language error after 5,000,000 steps.
+
+**Capacity with `cap=gpu`:**
+
+`numBlocks = ⌊(usableVram × gf − weightBytes) / (bs × kvBytesPerToken(kd))⌋`
+
+- `usableVram`, `weightBytes`, and `kvBytesPerToken` come from llmsize, through
+  `src/data` (`computed`).
+- Like chapter 1, this leaves out activations, CUDA graphs, and runtime
+  overhead, so it overstates vLLM's real pool. The UI says so and links
+  llmsize.
+
+**"Cannot fit even one request"** comes in two cases, both stated with
+`computed` numbers and a link to llmsize:
+- **The weights exceed the budget.** For example: "Llama-3.1-70B's weights
+  (131.4 GiB) need more than this GPU's 20.7 GiB budget (22.5 GiB × 0.92)."
+- **`kv-smaller-than-max-model-len`.** For example: "After the weights, the KV
+  pool holds 6,400 tokens, but one request may need 8,192 (`max_model_len`).
+  Lower `max_model_len`, switch KV to fp8, or pick a bigger GPU."
+
+### 12.2 Share links, format v1
+
+```
+/sandbox/?v=1&a.p=chatbot&a.sc=static&b.p=chatbot&h=1a2b3c4d&hb=5e6f7a8b
+```
+
+- `v` is the format version.
+- `a.` and `b.` prefix each config's keys. `b.*` is present only in A/B mode.
+- Each config lists only the keys that differ from its preset (`p`), which
+  keeps links short.
+- **Length distributions** are compact strings:
+  - `f128` is fixed
+  - `u32-256` is uniform
+  - `l200,0.8,16,2048` is lognormal (median, σ, min, max)
+  - `x0.85:u64-256|0.15:u6000-7500` is a mixture
+- `sp` is `k,L,p`, for example `1,600,0.9`.
+- **Verification:** `h` and `hb` are the first 8 hex digits of each run's
+  `hashEvents`, added when the link is copied after the run finishes. When a
+  link is opened, the sandbox re-runs the configs and compares.
+  - On a match it shows "reproduced exactly".
+  - On a mismatch it names both hashes and says the engine or data changed
+    since the link was made.
+- **Parsing:** unknown keys, bad values, and unknown `v` fall back to the
+  defaults. A visible notice names each one, and parsing never throws.
+- **Privacy:** the URL holds only the parameters above. It holds no theme, no
+  identifiers, and nothing personal.
