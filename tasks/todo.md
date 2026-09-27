@@ -1259,8 +1259,9 @@ SVG and the chart rules in the dataviz references.
    - An arriving request's lookup is animated block by block, from its
      `CacheHit` event: match, match, …, miss, then allocate.
    - Reference-count badges rise on the shared blocks.
+   - The share-fraction control shows that the hit rate follows the workload.
    - Claims: `hit-walks-chain`, `refcount-counts-sharers`,
-     `sharing-saves-memory`.
+     `sharing-saves-memory`, `share-fraction-raises-hits`.
    - Sources: vllm-apc-doc L146–147.
 4. **Partial blocks.** Figure `PartialBlocks`: the 600-token prefix drawn at
    B 8, 16, 32, 64, and 128.
@@ -1275,8 +1276,11 @@ SVG and the chart rules in the dataviz references.
      block.
    - The hit-rate meter falls. The capacity control shows hits recovering as
      blocks are added.
+   - Prose: a cached block is evicted only when no never-keyed free block is
+     left. Unkeyed blocks sit at the front of the free queue and keyed ones at
+     the back (vllm-src `BlockPool.free_blocks`).
    - Claims: `pressure-lowers-hit-rate`, `evictions-happen`, `lru-evicts-head`,
-     `more-blocks-more-hits`.
+     `evict-only-when-needed`, `more-blocks-more-hits`.
    - Sources: vllm-apc-doc L198–206.
 6. **Another design: RadixAttention.** One paragraph, no figure and no benchmark
    numbers.
@@ -1322,7 +1326,9 @@ SVG and the chart rules in the dataviz references.
 - **Readouts** (`simulated`):
   - a hit-rate meter: tokens hit ÷ tokens queried, first admissions only
   - prefill tokens computed, and tokens saved
-  - mean TTFT
+  - mean TTFT with caching on and with caching off, side by side. Both runs
+    are always computed (a few ms), so this readout appears even outside
+    compare mode.
   - evictions, and preemptions when nonzero
 - **Controls:** each change regenerates the workload from the same seed and
   re-runs.
@@ -1371,6 +1377,11 @@ blocks), and `PartialBlocks` (SVG, 5 rows).
 - **`shared-tokens-floor`, `full-hit-cap`, `checkyourself-100-at-64`.**
 - **`lru-evicts-head`:** every `Evict` pops the block at the head of the free
   queue (rank 1).
+- **`share-fraction-raises-hits`:** on `shared-system-prompt`, the hit rate rises
+  strictly over share fractions 0.25, 0.5, 0.75, and 1.0.
+- **`evict-only-when-needed`:** at every `Evict`, the free queue holds no
+  unkeyed block. Unkeyed blocks always sit at the front, so popping one would
+  come first.
 - **`more-blocks-more-hits`:** on `cache-pressure`, the hit rate does not fall
   as capacity grows over 5 settings, and the largest beats the smallest.
 - **`self-hit-after-preemption`:** a small config with unique prompts forces a
