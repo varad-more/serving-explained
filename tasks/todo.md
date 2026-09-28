@@ -1439,3 +1439,188 @@ blocks), and `PartialBlocks` (SVG, 5 rows).
 - [ ] 20 fresh-eyes review
 - [ ] 21 capture
 - [ ] 22 route HTML
+
+## Prompt 7: sandbox (PLAN, waiting for approval)
+
+- [x] SIM.md §12 (draft): input limits, capacity derived from GPU memory, the
+      share-link format v1, and `ConfigError` codes plus `ENGINE_VERSION` in
+      §2.
+- [ ] The sandbox, after approval.
+
+### Depends on
+
+- the engine (Prompt 2)
+- the chapter widgets: `MemoryBudget` (chapter 1), `BlockGrid` (chapters 2 and 4),
+  `RequestTimeline` (chapter 3)
+- the Prompt 1 shell
+- The 3 example share links need the live site (Prompt 1 step 9).
+
+### Decisions for the author
+
+1. **KV capacity: from GPU memory, or the preset's toy pool.**
+   - The generic presets (chatbot, rag, batch-summarize, agent-loop) derive
+     capacity from GPU memory (SIM.md §12.1). That answers Q6 for them. The CLI
+     does the same, so CLI and sandbox give the same hash for the same preset.
+   - Chapter presets keep their documented toy pools, so the sandbox reproduces
+     the chapters exactly.
+   - A "KV capacity: from GPU memory / fixed blocks" control switches between
+     the two.
+2. **More than 8 running requests** (the sandbox allows `max_num_seqs` up to
+   1,024; vLLM's default is 256). DESIGN.md's 8-hue limit still holds:
+   - **Block grid:** above 8 running requests it colors by state (used, shared,
+     cached, free, waste), not by request. The selected request is outlined.
+   - **Timeline:** it draws slots 1–8, labeled "showing 8 of N slots". The
+     charts and summary cover every request.
+3. **The worker does the heavy work.** It runs the sim, `metrics`, histograms,
+   timeline segments, and grid frames, using the same pure functions the
+   chapters run on the main thread. The main thread receives compact derived
+   batches (typed arrays, transferred, not copied) and frames on request.
+   - It never holds the raw log, which reaches about 1.3 million events at
+     5,000 requests.
+   - Cancel is `worker.terminate()`, which always works, and the next run gets a
+     fresh worker.
+4. **Links carry a short log hash** (`h`, `hb`), so opening a link proves the run
+   reproduced, or says it did not (SIM.md §12.2).
+5. **No zod in the browser.** It would be a runtime dependency. One parameter
+   table (key, type, range, default) drives parsing, clamping, encoding, the
+   notices, and the SIM.md table test.
+6. **Model slugs** (`llama-3.1-8b`) are added to models.json by gen-data, so
+   links stay short and stable.
+7. **The sandbox's claims are its preset descriptions** (PRODUCT.md). Each
+   preset's one-line description is a `<Claim>` with a test. They are written
+   after the engine runs, from what it actually shows.
+8. **Memory risk at 5,000 requests.** If the worker's event log is too heavy, the
+   fix would be an engine option to skip per-token events. That changes the
+   frozen sim API, so I would stop and ask.
+
+### Architecture
+
+- **`src/viz/sandbox/sim.worker.ts`:** a Vite module worker
+  (`new Worker(new URL(…, import.meta.url), { type: 'module' })`).
+- **main → worker:** `run {config}` and `frame {t}`.
+- **worker → main:**
+  - `progress {simTime, finished, total}`, about every 50 ms
+  - `batch` (segments and per-step series, as typed arrays)
+  - `frame {t, owner, fill, state}`, transferred
+  - `done {metrics, histograms, hash, engineVersion}`
+  - `error {code, message}`
+- **Scrubbing:** the worker keeps keyframes within a 32 MB budget and replays
+  events from the nearest one.
+- **Runs over 300 ms** show a progress bar and a Cancel button. That covers the
+  prompt's "longer than 2 seconds" with room to spare. The views fill in as
+  batches arrive.
+- **Inputs** are debounced by 150 ms. A new run terminates the old worker.
+- **The 16 ms rule** is checked in Playwright with rAF intervals (max ≤ 34 ms,
+  meaning no missed frame) and Event Timing input delay (max ≤ 16 ms). The
+  Long Tasks API only reports tasks of 50 ms or more, so it cannot check 16 ms.
+
+### Controls
+
+Controls sit in native `<details>` groups: a left column on desktop, stacked
+above the views on mobile. Each control has a visible label, its default
+("default 16"), a reset button ("Reset block size to 16"), and, where a chapter
+covers it, a "What is this?" link to the chapter's anchor.
+
+- **Hardware and model:**
+  - GPU, model, and KV dtype → chapter 1
+  - GPU memory fraction
+  - KV capacity mode
+- **Memory:**
+  - allocator and block size → chapter 2
+  - prefix caching → chapter 4
+- **Scheduler:** static or continuous, `max_num_seqs`, `max_num_batched_tokens`,
+  and chunked prefill → chapter 3.
+- **Workload:**
+  - preset: the 4 generic presets plus `paged-vs-contiguous`, `batching-basics`,
+    `long-prompt-stall`, `shared-system-prompt`, and `cache-pressure`
+  - arrival rate → chapter 3
+  - prompt and output length distributions: kind plus parameters. A mixture is
+    edited as up to 4 rows.
+  - shared prefix (k, L, p) → chapter 4
+  - number of requests
+  - seed, with a re-roll button. Re-roll uses `crypto.getRandomValues` in the
+    UI, never in `src/sim`.
+
+### Views
+
+- **MemoryBudget** (chapter 1) shows the static split: weights, KV pool, and
+  held-back memory. It adds "KV in use now" from the sim at the playhead.
+- **BlockGrid** (Canvas, window plus summary bar) and **RequestTimeline**, as in
+  the chapters, with the aggregate modes from decision 2.
+- **Summary panel** (`simulated`):
+  - throughput
+  - TTFT and ITL, p50 and p99
+  - KV utilization, mean and peak
+  - waste, mean %
+  - hit rate and preemptions
+- **A/B mode:**
+  - A and B config tabs, with "Copy A to B"
+  - two workers, one `PlaybackBar` in lockstep by sim time
+  - Views sit side by side on desktop and stacked on mobile.
+  - **Diff table:** metric, A, B, Δ, and Δ%, with ▲ or ▼ in ink only, since
+    whether a change is better depends on the metric. |Δ%| < 1% reads "same";
+    identical runs read "identical (same log hash)".
+- **Share:**
+  - "Copy link" uses `navigator.clipboard`, falling back to a selected text
+    field.
+  - "Download JSON" (Blob plus `a[download]`) holds:
+    - config and metrics
+    - hashes and `ENGINE_VERSION`
+    - the data `_provenance`
+    - `"provenance": "simulated"`
+
+### Tests
+
+**vitest:**
+- **`sandbox/url.test.ts`:**
+  - Every preset round-trips: encode, decode, re-run, and get a log hash equal
+    to the direct run's.
+  - fast-check over random valid configs (up to 50 requests) gives an equal
+    config and an equal hash.
+  - Fuzz: random strings, huge values, unicode, and injection-looking text
+    never throw. The result is always valid and within range, and the notices
+    name what was dropped.
+  - The SIM.md §12.1 table matches the code's limits.
+- **`sandbox/guardrails.test.ts`:**
+  - Llama-3.1-70B on a10g-24 gives the weights message, with computed numbers
+    and the llmsize link.
+  - A pool too small for `ml` gives the KV message.
+- **`sandbox/worker.test.ts`:** calls the worker's handler directly. It checks
+  the message order, frame-at-t equal to the engine's snapshot, and `done`
+  carrying the right hash.
+- **`tests/chapters/sandbox.test.ts`:** one test per preset description claim,
+  plus the claims meta-test.
+
+**Playwright, `e2e/sandbox.spec.ts`:**
+- **Screenshots:** 375 and 1440 px, light and dark, default and A/B.
+- **Share link:** "Copy link", then open it in a new page. It shows "reproduced
+  exactly" with the same hash.
+- **Download:** the JSON parses and holds the config, metrics, and hash.
+- **Invalid URLs:** 25 fuzzed query strings. Each renders with defaults and a
+  notice, with no console errors.
+- **Worker:** start a 5,000-request run and cancel within 1 s. The UI is idle
+  within 100 ms, and no progress messages arrive after that.
+- **5,000-request run:** a second run completes. Arrow keys hit a slider every
+  100 ms while it runs. Pass: max input delay ≤ 16 ms and max rAF interval
+  ≤ 34 ms. Also reported with 4× throttling.
+- **A/B:** changing B's scheduler updates the diff table.
+- CLS 0, no console errors, and axe passes.
+- **Every chapter test still passes** (CI runs all of them).
+
+### DoD items that apply (docs/CHAPTER_DOD.md)
+
+- **Applies:**
+  - 2 sources (control help text)
+  - 3 provenance
+  - 4 claims (the preset descriptions)
+  - 5 writing rules
+  - 7–20
+  - 22 route HTML
+- **Does not apply:**
+  - 1 (no chapter objective; PRODUCT.md gives the sandbox's objective instead)
+  - 6 (no end sections)
+  - 21 (no launch capture)
+- **Report:** three share links, made once the site is live:
+  1. chatbot, static vs. continuous
+  2. `long-prompt-stall`, chunked prefill off vs. on
+  3. Qwen3-32B on h100-sxm-80 with KV capacity from GPU memory, bf16 vs. fp8 KV
