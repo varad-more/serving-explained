@@ -1481,6 +1481,16 @@ blocks), and `PartialBlocks` (SVG, 5 rows).
      fresh worker.
 4. **Links carry a short log hash** (`h`, `hb`), so opening a link proves the run
    reproduced, or says it did not (SIM.md §12.2).
+   - **Links are self-contained.** They encode every key that differs from the
+     frozen `V1_DEFAULTS`, not from a preset. Presets will be retuned, and a
+     preset-relative link would silently change meaning.
+9. **Event batches.** The prompt says the UI receives snapshots and event
+   batches.
+   - Derived data (segments, series, and frames) covers the views.
+   - Raw events arrive on request, for a window: `events {t0, t1}` returns them
+     as typed-array columns, capped at 50,000.
+   - They feed an "Events at the playhead" list, like the CLI's event dump.
+   - The full log stays in the worker.
 5. **No zod in the browser.** It would be a runtime dependency. One parameter
    table (key, type, range, default) drives parsing, clamping, encoding, the
    notices, and the SIM.md table test.
@@ -1498,8 +1508,11 @@ blocks), and `PartialBlocks` (SVG, 5 rows).
 - **`src/viz/sandbox/sim.worker.ts`:** a Vite module worker
   (`new Worker(new URL(…, import.meta.url), { type: 'module' })`).
 - **main → worker:** `run {config}` and `frame {t}`.
+- **main → worker** also sends `events {t0, t1}`, the raw-event window from
+  decision 9.
 - **worker → main:**
   - `progress {simTime, finished, total}`, about every 50 ms
+  - `events {columns}` (typed arrays, transferred)
   - `batch` (segments and per-step series, as typed arrays)
   - `frame {t, owner, fill, state}`, transferred
   - `done {metrics, histograms, hash, engineVersion}`
@@ -1513,6 +1526,11 @@ blocks), and `PartialBlocks` (SVG, 5 rows).
 - **The 16 ms rule** is checked in Playwright with rAF intervals (max ≤ 34 ms,
   meaning no missed frame) and Event Timing input delay (max ≤ 16 ms). The
   Long Tasks API only reports tasks of 50 ms or more, so it cannot check 16 ms.
+  - **Scope:** from the first render until the page closes, during runs, control
+    changes, scrubbing, and A/B updates. Loading the page's JS chunk is
+    excluded, and the report gives that time separately.
+  - The views apply batches at most once per animation frame. A batch over a
+    4 ms budget is split.
 
 ### Controls
 
@@ -1604,6 +1622,10 @@ covers it, a "What is this?" link to the chapter's anchor.
   100 ms while it runs. Pass: max input delay ≤ 16 ms and max rAF interval
   ≤ 34 ms. Also reported with 4× throttling.
 - **A/B:** changing B's scheduler updates the diff table.
+- **Events list:** scrubbing changes the events listed at the playhead.
+- **Self-contained links:** a link made before a preset's definition changes
+  (simulated in the test by patching the preset) still decodes to the same
+  config and hash.
 - CLS 0, no console errors, and axe passes.
 - **Every chapter test still passes** (CI runs all of them).
 
