@@ -889,19 +889,21 @@ does not gate.
 ## 12. Sandbox: limits and share links
 
 Added for Prompt 7. The sandbox clamps every input to these ranges before it
-builds a `SimConfig`. A test parses this table and checks it against the code's
+builds a `SimConfig`. The defaults column is `V1_DEFAULTS`. Its workload values
+match `chatbot`, but they are frozen for format v1 and do not follow later
+preset tuning. A test parses this table and checks it against the code's
 limits, so the two cannot drift.
 
 ### 12.1 Limits
 
 | control | URL key | range | default |
 |---|---|---|---|
-| seed | `s` | integer 0 – 4,294,967,295 | preset's seed |
-| requests | `n` | 1 – 5,000 | preset |
-| arrival | `r` | 0.05 – 50 per s, or `burst` | preset |
-| prompt body length | `pl` | fixed, uniform, lognormal, or mixture (≤ 4 parts); lengths 1 – `ml` | preset |
-| output length | `ol` | same kinds; lengths 1 – `ml` | preset |
-| shared prefix | `sp` | groups 0 – 64, length 0 – `ml` − 1, fraction 0 – 1 | preset |
+| seed | `s` | integer 0 – 4,294,967,295 | 1 |
+| requests | `n` | 1 – 5,000 | 200 |
+| arrival | `r` | 0.05 – 50 per s, or `burst` | 2 |
+| prompt body length | `pl` | fixed, uniform, lognormal, or mixture (≤ 4 parts); lengths 1 – `ml` | `l200,0.8,16,2048` |
+| output length | `ol` | same kinds; lengths 1 – `ml` | `l250,0.7,16,1024` |
+| shared prefix | `sp` | groups 0 – 64, length 0 – `ml` − 1, fraction 0 – 1 | `1,128,1` |
 | model | `m` | the 10 slugs in models.json | `llama-3.1-8b` |
 | GPU | `g` | the 5 ids in gpus.json | `a10g-24` |
 | KV dtype | `kd` | `bf16`, `fp8` | `bf16` |
@@ -949,8 +951,13 @@ limits, so the two cannot drift.
 
 - `v` is the format version.
 - `a.` and `b.` prefix each config's keys. `b.*` is present only in A/B mode.
-- Each config lists only the keys that differ from its preset (`p`), which
-  keeps links short.
+- **Self-contained.** Each config lists every key that differs from
+  `V1_DEFAULTS`, the defaults column of §12.1. Those are frozen in code for
+  format v1; changing one means `v=2`. `p` is only a label for the UI.
+  - Presets will be retuned, and a link that stored only differences from a
+    preset would silently change meaning.
+  - A chapter preset differs from the defaults in about 8–10 keys, so a link
+    stays around 150 characters.
 - **Length distributions** are compact strings:
   - `f128` is fixed
   - `u32-256` is uniform
