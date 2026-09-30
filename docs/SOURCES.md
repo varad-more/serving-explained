@@ -70,3 +70,9 @@ arXiv, and GitHub.
     values (20.4, 26.8, 38.2, and 96.3% token states) come from the PDF's figure
     labels. Cite only the token-state shares, not the per-category split, which
     was not checked against the rendered figure.
+12. **llmsize's A10G compute figures vs. the datasheet it cites.** llmsize
+    `data/gpus.json` (51b9746) gives `a10g-24` bf16 at 125 TFLOPS, fp32 31.5, and
+    tf32 62.5. Its own `source_url`, AWS's A10G datasheet (Feb 2022), says BF16
+    70 TF dense (140 with sparsity), FP32 35 TF, and TF32 35 TF dense. The 125
+    figure matches the A10, not the A10G. Bandwidth (600 GB/s) agrees. This is
+    pending the author's decision (AUDIT.md M9).
