@@ -1646,3 +1646,217 @@ covers it, a "What is this?" link to the chapter's anchor.
   1. chatbot, static vs. continuous
   2. `long-prompt-stall`, chunked prefill off vs. on
   3. Qwen3-32B on h100-sxm-80 with KV capacity from GPU memory, bf16 vs. fp8 KV
+
+## Prompt 8: launch audit
+
+- [x] Audit 1, before the build: `docs/AUDIT.md`. Most of the audit needs a
+      running site, so those items are marked "not run" with the reason (B1).
+      What it checks now:
+      - planned claims against their sources (a sub-agent pass, §1)
+      - 48 external links
+      - every design-token contrast pair, and color-blind separation
+      - the measured callout's numbers, recomputed from the raw files
+      - the author claims
+- [x] §1 filled from the sub-agent's report: 0 blockers, 6 majors, 17 minors.
+      M9 (llmsize's A10G TFLOPS) needs the author. STOP for approval.
+- [ ] After approval: fix blockers, then majors. After the build, run the whole
+      audit again and record before and after numbers.
+
+## Prompt 9: launch kit (PLAN, waiting for approval)
+
+Drafts only. I post nothing, publish nothing, message no one, and change no
+GitHub settings. CLAUDE.md says the same.
+
+### Depends on
+
+- **The site, built and live** (AUDIT.md B1). Media, previews, and the live link
+  all come from the final build.
+- **The URL decision.** The rename to `serving-explained` sets every link in
+  every draft.
+- **Your license choice** (decision 1), before README, LICENSE, and CONTRIBUTING.
+- **Current community rules:** a sub-agent is checking them now (decision 5).
+
+### Decisions for the author
+
+1. **License.** Apache-2.0 for code, which matches llmsize: its `LICENSE` and
+   both `package.json` files say Apache-2.0.
+   - For the chapter text, figures, and media, I suggest CC BY 4.0. Others could
+     then reuse the explanations with credit, which code licenses do not cover
+     well.
+   - The alternative is Apache-2.0 for everything: one license, simpler.
+   - Your choice.
+2. **Hero GIF.** I will record both candidates, the paged-vs-contiguous grid and
+   the static-vs-continuous timeline, at the same length and size.
+   - A fresh-eyes sub-agent sees each as a frame strip with no caption and
+     says what it shows.
+   - The one it reads correctly and faster is my recommendation. You see both.
+3. **Add CHANGELOG.md.** The checklist credits people who report errors "in the
+   changelog", and there is none yet. I propose Keep a Changelog format, where a
+   "Fixed" entry reads "… (reported by @handle)".
+4. **Previews from the real site.** Prompt 1 planned template-only preview images.
+   This prompt wants them generated from the real site, so `gen-og` changes:
+   - A route `/og-cards/` exists only when `VITE_OG=1`, like the kitchen sink.
+     It renders each route's card: title, one line, and the route's main widget
+     at a fixed playhead, in the DESIGN.md style.
+   - Playwright screenshots each card at 1200×630 into `public/og/<slug>.png`,
+     and the repo preview at 1280×640 into `docs/launch/social-preview.png`.
+     GitHub's limit for the preview is 1 MB.
+5. **Community rules decide the Reddit drafts.** If r/MachineLearning sends
+   project posts to a self-promotion thread, its draft targets that thread. Each
+   draft records the rules it follows, with the URL and the date checked.
+6. **What you apply yourself:** making the repo public, the rename, the settings
+   in `repo-settings.md`, and every post.
+
+### Media
+
+All captures are recorded from the production build (`vite preview`) by
+`scripts/capture.ts`, which DoD item 21 already plans.
+
+- **Viewport:** 600 CSS px wide at `deviceScaleFactor` 2, light theme. The
+  widget lays out as it would at 600 px, so its text stays at real size, and a
+  GIF scaled to 600 px wide stays readable.
+- **Loop:** each script ends in its start state. Where it cannot (sim playback
+  fills the grid), the last 0.4 s cross-fades to the first frame (ffmpeg
+  `xfade`).
+- **Encodes:**
+  - MP4: H.264, CRF 28, `yuv420p`, `+faststart`, no audio
+  - GIF: 12 fps, 600 px wide, a palette per clip (`palettegen stats_mode=diff`,
+    `paletteuse dither=bayer`)
+- **Size limits:** the script fails if a chapter GIF is 3 MB or more, the hero
+  is 5 MB or more, or a clip is outside 6–10 s.
+- **Clips:**
+  - `kv-cache`: the memory budget. Context 1K → 32K, then fp8, then
+    concurrency past the limit, then back.
+  - `paged-attention`: contiguous vs. paged at 2×.
+  - `continuous-batching`: static vs. continuous at 2×.
+  - `prefix-caching`: caching off vs. on at 2×.
+  - `hero`: decision 2.
+- **Previews:** 7 route cards at 1200×630 (/, the four chapters, sandbox,
+  glossary) and the 1280×640 repo preview (decision 4).
+
+### Files to write after approval
+
+- **`README.md`,** in the prompt's order, at most about 120 lines. The only
+  badges are CI and license.
+  - **Pitch:** "Interactive explainers of how LLM servers manage GPU memory and
+    schedule requests, run on a small simulated engine in your browser."
+  - The hero GIF, then the live link.
+  - **Chapters,** one line each, with what the reader will be able to explain:
+    - KV cache: why it, not the weights, caps concurrency
+    - Paged attention: how blocks cut waste to one partial block per request
+    - Continuous batching: why scheduling trades TTFT, ITL, and throughput
+    - Prefix caching: when shared prefixes hit, and why eviction lowers hits
+    - Sandbox: one line
+  - **"Why you can trust it":**
+    - every claim cites docs/SOURCES.md
+    - every number is badged simulated, computed, or measured
+    - tests in `tests/chapters/` check the prose against the engine
+    - docs/SIM.md lists every simplification
+  - **How it works,** in 3 sentences, and how to run it: `pnpm install`,
+    `pnpm dev`, `pnpm test`, `pnpm sim --preset chatbot`.
+  - **"Found a mistake?"** links the technical-error issue form.
+  - **Credits:**
+    - papers: kwon2023, yu2022, agrawal2023, agrawal2024, zheng2024,
+      ainslie2023
+    - vLLM docs and source
+    - llmsize
+    - inference-engine-benchmark-system and kv-transfer-tax
+  - **License.**
+- **`LICENSE`,** plus `LICENSE-CONTENT` if CC BY is chosen.
+- **`CONTRIBUTING.md`:**
+  - how to propose a chapter (the chapter-idea form, then a plan in the
+    CHAPTER_DOD format)
+  - the truth rules, quoted from CLAUDE.md
+  - how to run the tests: `pnpm test`, `typecheck`, `lint`, `build`, `e2e`
+  - how to add a source to SOURCES.md
+- **`CHANGELOG.md`** (decision 3).
+- **`.github/ISSUE_TEMPLATE/`,** as GitHub issue forms:
+  - `technical-error.yml`: required fields for the claim (quoted), the location
+    (page and section), and a source (a link plus section). Optional: what you
+    think is correct.
+  - `bug-report.yml`: page, browser and OS, steps, expected vs. actual, and a
+    share link if it happened in the sandbox.
+  - `chapter-idea.yml`: the mechanism, who it helps, the primary sources, and
+    which engine change it needs.
+  - `config.yml`: blank issues off.
+- **`docs/launch/repo-settings.md`:**
+  - description: under 350 characters, from the pitch
+  - topics: llm, llm-inference, llm-serving, vllm, kv-cache, paged-attention,
+    continuous-batching, prefix-caching, explainer, interactive, simulation,
+    education, typescript, react
+  - website: the live URL
+  - social preview: `docs/launch/social-preview.png`
+  - what to click, step by step, for you to apply
+- **`docs/launch/show-hn.md`:**
+  - three titles, each under 80 characters including "Show HN: "
+  - **First comment:**
+    - who made it: name, the vllm-metal PRs #549 and #550, the two benchmark
+      repos, all stated without adjectives per PRODUCT.md
+    - why it exists
+    - how the sim works: a deterministic TS engine modeled on vLLM V1's
+      scheduler and block manager, a roofline step cost using llmsize's
+      constants, and widgets driven by its event log
+    - what it leaves out: the top items from SIM.md §9, with a link to the full
+      list
+- **`docs/launch/reddit-localllama.md` and `reddit-machinelearning.md`:**
+  - each is written for its community's tone
+  - **r/LocalLLaMA:** practical, and leading with "why my 8B model fits only N
+    requests on a 24 GB card"
+  - **r/MachineLearning:** method-first: what is modeled, what is simplified,
+    and the sources
+  - each lists the current rules it follows, with the URL and date
+- **`docs/launch/x-thread.md`:**
+  - 6–8 posts, each at most 280 characters, unless the rules check says
+    otherwise
+  - the hook and the link in post 1 or the last post
+  - one post per chapter, each with its GIF
+  - one post on "why you can trust it"
+- **`docs/launch/linkedin.md`:** one short post, with the first two lines working
+  before "see more".
+- **`docs/launch/checklist.md`:**
+  - **Before anything:**
+    - CI is green and the audit is green
+    - every route returns 200 live
+    - every route's preview is checked (Playwright plus the platforms' own
+      preview inspectors, which you run)
+    - you check it on a real phone
+    - the repo is public, with its settings applied
+  - **Order:**
+    1. Show HN, at a time you can answer comments for about 3 hours
+    2. the X thread and LinkedIn the same day
+    3. r/LocalLLaMA the next day
+    4. r/MachineLearning per its rules
+  - **Feedback:**
+    - factual-error reports go first: reproduce, fix, add a test, and add a
+      changelog entry crediting the reporter
+    - reply with the commit link
+    - put taste debates into issues
+    - never edit a post to hide a correction
+
+### Tests
+
+**`tests/launch.test.ts`** (vitest):
+- **Length:** README.md is at most 130 lines (the prompt says "about 120").
+- **Writing rules** (CLAUDE.md) on README, CONTRIBUTING, and `docs/launch/*.md`:
+  sentences under 25 words, outside code blocks and titles, and no banned hype
+  words.
+- **Post limits:**
+  - Show HN titles: each under 80 characters, prefix included
+  - X posts: each at most the platform limit
+  - LinkedIn: the post within its limit
+- **Images and media:**
+  - chapter GIFs under 3 MB and the hero under 5 MB, all 600 px wide
+  - MP4s between 6 and 10 s, checked with `ffprobe` (skipped with a message if
+    ffmpeg is missing)
+  - `social-preview.png` is exactly 1280×640 and under 1 MB
+  - every `public/og/*.png` is 1200×630
+- **Links:** every link in README.md and `docs/launch/` resolves, through the
+  link-check script from AUDIT.md m2.
+
+### Report after writing
+
+- every file written
+- the final media sizes and durations
+- the two hero candidates, so you can pick
+- what I need from you: the license, the URL decision, and anything the rules
+  check turns up
