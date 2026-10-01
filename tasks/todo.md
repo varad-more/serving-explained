@@ -1701,11 +1701,49 @@ GitHub settings. CLAUDE.md says the same.
    - Playwright screenshots each card at 1200×630 into `public/og/<slug>.png`,
      and the repo preview at 1280×640 into `docs/launch/social-preview.png`.
      GitHub's limit for the preview is 1 MB.
-5. **Community rules decide the Reddit drafts.** If r/MachineLearning sends
-   project posts to a self-promotion thread, its draft targets that thread. Each
-   draft records the rules it follows, with the URL and the date checked.
+5. **Community rules, checked 2026-10-01 by a sub-agent.** Reddit blocked live
+   requests, so the Reddit rules come from Wayback copies of old.reddit, dated
+   2026-07 and 2026-08. Each file records its rules with URLs and dates.
+   - **Show HN:** something people can try, so the link goes to the live site,
+     not the README. No signup.
+     - The title begins "Show HN:". No uppercase, exclamation points, or praise,
+       no site name, and no gratuitous numbers.
+     - The 80-character limit is reported by users (item 29094764), not written
+       in the guidelines. The test still enforces it.
+     - Do not ask for upvotes or comments.
+   - **r/LocalLLaMA:** posts must be about LLMs.
+     - Self-promotion stays under 10% of your activity, and affiliation must be
+       disclosed.
+     - Flairs: Discussion, Tutorial | Guide, Resources, and others. Whether a
+       flair is required could not be verified.
+   - **r/MachineLearning:**
+     - Project posts carry "[P]" by convention; a written requirement could not
+       be verified.
+     - No promotion of paid products, and a strict spam policy.
+     - A monthly "[D] Self-Promotion Thread" exists. The mods may redirect a
+       project post there.
+     - So: a main-post draft, plus a short version for the thread.
+   - **X:** 280 characters, and every URL counts as 23 (docs.x.com). That a link
+     reduces reach is reported, not measured.
+   - **LinkedIn:** 3,000 characters (LinkedIn help a528176). The "see more"
+     cutoff is not documented; guides say about 140 characters on mobile. The
+     hook goes in the first 140.
 6. **What you apply yourself:** making the repo public, the rename, the settings
    in `repo-settings.md`, and every post.
+7. **Hacker News and r/LocalLLaMA ban LLM-written text, so I write notes there,
+   not drafts.** Rules checked 2026-10-01:
+   - HN guidelines say "Please don't put generated text in HN posts."
+   - dang's Show HN tips (item 22336638, edited 2026-03-28) say "Write your text
+     by hand. Don't use an LLM to generate any of it (not even a tiny bit,
+     including to edit or spruce it up)."
+   - r/LocalLLaMA rule 3 says "Completely/primarily LLM generated copy, code is
+     not allowed."
+   - So `show-hn.md` and `reddit-localllama.md` become fact sheets: the rules,
+     the title constraints, the facts with links, and a suggested structure. You
+     write the words. I check your text against the facts and the rules if you
+     want.
+   - r/MachineLearning, X, and LinkedIn state no such rule, so those stay full
+     drafts. Your call if you want the same approach everywhere.
 
 ### Media
 
@@ -1842,7 +1880,7 @@ All captures are recorded from the production build (`vite preview`) by
   words.
 - **Post limits:**
   - Show HN titles: each under 80 characters, prefix included
-  - X posts: each at most the platform limit
+  - X posts: each at most 280, counting every URL as 23
   - LinkedIn: the post within its limit
 - **Images and media:**
   - chapter GIFs under 3 MB and the hero under 5 MB, all 600 px wide
