@@ -4,6 +4,15 @@ Mistakes, corrections, and surprises. Newest first.
 
 ## 2026-10-01
 
+- **Check data against its own cited source.** llmsize's A10G bf16 figure (125
+  TFLOPS) is the A10's. The AWS datasheet it links says 70 dense. Rule: for
+  every hardware constant that sets on-screen numbers, open the `source_url`
+  and compare, even in the author's own repos.
+- **Audit what exists, and say what could not run.** Prompt 8 asked for a launch
+  audit before any code existed. The useful pass was the claims, links,
+  tokens, and data. Every runtime item is marked "not run" with the reason, and
+  none is estimated.
+
 - **Check that a linked repo does what the prompt implies.** Prompt 6 suggested
   linking kv-transfer-tax's "replica load-balancing work" for prefix-aware
   routing. Its balancer routes by load only (`proxy/replica_lb.py` L56–75).
