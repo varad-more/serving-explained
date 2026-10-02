@@ -4,6 +4,11 @@ Mistakes, corrections, and surprises. Newest first.
 
 ## 2026-10-01
 
+- **Some communities ban LLM-written posts.** HN ("Write your text by hand…
+  not even a tiny bit") and r/LocalLLaMA (rule 3) forbid the drafts a launch
+  prompt asks for. Rule: check each venue's rules before drafting. Where text
+  must be hand-written, give the author facts and constraints, not prose.
+
 - **Check data against its own cited source.** llmsize's A10G bf16 figure (125
   TFLOPS) is the A10's. The AWS datasheet it links says 70 dense. Rule: for
   every hardware constant that sets on-screen numbers, open the `source_url`
