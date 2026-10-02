@@ -1,5 +1,66 @@
 # Tasks
 
+## Decisions session (2026-10-02)
+
+The author decided every open item. This session records the decisions and
+fixes the docs. Nothing is built.
+
+- [x] 1. Record each decision: DESIGN.md, the SIM.md status line and §11, and
+      every "Decisions for the author" list below.
+- [x] 2. Apply audit fixes M1–M8 and m1–m19 to the docs. Replace the missing
+      commit in AUDIT.md, and mark the visibility and rename items resolved.
+- [x] 3. Add 768 px, WebKit, Firefox, and 44 px touch targets to
+      CHAPTER_DOD.md.
+- [x] 4. Consistency pass: no doc calls a decided item pending, and no two docs
+      disagree.
+- [x] 5. Commit, push to `main`, and tag `v0.0-decisions`. GitHub still had the
+      old name, so the author approved `gh repo rename` in this session.
+
+### Review
+
+- **Where each decision lives:**
+  - DESIGN.md (B only)
+  - SIM.md status line and §11
+  - every "Decisions for the author" list below
+  - AUDIT.md B2 and its resolution log
+  - SOURCES.md notes 9 and 12
+  - the backlog at the end of this file
+- **How it was checked:**
+  - The palette validator was re-run on B light and dark; every check
+    passes. WCAG contrast was recomputed for every changed token.
+  - Chapter 3's numbers were recomputed at 70 TFLOPS.
+  - New line references were read at the pinned commits:
+    - vllm-apc-doc L3, L146, and Note 2
+    - `torch_utils.py` L39–41
+    - `arg_utils.py` defaults, which also showed a 160 GB tier, now in SIM.md
+      §8
+- **Fresh-eyes review:** a sub-agent read all the docs and found 13 issues.
+  - Fixed: capture size, the sandbox's more-than-8 rule, the tab size, PresetName,
+    §9 references, SOURCES gaps, and wording. Static streaming became SIM.md
+    §9.20.
+  - Left for each chapter's DoD item 6 check: a few "What this leaves out"
+    lines that point to another chapter or describe a figure choice.
+  - Left as is: the CLI's `SIMULATED` header, which is terminal output, not a
+    page label.
+- **Not resolved here:**
+  - `ffmpeg` was not on PATH on 2026-10-02.
+  - Build 1 must push the llmsize fix to `varad-more/llm-calculator`. That is
+    outside the granted access, so I ask first.
+  - SOURCES.md note 6 was closed by the plans, not by an author decision.
+
+## Build order (approved 2026-10-02)
+
+The AUDIT.md B1 fix order, with SIM.md Q7:
+
+1. **Build 1:** Prompt 1 steps 1–4. The llmsize fix (AUDIT.md M9) comes
+   before gen-data runs.
+2. **Build 2:** the sim (Prompt 2).
+3. **Build 3:** Prompt 1 steps 5–9.
+4. **Build 4:** chapters 1–4.
+5. **Build 5:** the sandbox.
+6. **Build 6:** the audit, run again.
+7. **Build 7:** the launch kit.
+
 ## Prompt 0: rules and plans
 
 - [x] CLAUDE.md: the author's rules, with grammar fixes only.
@@ -8,32 +69,38 @@
       both benchmark repos exist; llmsize = varad-more/llm-calculator).
 - [x] DESIGN.md: directions A (Bench Notes) and B (Signal Box). Request palettes
       checked with a palette validator in light and dark: neighbors pass, all
-      pairs cannot (see DESIGN.md). **Waiting on the author's pick.**
+      pairs cannot (see DESIGN.md). **The author picked B on 2026-10-02; A is
+      deleted.**
 - [x] docs/SOURCES.md: 11 sources verified, code pinned to commits, 8 notes on
       traps and disagreements.
 - [x] tasks/todo.md, tasks/lessons.md.
 
-## Prompt 1: site shell (PLAN, waiting for approval)
+## Prompt 1: site shell (PLAN, approved 2026-10-02)
 
 Goal: a live, empty-but-real site with the shell every chapter will use.
 
-### Decisions the author must make first
+### Decisions for the author (all decided 2026-10-02)
 
 1. **Design direction:** A or B. This blocks step 6 and the OG images.
-2. **Repo visibility:** `varad-more/Serving-Explainer` is private. Pages from a
+   - **Decided: B (Signal Box),** with the author's changes (DESIGN.md).
+2. **Repo visibility:** `varad-more/Serving-Explainer` was private. Pages from a
    private repo needs a paid GitHub plan, and the site is public either way.
    Make the repo public?
+   - **Decided: public.** Done on 2026-10-02.
 3. **URL:** the user site `varad-more.github.io` has the custom domain
-   `varadmore.me`, so this repo publishes at `https://varadmore.me/Serving-Explainer/`.
-   The prompt wants `/serving-explained/`. That needs the repo renamed to
-   `serving-explained`, which I recommend. Either way it is one env var.
+   `varadmore.me`, so the repo publishes at `https://varadmore.me/<repo name>/`.
+   The prompt wants `/serving-explained/`, which needs the repo renamed.
+   - **Decided: renamed to `serving-explained`.** `SITE_URL` is
+     `https://varadmore.me/serving-explained/`. The git remote is
+     `https://github.com/varad-more/serving-explained.git`.
 4. **Permission** for steps that touch things outside this repo:
    - run `corepack enable` (pnpm is not installed; Node 24.21 ships corepack)
    - clone llm-calculator to `../llm-calculator`
    - push to `main` on GitHub
    - enable Pages with `build_type=workflow` through `gh api`
+   - **Decided: all four granted,** plus ffmpeg for the launch captures.
 
-### Defaults I chose (say so to change any)
+### Defaults I chose (accepted by the author, 2026-10-02)
 
 - **gen-data imports llmsize's TypeScript source directly** through Node 24's
   type stripping. It never needs to build `packages/core`. Tested against
@@ -89,6 +156,8 @@ passing, then one commit.
     - `gen:data`, `gen:sources`, `gen:og`
     - `sim`
   - `engines.node >= 24`, because the scripts run as TypeScript.
+  - `LICENSE` (Apache-2.0, for code) and `LICENSE-CONTENT` (CC BY 4.0, for text
+    and media), since the repo is already public (Prompt 9 decision 1).
 - [ ] **2. Routes and router.**
   - `src/routes.ts` holds metadata only (slug, title, description, OG image),
     so the Node postbuild script can import it.
@@ -110,10 +179,18 @@ passing, then one commit.
   - It also writes `dist/404.html` (`noindex`) and adds `favicon.svg`, since a
     missing favicon logs a console error.
   - `scripts/gen-og.ts` renders a 1200×630 template per route with Playwright
-    into `public/og/`, committed.
+    into `public/og/`, committed. The template is temporary: Prompt 9 decision
+    4 replaces it with cards rendered from the real site.
   - Tests: postbuild output has one file per route, unique titles, and absolute
     OG URLs.
 - [ ] **4. Generated data from llmsize.**
+  - **Before gen-data runs, fix llmsize (AUDIT.md M9, approved).** In
+    `../llm-calculator`, set `a10g-24` to the dense figures in its own
+    `source_url` datasheet: bf16 70, fp32 35, and tf32 35 TFLOPS. Check every
+    other GPU's compute figures against its `source_url` the same way. Commit
+    there, then re-pin llmsize-math in SOURCES.md to that commit. Its links
+    must resolve, so the commit has to be pushed to `varad-more/llm-calculator`;
+    I ask before pushing there.
   - First read `docs/MATH.md` and `packages/core/src/{kv,weights,model,data}.ts`
     in the checkout. Done for planning, at llmsize 51b9746.
   - `scripts/gen-data.ts` reads `LLMSIZE_DIR` (default `../llm-calculator`) and
@@ -152,7 +229,7 @@ passing, then one commit.
   `src/data/sources.json`.
   - Test: the JSON matches a fresh parse, so it is never stale.
   - Test: every `SourceLink` id used in `src/**/*.mdx` exists.
-- [ ] **6. Design system** (the chosen direction).
+- [ ] **6. Design system** (Direction B, Signal Box).
   - `src/viz/tokens.css`: light by default, dark under `prefers-color-scheme`
     unless `[data-theme=light]`, and `[data-theme=dark]` forced. A tiny inline
     head script sets the theme before paint. The toggle cycles system, light,
@@ -170,6 +247,13 @@ passing, then one commit.
     - GlossaryTerm: opens on hover, focus, and tap. Escape closes it, and it
       stays open while hovered.
     - SourceLink, CheckYourself (`<details>`).
+    - RequestMark: a slot's color, pattern, and glyph, as SVG, plus a Canvas
+      painter that follows the same spec for the chapter grids.
+  - Tests:
+    - every request-mark renderer draws its slot's pattern and glyph at every
+      size it supports (DESIGN.md; AUDIT.md M3)
+    - no CSS rule sets a `--highlight` background without `--on-highlight`
+      text (AUDIT.md m1)
   - `/kitchen-sink` is registered only when `import.meta.env.DEV` or
     `VITE_KITCHEN_SINK=1`. A check confirms the production `dist` has no
     kitchen-sink chunk.
@@ -177,12 +261,15 @@ passing, then one commit.
   - Smoke test against `vite preview` of the production build: every route
     returns 200 from its own `index.html`, has no console errors, and has a
     unique title and `og:image`, both in the raw HTML and after hydration.
-  - Kitchen sink: keyboard checks per control and axe with no violations.
-  - Screenshots at 375 and 1440, in light and dark: 4 baselines.
+  - Kitchen sink: keyboard checks per control, 44 px targets at 375 and 768,
+    and axe with no violations.
+  - Projects for Chromium, WebKit, and Firefox. Screenshots in Chromium at 375,
+    768, and 1440, in light and dark: 6 baselines (CHAPTER_DOD items 7, 11,
+    and 17).
 - [ ] **8. CI and deploy.**
   - `.github/workflows/ci.yml` on every push: pnpm install `--frozen-lockfile`,
     typecheck, lint, test, build with `SITE_URL`, Playwright smoke and kitchen
-    sink, then upload the Pages artifact.
+    sink in all three browsers, then upload the Pages artifact.
   - On `main`, the deploy job runs with `configure-pages`, `upload-pages-artifact`,
     and `deploy-pages`, at their current majors (checked today: v6, v5, v5). It
     uses `concurrency: pages` and least-privilege `permissions`.
@@ -202,50 +289,54 @@ _Empty until the steps run._
       vllm-apc-doc myself. A subagent read the V1 scheduler and KV manager code
       at `cfd54ca8`. I re-read `BlockPool.free_blocks`, `prepend_n`, and
       `allocate_slots` myself.
-- [ ] STOP 1: docs/SIM.md is written and waiting for approval, with 8 open
-      questions in §11.
-- [ ] Implementation, after approval. It depends on Prompt 1 steps 1 (vitest)
-      and 4 (gen-data, for the roofline cross-check).
+- [x] STOP 1: docs/SIM.md was approved by the author on 2026-10-02. The §2 API
+      is frozen, and Q1–Q8 are decided in §11.
+- [ ] Implementation (Build 2). It depends on Prompt 1 steps 1 (vitest) and 4
+      (gen-data, for the roofline cross-check).
 - [ ] STOP 2 report.
 
-## Prompt 3: KV cache chapter (PLAN, waiting for approval)
+## Prompt 3: KV cache chapter (PLAN, approved 2026-10-02)
 
 - [x] Part A: docs/CHAPTER_DOD.md written (22 items).
 - [x] Sources: added ainslie2023 (GQA), verified on the ACL Anthology. Note 10
       records an llmsize vs. vLLM gap on memory utilization.
 - [x] PRODUCT.md chapter 1 objective and misconception updated to Prompt 3's
       wording, so DoD item 1 checks the current objective.
-- [ ] Part B: the chapter, after approval.
+- [ ] Part B: the chapter (Build 4).
 
 ### Depends on
 
 - **The Prompt 1 shell:** components, routes, postbuild, OG images, gen-data,
-  Playwright, and CI. All of its decisions are still open.
+  Playwright, and CI. Its decisions were made on 2026-10-02.
 - **The sim (Prompt 2):** the step 1–2 figure animates one request's event log,
-  per CLAUDE.md's visual rules. SIM.md approval is still open.
-- **Proposed order:** Prompt 1 steps 1–4, then the sim, then Prompt 1 steps 5–9,
-  then this chapter.
+  per CLAUDE.md's visual rules. SIM.md was approved on 2026-10-02.
+- **Order:** the build order at the top of this file (Build 4).
 
-### Decisions for the author
+### Decisions for the author (all decided 2026-10-02)
 
 1. **ffmpeg** (`brew install ffmpeg`). Playwright records only webm, and the DoD
    needs mp4 and gif. It is a tool on this machine, not a repo dependency.
    `pnpm capture` stops with a clear message if it is missing.
+   - **Decided: approved.**
 2. **Badge rule** (DoD item 3). One badge may cover a readout or figure. Numbers
    quoted from a source get a SourceLink instead. Definitional constants get
    neither. This is how I read CLAUDE.md's "every number".
+   - **Decided: accepted.**
 3. **Step 1 wording.** With a cache, the new token still attends to every earlier
    token. What the cache saves is rerunning the model over earlier tokens to
    rebuild their keys and values (kwon2023 §2.2). So step 1 says "reruns the
    model over every earlier token," not "recomputes attention."
+   - **Decided: accepted.**
 4. **What "free memory" means.** Free memory is llmsize's usable VRAM minus the
    weights, as the prompt says. vLLM also keeps 8% back by default
    (`gpu_memory_utilization` 0.92, vllm-src) and reserves activation and
    CUDA-graph memory. So the widget's max concurrency is an upper bound. The
    callout says so and links llmsize's full planner.
+   - **Decided: accepted.**
 5. **Model picker.** It has all 10 dense models. Three of them (Llama-3.1-70B,
    Llama-3.1-405B, Qwen2.5-72B) never fit on one listed GPU in bf16. For those,
    the widget says "weights alone do not fit." The alternative is to drop them.
+   - **Decided: keep all three,** with "weights alone do not fit".
 
 ### Numbers behind this plan (llmsize 51b9746, computed today)
 
@@ -286,7 +377,9 @@ Each step has one idea, one figure state, its claim ids, and its sources.
      - Each step lights every column it computes.
      - Counter: positions computed this step, and in total (6, 7, … 11; 51 in
        total).
-   - Claim: `no-cache-work`. Sources: kwon2023 §2.2.
+   - Claim: `no-cache-work`. Sources: kwon2023 §2.2 describes the cache. The
+     no-cache count is our reasoning from it, and the text says so (AUDIT.md
+     m3).
 2. **With a cache, each step adds one column.** The figure switches to cache
    mode. Each step computes one new column in every layer and stores it. Earlier
    columns are read, not rebuilt. In total, 11 positions are computed instead of
@@ -297,8 +390,9 @@ Each step has one idea, one figure state, its claim ids, and its sources.
 3. **How big one column is.** A MathML formula (native, no dependency):
    bytes per token = 2 × L × n_kv × d_h × s. Every symbol is bound live to the
    model picked inline, with the product and a `computed` badge.
-   - A note says engines store whole blocks of 16 tokens, so a request is
-     charged in steps of 16 (llmsize-math, KV token count).
+   - A note says vLLM stores KV in blocks of 16 tokens by default, so a request
+     is charged in steps of 16 (kwon2023 §7.2; llmsize-math, KV token count).
+     Not every engine does; SGLang uses one-token pages (AUDIT.md m4).
    - Claim: `formula-matches-data`. Sources: llmsize-math (KV per token),
      kwon2023 §3.
 4. **GQA: fewer KV heads, smaller cache.** The data has a contrast, so this step
@@ -326,7 +420,8 @@ Each step has one idea, one figure state, its claim ids, and its sources.
      llmsize-math.
 6. **Takeaway.** Max concurrency ≈ free memory ÷ KV bytes per request.
    - Doubling context halves it. fp8 KV doubles it.
-   - Memory, not compute, is what caps the batch (kwon2023 §3).
+   - Memory, not compute, is what usually caps the batch (kwon2023 §3; AUDIT.md
+     m5).
    - Teaser: real requests are shorter than the max. How the engine reserves
      memory for them decides how close it gets to this number. That is the next
      chapter.
@@ -340,10 +435,11 @@ Each step has one idea, one figure state, its claim ids, and its sources.
   - the `max_num_seqs` cap of 256 in `vllm serve` on GPUs under 70 GB (vllm-src)
   - every request held at full context (chapter 2)
   - prefix sharing (chapter 4)
-  - one GPU, no tensor parallelism
+  - one GPU, no tensor parallelism (SIM.md §9.1)
   - dense full-attention models only, so no MLA, sliding window, or hybrid models
     (llmsize-math)
-  - fp8 for the KV cache only, with the weights still bf16
+  - fp8 for the KV cache only, with the weights still bf16 (llmsize-math, KV
+    dtype)
   - the no-cache count is token positions, not FLOPs or time
 - **Go deeper:** kwon2023 §2–3, ainslie2023, llmsize-math, and the llmsize app
   for full planning.
@@ -412,7 +508,7 @@ and the MemoryBudget defaults. Both the chapter and its tests import them.
 GlossaryTerm ids, and SourceLink ids.
 
 **`e2e/kv-cache.spec.ts`** (Playwright):
-- Screenshots at 375 and 1440 px, light and dark.
+- Screenshots at 375, 768, and 1440 px, light and dark.
 - MemoryBudget: arrow-key concurrency from 4 to 8 shows "Does not fit". Changing
   context changes the readout. fp8 doubles it.
 - TokenGrid: Step changes the counter.
@@ -422,9 +518,10 @@ GlossaryTerm ids, and SourceLink ids.
   playback, with and without 4× CPU throttling.
 
 **Capture** (`scripts/capture.ts kv-cache`):
-- Playwright `recordVideo` at 1280×720 runs an 8 s script: context from 1K to
-  32K, then fp8, then concurrency past the limit.
-- ffmpeg writes an H.264 mp4 and a 12 fps GIF at 720 px with a generated
+- Playwright `recordVideo` runs an 8 s script with the launch-kit media settings
+  (Prompt 9, "Media": 600 CSS px wide at 2×): context from 1K to 32K, then fp8,
+  then concurrency past the limit.
+- ffmpeg writes an H.264 mp4 and a 12 fps GIF, 600 px wide, with a generated
   palette. The script asserts the GIF is under 3 MB.
 
 **Review and route:** a fresh-eyes review by a sub-agent (DoD item 20). The
@@ -449,11 +546,11 @@ Each item is ticked with how it was verified.
 - [ ] 4 claims tested
 - [ ] 5 writing rules
 - [ ] 6 end sections
-- [ ] 7 keyboard
+- [ ] 7 keyboard and touch
 - [ ] 8 labels
 - [ ] 9 playback
 - [ ] 10 reduced motion
-- [ ] 11 sizes and themes
+- [ ] 11 sizes, themes, and browsers
 - [ ] 12 no layout shift
 - [ ] 13 no console errors
 - [ ] 14 axe
@@ -466,16 +563,16 @@ Each item is ticked with how it was verified.
 - [ ] 21 capture
 - [ ] 22 route HTML
 
-## Prompt 4: paged attention chapter (PLAN, waiting for approval)
+## Prompt 4: paged attention chapter (PLAN, approved 2026-10-02)
 
 - [x] Read kwon2023 §1, §3, §4.1–4.4, §6.1–6.2, §7.1–7.2, §8, and §9 for this
       plan. The text comes from the PDF, because the arXiv HTML drops numbers
       such as "2.2×" (SOURCES.md note 11).
 - [x] PRODUCT.md chapter 2 updated to Prompt 4's objective and misconception.
-- [x] SIM.md draft: added the preset `paged-vs-contiguous` and per-preset engine
-      overrides (`seed`, `kv`, `scheduler`) to the `Preset` type. SIM.md is not
-      approved yet, so this is still a draft change.
-- [ ] The chapter, after approval.
+- [x] SIM.md: added the preset `paged-vs-contiguous` and per-preset engine
+      overrides (`seed`, `kv`, `scheduler`) to the `Preset` type. SIM.md was
+      approved with them on 2026-10-02.
+- [ ] The chapter (Build 4).
 
 ### Depends on
 
@@ -496,46 +593,60 @@ All of these are from kwon2023, checked in the PDF.
   FasterTransformer and Orca (abstract, §9). It comes from batching more
   requests (§6.2, §9). On ShareGPT with OPT-13B, vLLM runs 2.2× more requests at
   once than Orca (Oracle) and 4.3× more than Orca (Max) (§6.2, Fig. 13a).
-- **Paging can hurt** when a workload is compute-bound and memory is not the
-  limit (§8).
+- **Paging can hurt other workloads.** For serving DNNs that are not LLMs,
+  which are compute-bound, the paper says paging's indirection may slow them
+  down (§8). It does not say this of LLM serving (AUDIT.md M4).
 - **Waste in earlier systems:** in the §6.2 experiments, token states filled
   only 20.4–38.2% of KV memory in the paper's Orca baselines, vs. 96.3% in vLLM
   (§1, Fig. 2). Orca (Max) reserves the model's maximum length, as our
   contiguous allocator does (§6.1).
 
-### Decisions for the author
+### Decisions for the author (all decided 2026-10-02: accepted as recommended)
 
 1. **At most 8 live requests per grid.** DESIGN.md caps every widget at 8 live
    requests, so each one has its own color and glyph.
    - The preset sets `max_num_seqs` to 8, and shrinks KV to 1,280 tokens so that
      memory binds at about the same point.
-   - The chapter says vLLM's default cap is 256 (vllm-src).
+   - The chapter says vLLM's default cap is 256 on GPUs under 70 GB
+     (vllm-src; AUDIT.md M5).
    - The alternative is to let colors repeat beyond 8. I advise against it,
      because two live requests would then look the same.
+   - **Decided: accepted.**
 2. **A toy GPU.** 1,280 tokens is about 1/48 of the 61,787 tokens an A10G has
    free after Llama-3.1-8B's weights (computed). The widget labels it "toy GPU:
    1,280 tokens of KV". Step times still come from the Llama-3.1-8B on A10G
    roofline, so playback runs at a plausible pace.
+   - **Decided: accepted.**
 3. **"Gaps between regions."** With equal `max_model_len` regions, a freed
    region always fits the next request exactly. So the only gap is the leftover
    at the end of memory, capacity mod `max_model_len`.
    - At the default 512, that is 256 tokens, 20% of capacity, and the
      `max_model_len` control changes it.
-   - The paper's baselines also had gaps from buddy allocation (Fig. 3), which
-     we do not model. The chapter labels the gap "free space too small for a
-     region" and says this.
-   - Real gaps between regions would need SIM.md Q4 (regions sized per request).
-     This chapter's tests do not need it.
+   - The paper's baselines also had gaps from buddy allocation (§3.1, §6.1;
+     AUDIT.md m6), which we do not model. The chapter labels the gap "free
+     space too small for a region" and says this.
+   - Real gaps between regions would need regions sized per request. The author
+     kept equal regions for v1 (SIM.md Q4); per-request reservation is in the
+     backlog.
+   - **Decided: accepted.**
 4. **"Requests admitted"** means admitted and not yet finished, so it is the
    running count. The peak-concurrency test uses it.
+   - **Decided: accepted.**
 5. **Paged can preempt.** Packing more requests in means memory can run out
    mid-generation. The preset is tuned so this is rare (at most 2). The paged
    readout shows a preemption count whenever it is nonzero, rather than hiding
-   it. Preemption itself is explained in chapter 3.
+   it.
+   - Chapter 3 has no preemption step (AUDIT.md m15). So this chapter defines
+     preemption in one sentence where the count first appears: when memory runs
+     out, the engine frees the most recently admitted request's blocks and
+     recomputes its tokens later (vllm-src; kwon2023 §4.5). The glossary gets
+     the term.
+   - **Decided: accepted.**
 6. **Lockstep is by sim time, not step index.** The two allocators run batches
    of different sizes, so their steps have different durations. One
    `PlaybackBar` sets time t, and each grid shows its own latest `StepEnd` at or
    before t. Arrivals line up, which a shared step index would not do.
+   - **Decided: accepted.**
 
 ### Preset `paged-vs-contiguous` (SIM.md §7, tentative)
 
@@ -571,7 +682,7 @@ All of these are from kwon2023, checked in the PDF.
    - Prose: the paper splits our "reserved" into slots kept for future tokens
      and slots never used (Fig. 3).
    - Claims: `contiguous-wastes-most`, `contiguous-waste-split`.
-   - Sources: kwon2023 §3.1 and Fig. 3; yu2022 §4.2.
+   - Sources: kwon2023 §3.1, Fig. 3, and §6.1 (Orca Max) (AUDIT.md m7).
 3. **The paged idea.** The same preset with the paged allocator only.
    - Blocks of 16 tokens fill left to right. A new block is taken only when the
      last one is full, like pages in an operating system.
@@ -598,7 +709,8 @@ All of these are from kwon2023, checked in the PDF.
    - Prose on speed stays qualitative: too small a block underuses the GPU's
      parallelism (kwon2023 §7.2).
    - The paper's own numbers are quoted with their source: on ShareGPT, sizes
-     16–128 did best; on Alpaca, 16 and 32. vLLM's default is 16 (§7.2).
+     16–128 work well; on Alpaca, 16 and 32 (AUDIT.md m8). vLLM's default is
+     16 (§7.2).
    - Claims: `block-size-raises-waste`, `block-size-shortens-tables`.
 7. **Teaser: shared blocks.** A tiny sim run: block size 4, two requests sharing
    an 8-token prefix, prefix caching on. Both tables point at the same physical
@@ -610,12 +722,20 @@ All of these are from kwon2023, checked in the PDF.
   then unlocked to try it.
   - Claim: `max-model-len-hurts-contiguous-only`.
 - **What this leaves out:**
-  - buddy allocation and its gaps (kwon2023 Fig. 3)
-  - the toy capacity and the cap of 8; vLLM's default `max_num_seqs` is 256
+  - equal regions only: no buddy allocation and no per-request reservation, so
+    the only gap is the tail (kwon2023 §3.1, §6.1; SIM.md §9.15)
+  - the toy capacity and the cap of 8; vLLM's default `max_num_seqs` is 256 on
+    GPUs under 70 GB
+  - one GPU (SIM.md §9.1)
+  - step time comes from a roofline, with step overhead 0 and llmsize's MBU of
+    0.65 (SIM.md §9.2)
   - the paged kernel's slowdown is not charged to step time (SIM.md §9.4)
+  - FCFS only: no priority scheduling, and no per-request `max_tokens`
+    (SIM.md §9.10)
   - copy-on-write, beam search, and parallel sampling (kwon2023 §4.4)
   - CPU swapping (kwon2023 §4.5); V1 recomputes instead
-  - the null block, lookahead, and async scheduling (SIM.md §9)
+  - the null block, lookahead, and async scheduling (SIM.md §9.12, §9.11, and
+    §9.3)
   - one table per request for all layers (kwon2023 §4.1 footnote: no
     performance difference)
   - block-size effects on kernel speed are left qualitative
@@ -633,8 +753,8 @@ rebuilt from the event log in `frames.ts`.
     about 40 px.
   - At B 16 that is 80 cells. B 8 has 160 and B 128 has 10.
 - **Cell encoding:**
-  - request slot color (DESIGN.md `--req-k`), plus glyph, plus an "r3" label
-    when the cell is at least 24 px
+  - request slot color (DESIGN.md `--req-k`), pattern, and glyph at every
+    size, plus an "r3" label when the cell is at least 24 px
   - fill level as a bar growing from the bottom, filled / B
   - reserved, unused slots in the gray hatch (DESIGN.md block states)
   - the gap with a dotted outline and a "gap" label
@@ -700,18 +820,22 @@ share the frame builder.
   is full.
 - **`table-scattered`:** at the step-4 figure's step, the selected request's
   physical blocks are not consecutive.
-- **`visible-in-20s`:** the three tuning targets in "Preset".
+- **`visible-in-20s`:** the three tuning targets in SIM.md §7
+  (`paged-vs-contiguous` overrides).
 - **`block-size-shortens-tables`:** mean table length falls as B rises.
 - **`max-model-len-hurts-contiguous-only`:** at 1024, contiguous's peak running
-  falls, and the paged run's `hashEvents` is identical to the one at 512.
+  is exactly 1, the CheckYourself answer, and the paged run's `hashEvents` is
+  identical to the one at 512 (AUDIT.md m18).
 - **`shared-refcount`:** the shared blocks have reference count 2 while both
   requests run.
-- **`frames-match-snapshots`:** replaying the log rebuilds the engine snapshot at
-  every step, so the widget draws what the engine did.
 - **Meta-test:** claim ids match test ids.
 
+**`tests/viz/frames.test.ts`** (not a claim test, so outside the meta-test;
+AUDIT.md m18): `frames-match-snapshots`. Replaying the log rebuilds the engine
+snapshot at every step, so the widget draws what the engine did.
+
 **`e2e/paged-attention.spec.ts`** (Playwright):
-- Screenshots at 375 and 1440 px, light and dark, paused at t = 12 s.
+- Screenshots at 375, 768, and 1440 px, light and dark, paused at t = 12 s.
 - **BlockGrid:**
   - Step changes the readouts.
   - Block size 16 → 64 changes the paged waste %.
@@ -738,7 +862,7 @@ share the frame builder.
 - contiguous allocation, reservation
 - internal fragmentation, external fragmentation, gap
 - reference count
-- `max_model_len`, page
+- `max_model_len`, page, preemption
 
 ### DoD checklist (docs/CHAPTER_DOD.md)
 
@@ -748,11 +872,11 @@ share the frame builder.
 - [ ] 4 claims tested
 - [ ] 5 writing rules
 - [ ] 6 end sections
-- [ ] 7 keyboard
+- [ ] 7 keyboard and touch
 - [ ] 8 labels
 - [ ] 9 playback
 - [ ] 10 reduced motion
-- [ ] 11 sizes and themes
+- [ ] 11 sizes, themes, and browsers
 - [ ] 12 no layout shift
 - [ ] 13 no console errors
 - [ ] 14 axe
@@ -765,19 +889,19 @@ share the frame builder.
 - [ ] 21 capture
 - [ ] 22 route HTML
 
-## Prompt 5: continuous batching chapter (PLAN, waiting for approval)
+## Prompt 5: continuous batching chapter (PLAN, approved 2026-10-02)
 
 - [x] Read yu2022 §3 (C1, S1) and agrawal2024 §1, §2.4, §3.1–3.2, and
       §4.1–4.3 from the PDF text. A sub-agent checked agrawal2023 and bench-ieb.
 - [x] PRODUCT.md chapter 3 updated to Prompt 5's objective and misconception.
       Prefill stalls now belong in this chapter, not a later one.
-- [x] SIM.md draft changes:
+- [x] SIM.md changes (approved 2026-10-02):
   - presets `batching-basics` and `long-prompt-stall`
   - a `mixture` length distribution
   - ITL percentiles pooled over every inter-token gap
-- [x] DESIGN.md draft changes: slots are assigned at admission, and request
-      phases are encoded with ink and pattern (both pending approval).
-- [ ] The chapter, after approval.
+- [x] DESIGN.md changes: slots are assigned at admission, and request phases
+      are encoded with ink and pattern (both approved 2026-10-02).
+- [ ] The chapter (Build 4).
 
 ### What the sources say
 
@@ -803,8 +927,11 @@ share the frame builder.
   in Orca, a batch that holds a long prompt stays slow. That is exactly our
   engine with chunking off (SIM.md §8).
 - **Chunked prefill and stall-free batching** (agrawal2024 §4.1–4.2).
-  - The scheduler packs decodes first, then prefill chunks into the leftover
-    token budget, as vLLM V1 does.
+  - Sarathi-Serve packs decodes first, then prefill chunks into the leftover
+    token budget.
+  - vLLM V1 has no phases. It schedules running requests in admission order,
+    then waiting ones, under one budget, so decodes usually come first through
+    admission order (SIM.md §8; AUDIT.md m9).
   - Chunked prefill itself was introduced in agrawal2023.
 - **The token budget trade-off** (agrawal2024 §4.3). A smaller budget lowers
   TBT. It also adds chunking overhead: lower GPU utilization, and repeated reads
@@ -813,48 +940,58 @@ share the frame builder.
 ### Numbers behind this plan
 
 These come from the SIM.md §5 roofline with llmsize's constants, for Llama-3.1-8B.
+They use the A10G's dense bf16 figure from AWS's datasheet, 70 TFLOPS, which
+llmsize takes in Build 1. llmsize's current 125 is the A10's (AUDIT.md M9,
+m16; recomputed 2026-10-02).
 
 - **A10G:** a decode step takes 38.5 ms and is memory-bound. Compute time
-  overtakes memory time at about 135 tokens per step.
-  - A 7,000-token prefill takes about 2.0 s of dense compute plus about 0.23 s
+  overtakes memory time at about 76 tokens per step.
+  - A 7,000-token prefill takes about 3.6 s of dense compute plus about 0.41 s
     of attention.
-  - A 2,048-token chunk takes about 0.59 s.
+  - A 2,048-token chunk takes about 1.1 s.
 - **H100:** the crossover is at about 191 tokens per step.
-- llmsize lists the A10G at 125 bf16 TFLOPS. I have not checked that figure
-  against NVIDIA's spec; it only moves the crossover.
 
-### Decisions for the author
+### Decisions for the author (all decided 2026-10-02)
 
-1. **Slots are assigned at admission** (DESIGN.md draft). The old rule assigned
+1. **Slots are assigned at admission** (DESIGN.md). The old rule assigned
    slots in arrival order, wrapping after 8, which breaks once a queue holds
    more than 8 requests.
    - Now a request takes the lowest free slot when it is admitted.
    - Waiting requests are drawn neutral with their id.
    - Chapter 2 works under either rule.
-2. **Phases use ink and pattern, not request hues** (DESIGN.md draft):
+   - **Decided: accepted.**
+2. **Phases use ink and pattern, not request hues** (DESIGN.md):
    - queued: a dashed outline
    - prefill: a striped dark fill
    - decode: a solid mid fill
    - bubble: the gray waste hatch
-   - A slot-color tab and the id label carry the request's identity. This
-     follows the prompt's "each with its own color and pattern" without clashing
-     with the 8 request hues.
+   - A slot tab (the slot's color, pattern, and glyph) and the id label carry
+     the request's identity. This follows the prompt's "each with its own color
+     and pattern" without clashing with the 8 request hues.
+   - **Decided: accepted.**
 3. **The timeline's x axis is sim time, not step index.** Each step is as wide
    as it is long, so a stalled step shows as a wide column across every lane.
    Steps over 5× the median get a labeled band. Lockstep comparison is by time
    too, as in chapter 2.
+   - **Decided: accepted.**
 4. **Static mode streams tokens as they are made.** That flatters static. Orca
    says request-level systems return results only when the whole batch ends
    (yu2022 §3). TTFT counts the first token generated, and E2E counts the batch
    end. This goes in "What this leaves out".
+   - **Decided: accepted.**
 5. **Chunking off.** The widget raises the budget to `max_model_len` (8,192) and
-   shows that it did, as vLLM does (vllm-src `arg_utils.py`). The engine keeps
-   its config error (SIM.md §8).
+   shows that it did. vLLM does this only when the budget is unset; an explicit
+   smaller budget is a `ValueError` there (vllm-src `arg_utils.py`; AUDIT.md
+   m10). The engine keeps its config error (SIM.md §8).
+   - **Decided: accepted.**
 6. **`max_num_seqs` runs 1–8,** because of DESIGN.md's limit of 8. The chapter
-   says vLLM's default is 256.
+   says vLLM's default is 256 on GPUs under 70 GB (AUDIT.md M5).
+   - **Decided: accepted.**
 7. **`long-prompt-stall` uses the real A10G KV capacity:** 61,776 tokens, the
-   free memory llmsize computes for Llama-3.1-8B. That is a partial answer to
-   SIM.md Q6.
+   free memory llmsize computes for Llama-3.1-8B (61,787), rounded down to
+   whole 16-token blocks. As a chapter preset, it keeps this fixed pool
+   (SIM.md Q6).
+   - **Decided: accepted.**
 8. **Our cost model may not show the throughput side of the trade-off.**
    - GPU efficiency is constant and the step overhead is 0 (SIM.md Q5). So
      splitting a prompt into small chunks costs almost no throughput in the sim.
@@ -867,12 +1004,16 @@ These come from the SIM.md §5 roofline with llmsize's constants, for Llama-3.1-
      predicts 38.5 ms. The roofline is slower than the measurement, so the
      leftover that would give a fixed overhead is negative.
    - I recommend (b). The finding also goes into SIM.md Q5.
+   - **Decided: (b).** Overhead stays 0, and the chapter says the sim leaves
+     this cost out (SIM.md Q5, §9.2).
 9. **The misconception's TTFT half is not yet shown.** I can see how bigger
    token budgets hurt p99 ITL in the sim. I cannot yet show from reasoning alone
    that bigger batches hurt TTFT on these presets.
    - The claim is worded after the sim runs.
    - If no preset shows TTFT getting worse, I stop and report. The prose would
      then narrow to ITL.
+   - **Decided:** if no preset shows TTFT getting worse, narrow the claim to
+     ITL and tell the author.
 10. **A nuance I will test.** When long prompts are rare, chunking can *raise*
     p99 ITL. It turns one big stall (under 1% of gaps, so invisible to p99) into
     several smaller ones (over 1%).
@@ -880,11 +1021,14 @@ These come from the SIM.md §5 roofline with llmsize's constants, for Llama-3.1-
       are long.
     - If the sim shows the reversal at 2% long prompts, the chapter says so
       (claim `chunking-spreads-stalls`).
+    - **Decided: accepted.**
 
 ### Measured callout (optional per the prompt: traceable, so included)
 
 **Where it goes:** step 6, next to the misconception. A real engine shows the
-same trade-off at scale: throughput climbs with concurrency, and so does TTFT.
+same trade-off at scale: from 1 to 64 concurrent requests, throughput climbs,
+and so does median TTFT. It does not rise at every level: vLLM's p50 TTFT fell
+from 99.6 to 91.2 ms between 4 and 8 (AUDIT.md m11).
 
 **Files** (bench-ieb at `1c964318`):
 - `results_concurrency64/llama-3-1-8b-instruct/throughput_ramp_extended_vllm_1776486559.json`
@@ -955,10 +1099,12 @@ continuously. The callout says so, and makes no engine-vs-engine claim.
   - output lognormal, median 50, σ 0.5, 16–200
   - `max_model_len` 8192, `max_num_seqs` 8, 3,861 blocks
   - compared: chunking on with budget 2048, vs. chunking off with budget 8192
-- **Why `long-prompt-stall` should show the stall:**
-  - Without chunking, each long prompt makes one step of about 2.2 s, and up to
-    7 decodes wait in it. That is about 1.9% of all gaps, so it shows in p99.
-  - With chunking, each long prompt makes about 4 steps of about 0.6 s.
+- **Why `long-prompt-stall` should show the stall** (at 70 TFLOPS, AUDIT.md
+  M9):
+  - Without chunking, each long prompt makes one step of about 3.4–4.3 s, and
+    up to 7 decodes wait in it. That is about 1.9% of all gaps, so it shows in
+    p99.
+  - With chunking, each long prompt makes about 4 steps of about 1.1–1.3 s.
   - The long prompt's own TTFT rises by its steps' decode compute, about 3–5%.
 
 ### Scroll steps
@@ -997,26 +1143,35 @@ continuously. The callout says so, and makes no engine-vs-engine claim.
    - The long prompts' TTFT rises a little. The exact rise is shown via `<Num>`
      (simulated).
    - Prose: a lower budget flattens the steps further; the reader can drag it.
-   - Claims: `chunking-lowers-p99-itl`, `chunking-raises-long-ttft`.
+   - If the reversal from decision 10 is kept, it is shown here at 2% long
+     prompts.
+   - Claims: `chunking-lowers-p99-itl`, `chunking-raises-long-ttft`, and
+     `chunking-spreads-stalls` if kept (AUDIT.md m18).
    - Sources: agrawal2023, agrawal2024 §4.1–4.3.
 6. **Takeaway: no free setting.** Figure `BudgetSweep`: budgets 512, 1024,
    2048, 4096, and 8192 on `long-prompt-stall`.
    - Three small charts: throughput, p99 ITL, and mean TTFT of the long
      prompts. The current setting is marked.
-   - Claims: `no-free-setting`, and the misconception claim worded after the sim
-     (decision 9).
+   - Claims: `no-free-setting`, and `bigger-batches-cost-latency`, the
+     misconception claim, worded after the sim (decision 9; AUDIT.md m18).
 - **CheckYourself** (predict, then run): "Widen the output-length spread. Does
   the gap between static and continuous grow or shrink?" The knob is PRODUCT.md's.
   - Claim: `spread-widens-gap`. Static's mean TTFT minus continuous's grows with
     σ.
 - **What this leaves out:**
-  - Static streams tokens and stops computing finished requests (yu2022 §3).
-  - There is no batching timeout.
+  - Static streams tokens and stops computing finished requests (yu2022 §3;
+    SIM.md §9.16 and §9.20).
+  - There is no batching timeout (SIM.md §9.19).
   - GPU efficiency is constant, so small chunks are not penalized (agrawal2024
-    §4.3), and the step overhead is decision 8.
-  - Scheduling is synchronous, while vLLM's is async (SIM.md §9).
-  - At most 8 seqs, against vLLM's default of 256.
-  - FCFS with head-of-line blocking only.
+    §4.3).
+  - Step time comes from a roofline, with step overhead 0 and llmsize's MBU of
+    0.65. bench-ieb's measured decode implies about 0.76 (SIM.md §9.2).
+  - Output length is fixed per request; real requests stop at EOS or
+    `max_tokens` (SIM.md §9.6).
+  - KV writes, sampling cost, and activation memory are ignored (SIM.md §9.17).
+  - Scheduling is synchronous, while vLLM's is async (SIM.md §9.3).
+  - At most 8 seqs, against vLLM's default of 256 on GPUs under 70 GB.
+  - FCFS with head-of-line blocking only (SIM.md §9.10).
   - No pipeline-parallel bubbles (agrawal2024 §3.3), and no disaggregated
     prefill.
 - **Go deeper:** yu2022, agrawal2023, agrawal2024, kwon2023 §4.5, and vllm-src
@@ -1033,8 +1188,9 @@ continuously. The callout says so, and makes no engine-vs-engine claim.
 - **x axis:** sim time.
   - A 30 s window on desktop and 12 s on mobile, with the playhead at
     two-thirds of the window.
-  - Segments: prefill, decode, and bubble, plus stall bands, each with a slot
-    tab and an id label when 28 px or wider.
+  - Segments: prefill, decode, and bubble, plus stall bands. Each request's
+    run starts with a 16 px slot tab (color, pattern, and glyph; DESIGN.md),
+    and a segment carries the id label when 28 px or wider.
 - **Charts below:**
   - queue length over time (a line)
   - TTFT histogram
@@ -1054,7 +1210,8 @@ continuously. The callout says so, and makes no engine-vs-engine claim.
   - `max_num_seqs`: slider, 1–8
   - `max_num_batched_tokens`: slider stops 256–8192
   - chunked prefill: `Toggle`. When it is off, the budget control is locked at
-    `max_model_len` with the note "raised to 8,192, as vLLM does".
+    `max_model_len` with the note "raised to 8,192, as vLLM does when no budget
+    is set".
   - preset: set per scroll step
 - **Compare mode** takes two configs:
   - static vs. continuous in steps 2–3
@@ -1088,12 +1245,18 @@ SVG and the chart rules in the dataviz references.
 - **`chunking-lowers-p99-itl`:** the prompt's test.
 - **`chunking-raises-long-ttft`:** the prompt's test. If it fails, I stop and
   report; I do not edit the test to pass.
-- **`no-free-setting`, the misconception claim, `spread-widens-gap`, and
-  `chunking-spreads-stalls`** (if it is kept).
+- **`no-free-setting`** (AUDIT.md m18): across budgets 512, 1024, 2048, 4096,
+  and 8192 on `long-prompt-stall`, the budget with the lowest p99 ITL is not the
+  one with the lowest mean TTFT. No budget wins both. If one does, I stop and
+  report.
+- **`bigger-batches-cost-latency`:** the misconception claim, worded after the
+  sim (decision 9).
+- **`spread-widens-gap`**, and **`chunking-spreads-stalls`** if it is kept
+  (decision 10).
 - **Meta-test:** claim ids match test ids.
 
 **`e2e/continuous-batching.spec.ts`** (Playwright):
-- Screenshots at 375 and 1440 px, light and dark, paused at t = 15 s.
+- Screenshots at 375, 768, and 1440 px, light and dark, paused at t = 15 s.
 - **RequestTimeline:**
   - Static → continuous changes the mean TTFT readout.
   - The chunked toggle changes the p99 ITL readout.
@@ -1126,11 +1289,11 @@ SVG and the chart rules in the dataviz references.
 - [ ] 4 claims tested
 - [ ] 5 writing rules
 - [ ] 6 end sections
-- [ ] 7 keyboard
+- [ ] 7 keyboard and touch
 - [ ] 8 labels
 - [ ] 9 playback
 - [ ] 10 reduced motion
-- [ ] 11 sizes and themes
+- [ ] 11 sizes, themes, and browsers
 - [ ] 12 no layout shift
 - [ ] 13 no console errors
 - [ ] 14 axe
@@ -1143,7 +1306,7 @@ SVG and the chart rules in the dataviz references.
 - [ ] 21 capture
 - [ ] 22 route HTML
 
-## Prompt 6: prefix caching chapter (PLAN, waiting for approval)
+## Prompt 6: prefix caching chapter (PLAN, approved 2026-10-02)
 
 - [x] Re-read for this chapter:
   - vllm-apc-doc: L13–22 (block key parts, "We only cache full blocks"),
@@ -1152,12 +1315,13 @@ SVG and the chart rules in the dataviz references.
     reference counts, longest-shared-prefix-first scheduling
   - bench-kvtt `proxy/replica_lb.py` at `56b5ab5d`
 - [x] PRODUCT.md chapter 4 updated to Prompt 6's objective and misconception.
-- [x] SIM.md draft changes:
+- [x] SIM.md changes (approved 2026-10-02):
   - presets `shared-system-prompt` and `cache-pressure`
   - a public `blockKeys(tokens, blockSize)`, so the hash-chain figure and its
     test use the engine's own keys
-- [x] DESIGN.md draft: the cached, shared, and selected-chain block states.
-- [ ] The chapter, after approval.
+- [x] DESIGN.md: the cached, shared, and selected-chain block states (approved
+      2026-10-02).
+- [ ] The chapter (Build 4).
 
 ### What the sources say
 
@@ -1167,12 +1331,16 @@ SVG and the chart rules in the dataviz references.
 - **A hit** (vllm-apc-doc L146; vllm-src `KVCacheManager`).
   - The new request "touches" each matched block: reference count +1, and it
     leaves the free queue if it was unused.
-  - A full prompt hit is capped at length − 1, rounded down to a block (SIM.md
-    §8). So even an identical prompt recomputes at least one token.
+  - A full prompt hit is capped at length − 1, rounded down to a block
+    (vllm-src `kv_cache_manager.py` L289–295; AUDIT.md m12). So even an
+    identical prompt recomputes at least one token.
 - **Eviction** (vllm-apc-doc L202–206). Unreferenced blocks stay keyed in the
   free queue. Allocation pops the head, the least recently used block; if that
-  block is cached, popping evicts it. Freed blocks go back in reverse order
-  (L198).
+  block is cached, popping evicts it.
+- **Freeing** (vllm-src `block_pool.py` L777–808). Freed blocks are handled in
+  reverse order: unkeyed ones go to the front of the queue and keyed ones to
+  the tail. vllm-apc-doc L198 says all go to the tail; the author chose the
+  code (SIM.md Q8; AUDIT.md M6).
 - **Preempted blocks keep their keys** (vllm-src, SIM.md §8). A preempted
   request can hit its own old blocks when it is re-admitted.
 - **RadixAttention** (zheng2024 §3).
@@ -1185,20 +1353,23 @@ SVG and the chart rules in the dataviz references.
   - Any comparison with vLLM is our synthesis (SOURCES.md note 4).
 - **Replicas** (bench-kvtt `proxy/replica_lb.py` L56–75). The balancer picks a
   replica by fewest outstanding requests or round-robin, and never looks at
-  prompts. README L113–115: it runs N independent servers, so each one keeps
-  its own cache.
+  prompts. README L113–115: it runs N independent servers. That each one keeps
+  its own cache is our inference, and the text says so (AUDIT.md m14).
 
-### Decisions for the author
+### Decisions for the author (all decided 2026-10-02: accepted as recommended)
 
 1. **The teaser has to describe kv-transfer-tax's balancer accurately.** It is
    a fair-baseline balancer, routing by load and not by prefix. Proposed
    sentence: "With several replicas, a hit needs the request to land on the
    replica that holds its prefix; the balancer in kv-transfer-tax routes by load,
-   not by prefix." It links `proxy/replica_lb.py` at the pinned commit.
+   not by prefix." It links `proxy/replica_lb.py` at the pinned commit. The
+   first half is our reasoning and is marked as such (AUDIT.md m14).
+   - **Decided: accepted.**
 2. **Sharing saves memory too.** With caching off, each request holds its own
    copy of the prefix, so fewer requests fit and the off run queues more. The
    chapter says this, and the TTFT gap is not attributed to saved prefill alone.
    Claim: `sharing-saves-memory`.
+   - **Decided: accepted.**
 3. **Unique prompts can still hit after a preemption.** A preempted request
    reuses its own blocks if they are still cached (vllm-src).
    - The misconception text gets that one exception.
@@ -1206,16 +1377,21 @@ SVG and the chart rules in the dataviz references.
      "No preemption" is asserted first, so the test cannot pass for the wrong
      reason.
    - Claim: `self-hit-after-preemption`.
+   - PRODUCT.md and the sandbox text carry the same exception (AUDIT.md M8).
+   - **Decided: accepted.**
 4. **"Nothing for decode speed" is tested mechanically.** A decode step reads the
    whole context whether it came from a hit or not, so its cost does not change.
    Claim: `decode-cost-unchanged`, checked on the cost model.
    - I do not claim that p50 ITL is unchanged. With caching on, more requests
      fit, so each decode step reads more KV. The sim may show ITL rising
      slightly, and the chapter would then say so.
+   - **Decided: accepted.**
 5. **The chapter 2 grid becomes Canvas,** as noted in the chapter 2 plan.
+   - **Decided: accepted.**
 6. **The KV capacity control keeps tokens fixed** when the block size changes. It
    is shown as "256 blocks (4,096 tokens)", so block size and capacity do not
    move together by accident.
+   - **Decided: accepted.**
 
 ### Presets (SIM.md §7, tentative; tuned until the tests pass)
 
@@ -1260,8 +1436,13 @@ SVG and the chart rules in the dataviz references.
      `CacheHit` event: match, match, …, miss, then allocate.
    - Reference-count badges rise on the shared blocks.
    - The share-fraction control shows that the hit rate follows the workload.
-   - Claims: `hit-walks-chain`, `refcount-counts-sharers`,
-     `sharing-saves-memory`, `share-fraction-raises-hits`.
+   - The prefix-length control shows the knob to predict. A longer shared
+     prefix saves more prefill per request, and widens the TTFT gap to caching
+     off (PRODUCT.md; AUDIT.md M7).
+   - Claims: `caching-lowers-ttft-and-prefill`, `hit-walks-chain`,
+     `refcount-counts-sharers`, `sharing-saves-memory`,
+     `share-fraction-raises-hits`, `longer-prefix-saves-more` (AUDIT.md m18,
+     M7).
    - Sources: vllm-apc-doc L146–147.
 4. **Partial blocks.** Figure `PartialBlocks`: the 600-token prefix drawn at
    B 8, 16, 32, 64, and 128.
@@ -1276,12 +1457,13 @@ SVG and the chart rules in the dataviz references.
      block.
    - The hit-rate meter falls. The capacity control shows hits recovering as
      blocks are added.
-   - Prose: a cached block is evicted only when no never-keyed free block is
-     left. Unkeyed blocks sit at the front of the free queue and keyed ones at
-     the back (vllm-src `BlockPool.free_blocks`).
+   - Prose: a cached block is evicted only when no unkeyed free block is left
+     (AUDIT.md m13). Unkeyed blocks sit at the front of the free queue and keyed
+     ones at the back (vllm-src `BlockPool.free_blocks`).
    - Claims: `pressure-lowers-hit-rate`, `evictions-happen`, `lru-evicts-head`,
      `evict-only-when-needed`, `more-blocks-more-hits`.
-   - Sources: vllm-apc-doc L198–206.
+   - Sources: vllm-src `block_pool.py` L777–808 for the free order, and
+     vllm-apc-doc L202–206 for LRU eviction (AUDIT.md M6).
 6. **Another design: RadixAttention.** One paragraph, no figure and no benchmark
    numbers.
    - The tree matches token by token, so no partial-block loss. Leaves are
@@ -1304,12 +1486,16 @@ SVG and the chart rules in the dataviz references.
   - Claim: `checkyourself-100-at-64`.
 - **What this leaves out:**
   - extra keys (LoRA, multimodal, salt) and sha256 (SIM.md §9.8)
-  - no cache-aware scheduling, FCFS only
-  - single replica
-  - KV offload to CPU or disk
-  - toy capacity and the cap of 8
-  - hit rate counted in tokens on first admission only, as in vLLM
-  - the prefix cache's own bookkeeping cost
+  - no cache-aware scheduling, FCFS only (zheng2024 §3; SIM.md §9.10)
+  - single replica (SIM.md §9.1)
+  - KV offload to CPU or disk (SIM.md §9.13)
+  - toy capacity and the cap of 8; vLLM's default `max_num_seqs` is 256 on GPUs
+    under 70 GB
+  - step time comes from a roofline, with step overhead 0 and llmsize's MBU of
+    0.65 (SIM.md §9.2)
+  - preemption recomputes; there is no CPU swap (SIM.md §9.9)
+  - block 0 is not reserved as a null block (SIM.md §9.12)
+  - the prefix cache's own bookkeeping cost, which is CPU time (SIM.md §9.2)
 - **Go deeper:** vllm-apc-doc, vllm-src (`block_pool.py`, `kv_cache_utils.py`),
   zheng2024 §3, kwon2023 §4.4 (manual shared prefixes and copy-on-write), and
   bench-kvtt.
@@ -1319,8 +1505,8 @@ SVG and the chart rules in the dataviz references.
 **SharedBlocksGrid** is the chapter 2 `BlockGrid` plus three layers:
 
 - **Block states:** shared blocks get the double outline and a "×n" badge.
-  Cached blocks get the dotted fill and their LRU rank. All are from the
-  DESIGN.md draft.
+  Cached blocks get the dotted fill and their LRU rank. All are from
+  DESIGN.md.
 - **Selecting a request** outlines its chain in `--highlight`, numbered by
   logical index. The table panel adds a key column, 6 hex digits.
 - **Readouts** (`simulated`):
@@ -1353,6 +1539,10 @@ blocks), and `PartialBlocks` (SVG, 5 rows).
 - **`caching-lowers-ttft-and-prefill`:** the prompt's test, on
   `shared-system-prompt`. Mean TTFT and total `PrefillChunk` tokens are both
   lower with caching on.
+- **`longer-prefix-saves-more`** (the knob to predict; AUDIT.md M7): on
+  `shared-system-prompt`, sweep the shared prefix over 0, 100, 250, 600, and
+  1000 tokens. Hit tokens per sharing request rise strictly, and so does mean
+  TTFT with caching off minus mean TTFT with caching on.
 - **`partial-not-reused`:** the prompt's test. At every `CacheHit`, every hit
   block has `filled == B`, and hit tokens are a multiple of B. Checked on all
   presets and every block size.
@@ -1391,7 +1581,7 @@ blocks), and `PartialBlocks` (SVG, 5 rows).
 - **Meta-test:** claim ids match test ids.
 
 **`e2e/prefix-caching.spec.ts`** (Playwright):
-- Screenshots at 375 and 1440 px, light and dark, paused at t = 10 s.
+- Screenshots at 375, 768, and 1440 px, light and dark, paused at t = 10 s.
 - **SharedBlocksGrid:**
   - The caching toggle changes the hit rate from 0% to above 0.
   - The capacity slider changes the evictions.
@@ -1423,11 +1613,11 @@ blocks), and `PartialBlocks` (SVG, 5 rows).
 - [ ] 4 claims tested
 - [ ] 5 writing rules
 - [ ] 6 end sections
-- [ ] 7 keyboard
+- [ ] 7 keyboard and touch
 - [ ] 8 labels
 - [ ] 9 playback
 - [ ] 10 reduced motion
-- [ ] 11 sizes and themes
+- [ ] 11 sizes, themes, and browsers
 - [ ] 12 no layout shift
 - [ ] 13 no console errors
 - [ ] 14 axe
@@ -1440,12 +1630,12 @@ blocks), and `PartialBlocks` (SVG, 5 rows).
 - [ ] 21 capture
 - [ ] 22 route HTML
 
-## Prompt 7: sandbox (PLAN, waiting for approval)
+## Prompt 7: sandbox (PLAN, approved 2026-10-02)
 
-- [x] SIM.md §12 (draft): input limits, capacity derived from GPU memory, the
+- [x] SIM.md §12 (approved 2026-10-02): input limits, capacity derived from GPU memory, the
       share-link format v1, and `ConfigError` codes plus `ENGINE_VERSION` in
       §2.
-- [ ] The sandbox, after approval.
+- [ ] The sandbox (Build 5).
 
 ### Depends on
 
@@ -1455,7 +1645,7 @@ blocks), and `PartialBlocks` (SVG, 5 rows).
 - the Prompt 1 shell
 - The 3 example share links need the live site (Prompt 1 step 9).
 
-### Decisions for the author
+### Decisions for the author (all decided 2026-10-02: accepted as recommended)
 
 1. **KV capacity: from GPU memory, or the preset's toy pool.**
    - The generic presets (chatbot, rag, batch-summarize, agent-loop) derive
@@ -1465,12 +1655,15 @@ blocks), and `PartialBlocks` (SVG, 5 rows).
      the chapters exactly.
    - A "KV capacity: from GPU memory / fixed blocks" control switches between
      the two.
+   - **Decided: accepted.** It is also the answer to SIM.md Q6.
 2. **More than 8 running requests** (the sandbox allows `max_num_seqs` up to
-   1,024; vLLM's default is 256). DESIGN.md's 8-hue limit still holds:
+   1,024; vLLM's default is 256 on GPUs under 70 GB and 1,024 on larger ones
+   that are not A100s; AUDIT.md M5). DESIGN.md's 8-hue limit still holds:
    - **Block grid:** above 8 running requests it colors by state (used, shared,
      cached, free, waste), not by request. The selected request is outlined.
    - **Timeline:** it draws slots 1–8, labeled "showing 8 of N slots". The
      charts and summary cover every request.
+   - **Decided: accepted.**
 3. **The worker does the heavy work.** It runs the sim, `metrics`, histograms,
    timeline segments, and grid frames, using the same pure functions the
    chapters run on the main thread. The main thread receives compact derived
@@ -1479,11 +1672,30 @@ blocks), and `PartialBlocks` (SVG, 5 rows).
      5,000 requests.
    - Cancel is `worker.terminate()`, which always works, and the next run gets a
      fresh worker.
+   - **Decided: accepted.**
 4. **Links carry a short log hash** (`h`, `hb`), so opening a link proves the run
    reproduced, or says it did not (SIM.md §12.2).
    - **Links are self-contained.** They encode every key that differs from the
      frozen `V1_DEFAULTS`, not from a preset. Presets will be retuned, and a
      preset-relative link would silently change meaning.
+   - **Decided: accepted.**
+5. **No zod in the browser.** It would be a runtime dependency. One parameter
+   table (key, type, range, default) drives parsing, clamping, encoding, the
+   notices, and the SIM.md table test.
+   - **Decided: accepted.**
+6. **Model slugs** (`llama-3.1-8b`) are added to models.json by gen-data, so
+   links stay short and stable.
+   - **Decided: accepted.**
+7. **The sandbox's claims are its preset descriptions** (PRODUCT.md). Each
+   preset's one-line description is a `<Claim>` with a test. They are written
+   after the engine runs, from what it actually shows.
+   - A description that says prefix caching saves nothing keeps the exception
+     for a preempted request reusing its own blocks (AUDIT.md M8).
+   - **Decided: accepted.**
+8. **Memory risk at 5,000 requests.** If the worker's event log is too heavy, the
+   fix would be an engine option to skip per-token events. That changes the
+   frozen sim API, so I would stop and ask.
+   - **Decided: accepted.**
 9. **Event batches.** The prompt says the UI receives snapshots and event
    batches.
    - Derived data (segments, series, and frames) covers the views.
@@ -1491,17 +1703,7 @@ blocks), and `PartialBlocks` (SVG, 5 rows).
      as typed-array columns, capped at 50,000.
    - They feed an "Events at the playhead" list, like the CLI's event dump.
    - The full log stays in the worker.
-5. **No zod in the browser.** It would be a runtime dependency. One parameter
-   table (key, type, range, default) drives parsing, clamping, encoding, the
-   notices, and the SIM.md table test.
-6. **Model slugs** (`llama-3.1-8b`) are added to models.json by gen-data, so
-   links stay short and stable.
-7. **The sandbox's claims are its preset descriptions** (PRODUCT.md). Each
-   preset's one-line description is a `<Claim>` with a test. They are written
-   after the engine runs, from what it actually shows.
-8. **Memory risk at 5,000 requests.** If the worker's event log is too heavy, the
-   fix would be an engine option to skip per-token events. That changes the
-   frozen sim API, so I would stop and ask.
+   - **Decided: accepted.**
 
 ### Architecture
 
@@ -1610,7 +1812,7 @@ covers it, a "What is this?" link to the chapter's anchor.
   plus the claims meta-test.
 
 **Playwright, `e2e/sandbox.spec.ts`:**
-- **Screenshots:** 375 and 1440 px, light and dark, default and A/B.
+- **Screenshots:** 375, 768, and 1440 px, light and dark, default and A/B.
 - **Share link:** "Copy link", then open it in a new page. It shows "reproduced
   exactly" with the same hash.
 - **Download:** the JSON parses and holds the config, metrics, and hash.
@@ -1659,24 +1861,29 @@ covers it, a "What is this?" link to the chapter's anchor.
       - the author claims
 - [x] §1 filled from the sub-agent's report: 0 blockers, 6 majors, 17 minors.
       M9 (llmsize's A10G TFLOPS) needs the author. STOP for approval.
-- [ ] After approval: fix blockers, then majors. After the build, run the whole
-      audit again and record before and after numbers.
+- [x] 2026-10-02: the author decided B2 and M9. The doc fixes for M1–M8 and
+      m1–m19 are applied (AUDIT.md, "Resolution log"). B1 stays open until the
+      build. m2 is a build task.
+- [ ] After the build (Build 6), run the whole audit again and record before
+      and after numbers.
 
-## Prompt 9: launch kit (PLAN, waiting for approval)
+## Prompt 9: launch kit (PLAN; decisions 1, 3, 4, and 7 approved 2026-10-02)
 
 Drafts only. I post nothing, publish nothing, message no one, and change no
-GitHub settings. CLAUDE.md says the same.
+GitHub settings. CLAUDE.md says the same. (Enabling Pages belongs to Prompt 1
+step 8, which the author approved.)
 
 ### Depends on
 
 - **The site, built and live** (AUDIT.md B1). Media, previews, and the live link
   all come from the final build.
-- **The URL decision.** The rename to `serving-explained` sets every link in
-  every draft.
-- **Your license choice** (decision 1), before README, LICENSE, and CONTRIBUTING.
-- **Current community rules:** a sub-agent is checking them now (decision 5).
+- **The URL:** decided. The repo is `varad-more/serving-explained`, and every
+  link in every draft uses `https://varadmore.me/serving-explained/`.
+- **The license:** decided (decision 1).
+- **Current community rules:** checked on 2026-10-01 (decision 5). Check them
+  again before posting.
 
-### Decisions for the author
+### Decisions for the author (decided 2026-10-02, except decision 2)
 
 1. **License.** Apache-2.0 for code, which matches llmsize: its `LICENSE` and
    both `package.json` files say Apache-2.0.
@@ -1684,15 +1891,19 @@ GitHub settings. CLAUDE.md says the same.
      then reuse the explanations with credit, which code licenses do not cover
      well.
    - The alternative is Apache-2.0 for everything: one license, simpler.
-   - Your choice.
+   - **Decided: Apache-2.0 for code, and CC BY 4.0 for text and media.** Both
+     files are added in Build 1, because the repo is already public.
 2. **Hero GIF.** I will record both candidates, the paged-vs-contiguous grid and
    the static-vs-continuous timeline, at the same length and size.
    - A fresh-eyes sub-agent sees each as a frame strip with no caption and
      says what it shows.
    - The one it reads correctly and faster is my recommendation. You see both.
+   - **Still open, by design:** you pick after seeing both clips, once the site
+     is built (Build 7).
 3. **Add CHANGELOG.md.** The checklist credits people who report errors "in the
    changelog", and there is none yet. I propose Keep a Changelog format, where a
    "Fixed" entry reads "… (reported by @handle)".
+   - **Decided: yes.**
 4. **Previews from the real site.** Prompt 1 planned template-only preview images.
    This prompt wants them generated from the real site, so `gen-og` changes:
    - A route `/og-cards/` exists only when `VITE_OG=1`, like the kitchen sink.
@@ -1701,6 +1912,7 @@ GitHub settings. CLAUDE.md says the same.
    - Playwright screenshots each card at 1200×630 into `public/og/<slug>.png`,
      and the repo preview at 1280×640 into `docs/launch/social-preview.png`.
      GitHub's limit for the preview is 1 MB.
+   - **Decided: yes,** previews are generated from the real site.
 5. **Community rules, checked 2026-10-01 by a sub-agent.** Reddit blocked live
    requests, so the Reddit rules come from Wayback copies of old.reddit, dated
    2026-07 and 2026-08. Each file records its rules with URLs and dates.
@@ -1728,8 +1940,11 @@ GitHub settings. CLAUDE.md says the same.
    - **LinkedIn:** 3,000 characters (LinkedIn help a528176). The "see more"
      cutoff is not documented; guides say about 140 characters on mobile. The
      hook goes in the first 140.
+   - No decision needed. The drafts and fact sheets follow these rules.
 6. **What you apply yourself:** making the repo public, the rename, the settings
    in `repo-settings.md`, and every post.
+   - **Updated 2026-10-02:** the repo is public and renamed. The settings and
+     every post remain yours.
 7. **Hacker News and r/LocalLLaMA ban LLM-written text, so I write notes there,
    not drafts.** Rules checked 2026-10-01:
    - HN guidelines say "Please don't put generated text in HN posts."
@@ -1744,6 +1959,8 @@ GitHub settings. CLAUDE.md says the same.
      want.
    - r/MachineLearning, X, and LinkedIn state no such rule, so those stay full
      drafts. Your call if you want the same approach everywhere.
+   - **Decided: fact sheets for HN and r/LocalLLaMA, and full drafts for
+     r/MachineLearning, X, and LinkedIn.**
 
 ### Media
 
@@ -1772,7 +1989,7 @@ All captures are recorded from the production build (`vite preview`) by
 - **Previews:** 7 route cards at 1200×630 (/, the four chapters, sandbox,
   glossary) and the 1280×640 repo preview (decision 4).
 
-### Files to write after approval
+### Files to write (Build 7)
 
 - **`README.md`,** in the prompt's order, at most about 120 lines. The only
   badges are CI and license.
@@ -1799,8 +2016,9 @@ All captures are recorded from the production build (`vite preview`) by
     - vLLM docs and source
     - llmsize
     - inference-engine-benchmark-system and kv-transfer-tax
-  - **License.**
-- **`LICENSE`,** plus `LICENSE-CONTENT` if CC BY is chosen.
+  - **License:** Apache-2.0 for code, CC BY 4.0 for text and media.
+- **`LICENSE`** (Apache-2.0) and **`LICENSE-CONTENT`** (CC BY 4.0, listing the
+  paths it covers) already exist from Build 1. The README links both.
 - **`CONTRIBUTING.md`:**
   - how to propose a chapter (the chapter-idea form, then a plan in the
     CHAPTER_DOD format)
@@ -1825,9 +2043,12 @@ All captures are recorded from the production build (`vite preview`) by
   - website: the live URL
   - social preview: `docs/launch/social-preview.png`
   - what to click, step by step, for you to apply
-- **`docs/launch/show-hn.md`:**
-  - three titles, each under 80 characters including "Show HN: "
-  - **First comment:**
+- **`docs/launch/show-hn.md`,** a fact sheet, not a draft (decision 7). You
+  write the words.
+  - the rules, with URLs and dates, and the title constraints: under 80
+    characters including "Show HN: ", and no uppercase, exclamation points, or
+    praise
+  - **Facts for the first comment,** each with its link:
     - who made it: name, the vllm-metal PRs #549 and #550, the two benchmark
       repos, all stated without adjectives per PRODUCT.md
     - why it exists
@@ -1836,16 +2057,17 @@ All captures are recorded from the production build (`vite preview`) by
       constants, and widgets driven by its event log
     - what it leaves out: the top items from SIM.md §9, with a link to the full
       list
-- **`docs/launch/reddit-localllama.md` and `reddit-machinelearning.md`:**
-  - each is written for its community's tone
-  - **r/LocalLLaMA:** practical, and leading with "why my 8B model fits only N
-    requests on a 24 GB card"
-  - **r/MachineLearning:** method-first: what is modeled, what is simplified,
-    and the sources
-  - each lists the current rules it follows, with the URL and date
+  - a suggested structure
+- **`docs/launch/reddit-localllama.md`,** a fact sheet like `show-hn.md`
+  (decision 7). Suggested angle: practical, leading with "why my 8B model fits
+  only N requests on a 24 GB card".
+- **`docs/launch/reddit-machinelearning.md`,** a full draft: method-first, with
+  what is modeled, what is simplified, and the sources. It has a main post plus
+  a short version for the monthly self-promotion thread (decision 5).
+- Each of the three lists the current rules it follows, with the URL and date.
 - **`docs/launch/x-thread.md`:**
-  - 6–8 posts, each at most 280 characters, unless the rules check says
-    otherwise
+  - 6–8 posts, each at most 280 characters, counting every URL as 23
+    (decision 5)
   - the hook and the link in post 1 or the last post
   - one post per chapter, each with its GIF
   - one post on "why you can trust it"
@@ -1879,7 +2101,8 @@ All captures are recorded from the production build (`vite preview`) by
   sentences under 25 words, outside code blocks and titles, and no banned hype
   words.
 - **Post limits:**
-  - Show HN titles: each under 80 characters, prefix included
+  - Show HN: no title is generated (decision 7). Once you add yours to
+    `show-hn.md`, the test checks it is under 80 characters, prefix included.
   - X posts: each at most 280, counting every URL as 23
   - LinkedIn: the post within its limit
 - **Images and media:**
@@ -1896,5 +2119,12 @@ All captures are recorded from the production build (`vite preview`) by
 - every file written
 - the final media sizes and durations
 - the two hero candidates, so you can pick
-- what I need from you: the license, the URL decision, and anything the rules
-  check turns up
+- what I need from you: the hero pick, your own text for HN and r/LocalLLaMA,
+  and anything the rules check turns up
+
+## Backlog
+
+- **Per-request reservation for contiguous-max** (SIM.md Q4, not in v1). Add
+  `reserve: 'max-model-len' | 'request-max'`, where the second reserves
+  `prompt + outputLen`, Orca's per-request reservation (yu2022 §4.2). It would
+  show real gaps between regions, which equal regions cannot.

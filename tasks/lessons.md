@@ -2,6 +2,23 @@
 
 Mistakes, corrections, and surprises. Newest first.
 
+## 2026-10-02
+
+- **Check a stated fact about outside state before building on it.** The
+  decisions said the repo "is renamed" and ffmpeg "is installed". `gh api`
+  still showed `Serving-Explainer`, and `ffmpeg` was not on PATH. Rule: verify
+  each "it is done" with a command, and report any gap before relying on it.
+- **A type that lists a table's rows must grow with the table.** SIM.md's
+  `PresetName` named 5 presets while §7's table had 9. Rule: when adding a row,
+  grep for every union, list, or test that enumerates the rows.
+- **A corrected constant moves every number derived from it.** Fixing the A10G
+  TFLOPS (M9) changed chapter 3's crossover from 135 to 76 tokens and every
+  prefill time. Rule: when a constant changes, grep for each number computed
+  from it, and recompute.
+- **Extend numbered checklists instead of renumbering them.** The DoD's item
+  numbers are cited across tasks/todo.md. New checks went into existing items
+  (7, 11, 17, 18), so no reference broke.
+
 ## 2026-10-01
 
 - **Some communities ban LLM-written posts.** HN ("Write your text by hand…

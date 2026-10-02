@@ -2,25 +2,26 @@
 
 Every technical claim on the site cites an id from this table. Code and docs are
 pinned to a commit. Verified on 2026-10-01 against publisher pages, Crossref,
-arXiv, and GitHub.
+arXiv, and GitHub. The "cited for" column was completed on 2026-10-02 (AUDIT.md
+m19).
 
 `scripts/gen-sources.ts` turns this table into `src/data/sources.json` for
 `<SourceLink id="…">`. Edit this file, not the JSON.
 
 | id | title | authors | venue or publisher | year | url | cited for | status |
 |---|---|---|---|---|---|---|---|
-| kwon2023 | Efficient Memory Management for Large Language Model Serving with PagedAttention | Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, et al. | SOSP '23, ACM, pp. 611–626 | 2023 | https://doi.org/10.1145/3600006.3613165 | KV cache size per token (§3); reservation and fragmentation waste in prior systems (§3.1, Fig. 2–3); blocks, block tables, waste limited to the last block (§4.2–4.3); preemption by recompute or swap (§4.5); kernel overhead (§7.1); block size ablation, default 16 (§7.2); PagedAttention called "an attention algorithm" (§1); token states use 20.4–38.2% of KV memory in the Orca baselines vs. 96.3% in vLLM (§1, Fig. 2); Orca Max, Pow2, and Oracle baselines (§6.1); 2.2× and 4.3× more concurrent requests than Orca Oracle and Max (§6.2, Fig. 13a); 2–4× throughput at similar latency (abstract, §9); paging can hurt compute-bound workloads (§8). arXiv: https://arxiv.org/abs/2309.06180 | verified |
+| kwon2023 | Efficient Memory Management for Large Language Model Serving with PagedAttention | Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, et al. | SOSP '23, ACM, pp. 611–626 | 2023 | https://doi.org/10.1145/3600006.3613165 | Weights persist while KV is allocated per request (§1, Fig. 1); generation and why keys and values are cached (§2.2); KV cache size per token, and GPU memory, not compute, usually limiting the batch (§3); reservation and fragmentation waste in prior systems (§3.1, Fig. 2–3); one block table per request for all layers, with no performance difference (§4.1 and its footnote); blocks, block tables, waste limited to the last block (§4.2–4.3); manually shared prefixes, parallel sampling, beam search, and copy-on-write (§4.4); preemption by recompute or swap (§4.5); kernel overhead (§7.1); recompute vs. swap cost (§7.3); block size ablation, default 16 (§7.2); PagedAttention called "an attention algorithm" (§1); token states use 20.4–38.2% of KV memory in the Orca baselines vs. 96.3% in vLLM (§1, Fig. 2); Orca Max, Pow2, and Oracle baselines (§6.1); 2.2× and 4.3× more concurrent requests than Orca Oracle and Max (§6.2, Fig. 13a); 2–4× throughput at similar latency (abstract, §9); paging may slow compute-bound workloads that are not LLMs (§8). arXiv: https://arxiv.org/abs/2309.06180 | verified |
 | yu2022 | Orca: A Distributed Serving System for Transformer-Based Generative Models | Gyeong-In Yu, Joo Seong Jeong, Geon-Woo Kim, Soojeong Kim, Byung-Gon Chun | USENIX OSDI '22, pp. 521–538 | 2022 | https://www.usenix.org/conference/osdi22/presentation/yu | Problem with request-level batching; iteration-level scheduling; selective batching (§3); per-request max-token reservation (§4.2, Alg. 1) | verified |
-| zheng2024 | SGLang: Efficient Execution of Structured Language Model Programs | Lianmin Zheng, Liangsheng Yin, Zhiqiang Xie, et al. | NeurIPS 2024 (Advances in Neural Information Processing Systems 37), pp. 62557–62583 | 2024 | https://proceedings.neurips.cc/paper_files/paper/2024/hash/724be4472168f31ba1c9ac630f15dec8-Abstract-Conference.html | RadixAttention: radix tree over token sequences, LRU leaf eviction, ref-counted nodes, cache-aware scheduling (§3) — the alternative to block hashing. arXiv: https://arxiv.org/abs/2312.07104 | verified |
+| zheng2024 | SGLang: Efficient Execution of Structured Language Model Programs | Lianmin Zheng, Liangsheng Yin, Zhiqiang Xie, et al. | NeurIPS 2024 (Advances in Neural Information Processing Systems 37), pp. 62557–62583 | 2024 | https://proceedings.neurips.cc/paper_files/paper/2024/hash/724be4472168f31ba1c9ac630f15dec8-Abstract-Conference.html | RadixAttention: radix tree over token sequences, pages of one token, LRU leaf eviction, ref-counted nodes, one memory pool shared by cached and running requests, cache-aware scheduling (§3) — the alternative to block hashing. arXiv: https://arxiv.org/abs/2312.07104 | verified |
 | agrawal2023 | SARATHI: Efficient LLM Inference by Piggybacking Decodes with Chunked Prefills | Amey Agrawal, Ashish Panwar, Jayashree Mohan, et al. | arXiv preprint | 2023 | https://arxiv.org/abs/2308.16369 | Where chunked prefill was first proposed | verified (preprint) |
-| agrawal2024 | Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve | Amey Agrawal, Nitin Kedia, Ashish Panwar, et al. | USENIX OSDI '24, pp. 117–134 | 2024 | https://www.usenix.org/conference/osdi24/presentation/agrawal | Prefill stalls decode (generation stalls) in prefill-first schedulers (§3.2); chunked prefill plus stall-free batching under a per-step token budget (§4.1–4.2, Alg. 3). arXiv: https://arxiv.org/abs/2403.02310 | verified |
+| agrawal2024 | Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve | Amey Agrawal, Nitin Kedia, Ashish Panwar, et al. | USENIX OSDI '24, pp. 117–134 | 2024 | https://www.usenix.org/conference/osdi24/presentation/agrawal | Prefill is compute-bound and decode memory-bound (§1, §3.1, Fig. 5); TTFT and TBT defined (§2.4); prefill stalls decode (generation stalls) in prefill-first schedulers (§3.2); pipeline-parallel bubbles (§3.3); chunked prefill plus stall-free batching under a per-step token budget (§4.1–4.2, Alg. 3); the token budget trade-off, chunking overhead included (§4.3). arXiv: https://arxiv.org/abs/2403.02310 | verified |
 | ainslie2023 | GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints | Joshua Ainslie, James Lee-Thorp, Michiel de Jong, Yury Zemlyanskiy, Federico Lebrón, Sumit Sanghai | EMNLP 2023 (main), ACL, pp. 4895–4901 | 2023 | https://aclanthology.org/2023.emnlp-main.298/ | Grouped-query attention: query heads split into groups that each share one key head and one value head; GQA-1 is MQA and GQA-H is MHA (§2.2); fewer KV heads shrink the KV cache and the data loaded per decode step (§1, §2.2). DOI: 10.18653/v1/2023.emnlp-main.298. arXiv: https://arxiv.org/abs/2305.13245 | verified |
-| vllm-apc-doc | Automatic Prefix Caching (design doc) | vLLM project | vLLM docs | 2026 | https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/docs/design/prefix_caching.md | V1 prefix cache: block hash = (parent hash, block tokens, extra keys); only full blocks cached; free queue with LRU eviction, finished blocks freed in reverse order; ref counts. Rendered: https://docs.vllm.ai/en/latest/design/prefix_caching/ | verified |
+| vllm-apc-doc | Automatic Prefix Caching (design doc) | vLLM project | vLLM docs | 2026 | https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/docs/design/prefix_caching.md | What prefix caching is and why it saves prefill (L3); V1 prefix cache: block hash = (parent hash, block tokens, extra keys); only full blocks cached; sha256 as the default hash (Note 2); touching hit blocks and evicting on pop (L146–147); free queue with LRU eviction, finished blocks freed in reverse order; ref counts. Rendered: https://docs.vllm.ai/en/latest/design/prefix_caching/ | verified |
 | vllm-pa-doc | Paged Attention (design doc) | vLLM project | vLLM docs | 2026 | https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/docs/design/paged_attention.md | History only: how the original paged attention kernel read keys and values from blocks. The doc says it no longer describes current code. Rendered: https://docs.vllm.ai/en/latest/design/paged_attention/ | verified, legacy |
-| vllm-src | vLLM source code | vLLM project | GitHub vllm-project/vllm | 2026 | https://github.com/vllm-project/vllm/tree/cfd54ca8819de923dcf555807298eaca34dd342d | Current V1 scheduler and KV cache manager behavior. docs/SIM.md lists the exact files and lines. | verified |
+| vllm-src | vLLM source code | vLLM project | GitHub vllm-project/vllm | 2026 | https://github.com/vllm-project/vllm/tree/cfd54ca8819de923dcf555807298eaca34dd342d | Current V1 scheduler and KV cache manager behavior. docs/SIM.md lists the exact files and lines. Also `vllm/utils/torch_utils.py` L39–41: fp8 KV is stored as one byte (`torch.uint8`). | verified |
 | llmsize-math | The math (llmsize docs/MATH.md) | Varad More | GitHub varad-more/llm-calculator | 2026 | https://github.com/varad-more/llm-calculator/blob/51b97463fb9bd91b7688325280c2d9da1d1561a9/docs/MATH.md | Every `computed` number: KV bytes per token, weight bytes, usable VRAM, roofline throughput, and the MBU/MFU assumptions | verified |
 | bench-ieb | inference-engine-benchmark-system | Varad More | GitHub varad-more/inference-engine-benchmark-system | 2026 | https://github.com/varad-more/inference-engine-benchmark-system/tree/1c964318addd2c742b53b0f0cf4a2cad791cace9 | `measured` numbers for vLLM vs. SGLang on 1x A10G: TTFT, TPOT, throughput ramps, long context, decode length sweeps. Cite the exact result file, never the README. | verified, see notes |
-| bench-kvtt | kv-transfer-tax | Varad More | GitHub varad-more/kv-transfer-tax | 2026 | https://github.com/varad-more/kv-transfer-tax/tree/56b5ab5df85d5881d9dad76eb6f2d44bf833a40c | `measured` numbers for disaggregated vs. colocated serving of Llama-3.1-8B on 4x A10G (vLLM 0.24.0, NIXL 1.3.1), including a `max-num-batched-tokens` sweep. Cite the exact result file. Also cited for code: `proxy/replica_lb.py` L56–75 routes by least-outstanding or round-robin only, with no prefix awareness (chapter 4 teaser). | verified, see notes |
+| bench-kvtt | kv-transfer-tax | Varad More | GitHub varad-more/kv-transfer-tax | 2026 | https://github.com/varad-more/kv-transfer-tax/tree/56b5ab5df85d5881d9dad76eb6f2d44bf833a40c | `measured` numbers for disaggregated vs. colocated serving of Llama-3.1-8B on 4x A10G (vLLM 0.24.0, NIXL 1.3.1), including a `max-num-batched-tokens` sweep. Cite the exact result file. Also cited for code: `proxy/replica_lb.py` L56–75 routes by least-outstanding or round-robin only, with no prefix awareness, and README L113–115 says it runs N independent servers (chapter 4 teaser). | verified, see notes |
 
 ## Notes
 
@@ -42,7 +43,11 @@ arXiv, and GitHub.
 6. **llmsize vs. vLLM on shared prefixes.** MATH.md "KV token count" stores a
    shared prefix once, as ⌈p/B⌉·B tokens. vLLM shares only full blocks, so a
    partial last prefix block is stored once per sequence. The gap is at most one
-   block per sequence. Open question for the author (see tasks/todo.md).
+   block per sequence. Closed on 2026-10-02 by the approved plans, not by an
+   author decision: no planned `computed` number uses llmsize's shared-prefix
+   count. Chapter 4's shared-prefix numbers
+   are `simulated` and follow vLLM. A later page that uses llmsize's count must
+   state the gap.
 7. **bench-ieb.** Its README names two vLLM versions (v0.18.0-cu130 in a table,
    "0.6.x" in prose). The result JSONs do not record GPU or engine version.
    `prefix_sharing_benefit` prompts are 56–59 tokens and have no cache-off run,
@@ -58,8 +63,9 @@ arXiv, and GitHub.
 9. **vllm-apc-doc vs. vllm-src on free order.** The doc says every freed block
    goes to the tail of the free queue, in reverse order. The code at `cfd54ca8`
    (`BlockPool.free_blocks`, block_pool.py L777–808) sends unhashed blocks to
-   the front and hashed blocks to the tail. docs/SIM.md follows the code. The
-   author's sign-off is pending (SIM.md Q8).
+   the front and hashed blocks to the tail. docs/SIM.md follows the code, as the
+   author decided on 2026-10-02 (SIM.md Q8). Pages cite vllm-src for the free
+   order, not vllm-apc-doc L198 (AUDIT.md M6).
 10. **llmsize vs. vllm-src on memory utilization.** llmsize's planner defaults
     `memoryUtilization` to 0.9 for vLLM (`packages/core/src/plan.ts` at 51b9746).
     vLLM's default `gpu_memory_utilization` is 0.92 (`vllm/config/cache.py` L101
@@ -74,5 +80,7 @@ arXiv, and GitHub.
     `data/gpus.json` (51b9746) gives `a10g-24` bf16 at 125 TFLOPS, fp32 31.5, and
     tf32 62.5. Its own `source_url`, AWS's A10G datasheet (Feb 2022), says BF16
     70 TF dense (140 with sparsity), FP32 35 TF, and TF32 35 TF dense. The 125
-    figure matches the A10, not the A10G. Bandwidth (600 GB/s) agrees. This is
-    pending the author's decision (AUDIT.md M9).
+    figure matches the A10, not the A10G. Bandwidth (600 GB/s) agrees. The
+    author approved the fix on 2026-10-02 (AUDIT.md M9): llmsize takes the
+    datasheet's dense figures in Build 1, before gen-data runs. Then
+    llmsize-math is re-pinned to the fixed commit.

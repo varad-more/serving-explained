@@ -14,6 +14,8 @@ requirement alone would leave room to argue.
    the mechanism to answer, not recall of a sentence.
 2. **Sources.** Every technical claim has a `SourceLink` to a docs/SOURCES.md id.
    A test fails if any id used in the chapter is missing from sources.json.
+   A claim that is our own reasoning from a source, not stated in it, says so
+   in the text ("our reasoning from kwon2023 §2.2").
 3. **Provenance.** Every number from data or the sim carries a `ProvenanceBadge`
    (`computed`, `simulated`, or `measured`). **(rule)**
    - One badge may cover a whole readout or figure.
@@ -38,16 +40,22 @@ requirement alone would leave room to argue.
 
 ## Widgets
 
-7. **Keyboard.** Every control can be reached with Tab and operated with arrow
-   keys, Enter, or Space. Focus is always visible.
+7. **Keyboard and touch.** Every control can be reached with Tab and operated
+   with arrow keys, Enter, or Space. Focus is always visible. **(rule)** At 375
+   and 768 px, every control's hit area is at least 44 × 44 px, measured with
+   `getBoundingClientRect` in the interaction test. Nothing works on hover
+   alone.
 8. **Labels.** Every control has a visible label tied to it. Readouts that change
    are announced through a polite live region.
 9. **Playback.** Every animated widget has a `PlaybackBar` (play, pause, step,
    scrub, speed) and is driven by the sim's event log.
 10. **Reduced motion.** Under `prefers-reduced-motion: reduce` there are no
     transitions and no autoplay. Step buttons show every state.
-11. **Sizes and themes.** Works at 375 px and 1440 px, light and dark, with no
-    horizontal scroll and no clipped labels.
+11. **Sizes, themes, and browsers.** Works at 375, 768, and 1440 px, light and
+    dark, with no horizontal scroll and no clipped labels. **(rule)** Checked in
+    Chromium, WebKit, and Firefox (Playwright projects). Pixel baselines
+    (item 17) are Chromium only; WebKit and Firefox run the interaction tests
+    (item 18) and the scroll and clipping checks at all three widths.
 12. **No layout shift.** Cumulative layout shift is 0 during the interaction
     test, measured with a `layout-shift` PerformanceObserver.
 13. **No console errors** or page errors during any Playwright test.
@@ -69,11 +77,11 @@ trace (`browser.startTracing`) under `test-results/` for inspection.
 
 ## Tests and review
 
-17. **Screenshots.** Playwright screenshot tests at 375 and 1440 px, light and
-    dark: 4 baselines.
-18. **Interaction.** One Playwright test per widget. It moves a control and
-    asserts that the visible result changes, checking rendered text, not just
-    the DOM.
+17. **Screenshots.** Playwright screenshot tests in Chromium at 375, 768, and
+    1440 px, light and dark: 6 baselines.
+18. **Interaction.** One Playwright test per widget, run in Chromium, WebKit,
+    and Firefox. It moves a control and asserts that the visible result
+    changes, checking rendered text, not just the DOM.
 19. **Checks.** `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `pnpm build` pass.
 20. **Fresh-eyes review.** A sub-agent that did not write the chapter reads it as
     a skeptical expert.

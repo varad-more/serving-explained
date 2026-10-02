@@ -1,7 +1,8 @@
 # Launch audit
 
-Status: **audit 1, before the build. Waiting for approval to fix.** Run on
-2026-10-01 at commit `d28955c` (local, not pushed).
+Status: **audit 1, before the build. The author decided every open item on
+2026-10-02, and the doc fixes are applied** (see "Resolution log"). The audit
+was run on 2026-10-01. The audit as written is commit `48d0d4b`.
 
 ## Scope: the site does not exist yet
 
@@ -40,6 +41,46 @@ Severity: **blocker** stops launch, **major** must be fixed before launch, and
 | 4. Performance | 0 | 0 | 0 | 4 items |
 | 5. Resilience | 0 | 0 | 1 | 3 items |
 
+These are the counts as audited. After 2026-10-02, B2 is resolved. Every
+major and minor has its doc fix, except two build tasks: M9's fix lands in
+llmsize in Build 1, and m2 in the link-check script. B1 remains.
+
+## Resolution log (2026-10-02)
+
+| item | status | where |
+|---|---|---|
+| B1 | open | the build, in the order in tasks/todo.md ("Build order") |
+| B2 | resolved | all seven decisions, listed under B2 below |
+| M1 | fixed | DESIGN.md: A is deleted; B light slot 8 `#0a8a5f` → `#0a865d`, so white labels reach 4.58:1. Label ink is listed per slot. The palette validator was re-run, and every check passes. |
+| M2 | fixed | DESIGN.md: B dark hatch `#5c6066` → `#6a6e75` (3.38:1 on `--surface`) |
+| M3 | fixed | DESIGN.md: every request mark keeps its pattern and glyph at every size; the under-14 px rule is gone. Render test in Prompt 1 step 6. |
+| M4 | fixed | tasks/todo.md chapter 2, SOURCES.md kwon2023: "DNNs that are not LLMs" |
+| M5 | fixed | tasks/todo.md chapters 2–4 and sandbox, SIM.md §8 and §12.1: "on GPUs under 70 GB" |
+| M6 | fixed | SIM.md Q8 decided (follow the code). Chapter 4 cites vllm-src `block_pool.py` L777–808 for the free order. SOURCES.md note 9. |
+| M7 | fixed | test `longer-prefix-saves-more`, claimed in chapter 4 step 3. PRODUCT.md's knob now compares with caching off, which is what the test checks. |
+| M8 | fixed | PRODUCT.md chapter 4 and sandbox; sandbox decision 7 |
+| M9 | approved | llmsize takes the datasheet's dense figures in Build 1, before gen-data (tasks/todo.md, Prompt 1 step 4). Chapter 3 numbers recomputed at 70 TFLOPS. SOURCES.md note 12. |
+| m1 | fixed | DESIGN.md rule; test in Prompt 1 step 6 |
+| m2 | open | a build task: the link-check script (Prompt 9 tests) |
+| m3 | fixed | chapter 1 step 1 marks the count as our reasoning; CHAPTER_DOD.md item 2 sets the convention |
+| m4 | fixed | chapter 1 step 3: "vLLM stores", with SGLang's one-token pages noted |
+| m5 | fixed | chapter 1 step 6: "usually" |
+| m6 | fixed | chapter 2: §3.1 and §6.1 |
+| m7 | fixed | chapter 2 step 2 and SIM.md §8: kwon2023 §3.1 and §6.1 "Max" |
+| m8 | fixed | chapter 2 step 6: "work well" |
+| m9 | fixed | chapter 3, "What the sources say" |
+| m10 | fixed | chapter 3 decision 5 and its widget note; SIM.md §7, §8, and §12.1 |
+| m11 | fixed | chapter 3 measured callout: "from 1 to 64" |
+| m12 | fixed | chapter 4: vllm-src `kv_cache_manager.py` L289–295 |
+| m13 | fixed | chapter 4 step 5: "unkeyed" |
+| m14 | fixed | chapter 4 sources and decision 1: marked as our inference |
+| m15 | fixed, another way | chapter 2 decision 5 defines preemption where it first appears, so the forward reference to chapter 3 is gone |
+| m16 | fixed | with M9 |
+| m17 | fixed | "What this leaves out" in chapters 2–4; SIM.md §9.19 added; chapter 4's "hit rate as in vLLM" line removed |
+| m18 | fixed | chapter 2: `frames-match-snapshots` moves to `tests/viz/`, and the CheckYourself answer is asserted. Chapter 3: `chunking-spreads-stalls` placed in step 5, misconception id `bigger-batches-cost-latency`, and an assertion for `no-free-setting`. Chapter 4: `caching-lowers-ttft-and-prefill` placed in step 3. |
+| m19 | fixed | SOURCES.md "cited for" column; the new line references were checked at the pinned commits |
+| §3 note | fixed | CHAPTER_DOD.md items 7, 11, 17, and 18: 768 px, WebKit, Firefox, and 44 px targets |
+
 ## 0. Build state
 
 **B1 (blocker): no site has been built.** Evidence:
@@ -55,25 +96,36 @@ Severity: **blocker** stops launch, **major** must be fixed before launch, and
   5. the sandbox
   6. this audit, run again
 
-**B2 (blocker): open decisions gate the build.** Each is recorded in
-tasks/todo.md or docs/SIM.md:
+**B2 (blocker, resolved 2026-10-02): open decisions gated the build.** Each is
+recorded in tasks/todo.md or docs/SIM.md:
 1. **Design direction**, A or B. Every token fix in §2 depends on it.
-2. **Repo visibility.** `gh repo view` shows `varad-more/Serving-Explainer` as
+   - **Resolved: B (Signal Box).** A is deleted from DESIGN.md.
+2. **Repo visibility.** `gh repo view` showed `varad-more/Serving-Explainer` as
    PRIVATE. Pages from a private repo needs a paid plan.
+   - **Resolved: public.**
 3. **Rename the repo** to `serving-explained` to get the planned URL.
+   - **Resolved: renamed.** `SITE_URL` is
+     `https://varadmore.me/serving-explained/`.
 4. **Permissions:**
    - `corepack enable`
    - clone llm-calculator to `../llm-calculator`
    - push to `main`
    - enable Pages
    - `brew install ffmpeg` for the launch captures
+   - **Resolved: all granted.**
 5. **SIM.md approval** and Q1–Q8. Q8 is a disagreement between sources that
    needs the author's sign-off.
+   - **Resolved: approved, with the §2 API frozen.** Q8: follow the code. All
+     answers are in SIM.md §11.
 6. **Chapter decisions:** chapter 1 (5), chapter 2 (6), chapter 3 (10),
    chapter 4 (6), and sandbox (9). These include the DESIGN.md rule changes
    for slot assignment, phase encoding, and prefix-cache states.
+   - **Resolved: every recommendation accepted,** with the author's answers
+     for chapter 1 decision 5, chapter 3 decision 8 (b), and chapter 3
+     decision 9 recorded in tasks/todo.md.
 7. **M9:** whether to correct llmsize's A10G compute figures upstream before
    gen-data runs.
+   - **Resolved: approved.** The fix happens in Build 1, before gen-data runs.
 
 ## 1. Correctness
 
@@ -109,7 +161,8 @@ hurt when a workload is compute-bound."
 - The prose says unkeyed freed blocks go to the front of the free queue
   (vllm-src `block_pool.py` L795–806). The cited vllm-apc-doc L198 says all go
   to the tail.
-- That conflict is SOURCES.md note 9, still pending as SIM.md Q8.
+- That conflict is SOURCES.md note 9, then pending as SIM.md Q8 (decided
+  2026-10-02: follow the code).
 - Fix: cite vllm-src for that step, after the author signs off on Q8.
 
 **M7 (major): chapter 4's knob to predict has no test.** PRODUCT.md L14–15
@@ -271,9 +324,9 @@ The plans specify each one in docs/CHAPTER_DOD.md items 7–14.
 - touch: thumb-sized sliders, no hover-only paths, 44 px targets
 - Safari: sticky, SVG text, workers
 
-Note for the build: CHAPTER_DOD.md tests 375 and 1440 px in Chromium only. This
-audit adds 768 px, WebKit, Firefox, and 44 px targets. CHAPTER_DOD.md should
-gain them.
+Note for the build: CHAPTER_DOD.md tested 375 and 1440 px in Chromium only. This
+audit adds 768 px, WebKit, Firefox, and 44 px targets. CHAPTER_DOD.md gained
+them on 2026-10-02 (items 7, 11, 17, and 18).
 
 ## 4. Performance
 
@@ -322,10 +375,10 @@ hosts in the report.
 
 ## Fix order after approval
 
-1. **Now, in docs only:**
-   - M1–M3 and m1 in DESIGN.md, once a direction is chosen
+1. **Now, in docs only** (done 2026-10-02):
+   - M1–M3 and m1 in DESIGN.md, once a direction is chosen (B was chosen)
    - M4–M8 and m3–m19 in tasks/todo.md, PRODUCT.md, SIM.md, and SOURCES.md.
-     M6 waits for Q8, and M9 waits for the author.
+     M6 waited for Q8, and M9 for the author; both are now decided.
    - add 768 px, WebKit, Firefox, and 44 px targets to CHAPTER_DOD.md
 2. **After the B2 decisions:** build in the B1 order.
 3. **After the build:** run this whole audit again, and update this file with

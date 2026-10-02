@@ -53,7 +53,8 @@ Source ids resolve in docs/SOURCES.md.
   slots static batching holds for finished requests, and the bigger the gap.
 - **Misconception corrected:** "Bigger batches are always better." They raise
   throughput, but they can hurt time to first token (TTFT) and inter-token
-  latency (ITL).
+  latency (ITL). If no preset shows TTFT getting worse, the claim narrows to
+  ITL (tasks/todo.md, chapter 3 decision 9).
 - **Sources:** yu2022, agrawal2023, agrawal2024, kwon2023.
 
 ### 4. Prefix caching
@@ -61,11 +62,13 @@ Source ids resolve in docs/SOURCES.md.
   prompt, chat history, few-shot examples) can reuse KV blocks already computed
   instead of recomputing them. Only full blocks are matched. The hit rate
   depends on the workload and on eviction.
-- **Knob to predict:** shared prefix length. A longer shared system prompt means
-  fewer prefill tokens per request and a shorter time to first token.
+- **Knob to predict:** shared prefix length. Compared with caching off, a
+  longer shared system prompt saves more prefill tokens per request and cuts
+  time to first token by more.
 - **Misconception corrected:** "Prefix caching makes every request faster." It
   saves prefill work only when prefixes repeat and the blocks are still cached.
-  It does nothing for decode speed or for unique prompts.
+  It does nothing for decode speed. It does nothing for unique prompts, except
+  that a preempted request can reuse its own blocks.
 - **Sources:** vllm-apc-doc, vllm-src, zheng2024, bench-kvtt (teaser only).
 
 ### Sandbox
@@ -74,7 +77,7 @@ Source ids resolve in docs/SOURCES.md.
 - **Knobs:** all chapter knobs, plus workload presets.
 - **Misconception corrected:** "Each optimization helps every workload." Each
   one targets a workload shape. Prefix caching saves nothing when prompts
-  share no prefix.
+  share no prefix, except when a preempted request reuses its own blocks.
 - **Rule:** the sandbox makes no claims beyond its preset descriptions, and each
   of those is tested.
 

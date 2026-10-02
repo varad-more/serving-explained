@@ -1,8 +1,8 @@
 # SIM.md — the toy serving engine
 
-Status: **draft, waiting for approval (Prompt 2, STOP 1).** Nothing here is
-built yet. Once approved, the public API in §2 is frozen. Changing it later
-means stopping to ask (CLAUDE.md).
+Status: **approved by the author on 2026-10-02. The public API in §2 is
+frozen.** Changing it now means stopping to ask (CLAUDE.md). Q1–Q8 are answered
+in §11. Nothing here is built yet.
 
 The engine is a small, pure, deterministic model of a vLLM-style scheduler and
 KV block manager. It is accurate enough to teach from, and every place it
@@ -23,7 +23,7 @@ src/sim/
   index.ts        public API (§2), nothing else
   types.ts        config, request, event, snapshot, and metrics types
   rng.ts          seeded PRNG and length distributions
-  workload.ts     request generators and the four presets
+  workload.ts     request generators and the presets (§7)
   hash.ts         53-bit string/int hash used for block keys and log hashes
   freeQueue.ts    doubly linked free-block queue over Int32Arrays
   paged.ts        paged block manager and prefix cache
@@ -309,7 +309,7 @@ KV, not 9.
   - Hashed blocks are added at the **tail**, so cached blocks are evicted in
     LRU order.
   - This follows vllm-src `BlockPool.free_blocks`. The design doc describes an
-    older version (§8, Q8).
+    older version (§8). The author chose the code (Q8).
 - **Cache:** `Map<hash, blockId[]>`. The block table is append-only, as in V1, so
   two blocks can hold the same content. A lookup takes the first id.
 
@@ -328,7 +328,9 @@ in a `[0, capacity)` address space. Placement is first-fit.
   `capacity mod maxModelLen` at the end. Every other gap fits a region exactly.
 - Reported waste: `reserved − used`, the reserved slots never filled, plus
   `tailGap`.
-- See open question Q4 about showing external fragmentation.
+- v1 keeps equal regions (Q4). Chapter 2 labels the tail gap honestly, as free
+  space too small for a region, and says real gaps are not modeled.
+  Per-request reservation is in the backlog (tasks/todo.md).
 
 ## 4. The step loop
 
@@ -482,8 +484,11 @@ drift.
 | constant | value | source |
 |---|---|---|
 | `MFU` | 0.45 | llmsize-math, `mfu_prefill` (llmsize cites PaLM, arXiv 2204.02311) |
-| `MBU` | 0.65 | llmsize-math, `mbu_decode` (llmsize cites Databricks, 0.55–0.72 measured) |
-| `t_overhead` | 0 s | teaching default, no source. Widgets can raise it. See Q5. |
+| `MBU` | 0.65 | llmsize-math, `mbu_decode` (llmsize cites Databricks, 0.55–0.72 measured). Kept (Q5). |
+| `t_overhead` | 0 s | teaching default, no source. Kept at 0 (Q5). |
+
+Both choices are stated in every chapter that shows step times, through its
+"What this leaves out" line for §9.2.
 
 **Cross-check with llmsize.** In steady decode (`q_i = 1`, `c_i ≈ ℓ`), this
 reduces to llmsize's decode roofline,
@@ -543,7 +548,10 @@ interface WorkloadSpec {
   maxModelLen: number            // the body is clipped first, then the output
   vocabSize?: number             // default 32000
 }
-type PresetName = 'chatbot' | 'rag' | 'batch-summarize' | 'agent-loop' | 'paged-vs-contiguous'
+type PresetName =
+  | 'chatbot' | 'rag' | 'batch-summarize' | 'agent-loop'                  // generic
+  | 'paged-vs-contiguous' | 'batching-basics' | 'long-prompt-stall'       // chapter
+  | 'shared-system-prompt' | 'cache-pressure'
 interface Preset {
   workload: WorkloadSpec
   description: string
@@ -571,7 +579,12 @@ They are not measurements of real traffic, and the UI says so.
 - All presets use the same engine defaults, unless the preset overrides them:
   Llama-3.1-8B-Instruct on a10g-24, the hardware of the author's benchmarks.
 - `blockSize` is 16 and `maxModelLen` is 4096.
-- `numBlocks` is 2000, a teaching value (see Q6).
+- **KV capacity (Q6).** The four generic presets (`chatbot`, `rag`,
+  `batch-summarize`, `agent-loop`) set no `numBlocks`. The caller derives it
+  from GPU memory with the §12.1 formula, at `gf` 0.92 and bf16 KV. The CLI
+  and the sandbox share that function, so both give the same log hash for the
+  same preset. It lives outside `src/sim`, which never imports `src/data`.
+  Each chapter preset sets its own toy pool, below.
 - The scheduler settings use the `vllm serve` defaults for a GPU under 70 GB
   (§8): `maxNumSeqs` 256 and `maxNumBatchedTokens` 2048, with prefix caching
   and chunked prefill both on.
@@ -607,8 +620,8 @@ They are not measurements of real traffic, and the UI says so.
 **`batching-basics` overrides** (tentative; tuned once the engine runs):
 - `seed` 11. `maxModelLen` 1024. `maxNumSeqs` 8 (DESIGN.md's limit of 8 live
   requests).
-- The default KV capacity (2,000 blocks) means memory never binds, so the
-  scheduler is the only difference.
+- `numBlocks` 2000 (32,000 tokens), a toy pool large enough that memory never
+  binds, so the scheduler is the only difference.
 - Prefix caching is off. The budget is 2048, with chunked prefill on.
 - Tuning targets, each asserted by a chapter test: continuous has a lower mean
   and p99 TTFT and higher throughput than static. Static shows idle slots within
@@ -617,11 +630,14 @@ They are not measurements of real traffic, and the UI says so.
 **`long-prompt-stall` overrides** (tentative):
 - `seed` 13. `maxModelLen` 8192. `maxNumSeqs` 8.
 - `numBlocks` 3861 (61,776 tokens). That is llmsize's free KV for
-  Llama-3.1-8B on an A10G, without engine overheads (see Q6).
+  Llama-3.1-8B on an A10G (61,787 tokens), rounded down to whole blocks, without
+  engine overheads or the 0.92 holdback. As a
+  chapter preset, it keeps this fixed pool (Q6).
 - Prefix caching is off.
 - Two settings are compared:
   - chunked prefill on, budget 2048
-  - chunked prefill off, budget 8192 (raised to `maxModelLen`, as vLLM does)
+  - chunked prefill off, budget 8192. vLLM raises an *unset* budget to
+    `max_model_len`; an explicit smaller one is a `ValueError` (§8).
 - Long prompts are frequent enough (15%) that their stalls are more than 1% of
   all inter-token gaps, both with and without chunking. Otherwise p99 ITL could
   not see them.
@@ -674,7 +690,7 @@ vllm-apc-doc were also read for this doc.
 | hash function | sha256 of a pickle by default ([cache-cfg]; vllm-apc-doc Note 2) | 53-bit, verified on hit | the sim runs in a browser; verification makes it exact |
 | when blocks are cached | at schedule time, inside `allocate_slots`, so same-batch hits work ([KM-cache]) | same | — |
 | duplicate full blocks | kept; block tables are append-only (vllm-apc-doc) | same | — |
-| freed block placement | reverse table order; unhashed blocks to the front, hashed blocks to the tail ([BP-free], [ST-free]) | same | vllm-apc-doc says all go to the tail. The code wins; see Q8. |
+| freed block placement | reverse table order; unhashed blocks to the front, hashed blocks to the tail ([BP-free], [ST-free]) | same | — (vllm-apc-doc says all go to the tail; the author chose the code, Q8) |
 | eviction | pop from the head; a cached block loses its hash ([BP-get]) | same | — |
 | full-prompt hit | capped at `num_tokens − 1`, rounded down to a block ([KM-computed], [ST-hit]) | same | — |
 | prefix stats | tokens: queries += num_tokens, hits += matched, on admission; preempted re-admissions counted apart ([KM-stats]) | same | — |
@@ -685,12 +701,13 @@ vllm-apc-doc were also read for this doc.
 | head-of-line blocking | `break` when the head cannot be scheduled ([S-hol]) | same | vLLM skips ahead only for grammar, LoRA, and connector cases, which we do not model |
 | max_num_seqs | checked in the waiting loop only ([S-waiting]) | same | — |
 | chunked prefill | a toggle, default on; `long_prefill_token_threshold` default 0 ([sched-cfg]) | toggle, default on | — |
-| chunking off | whole prompt in one step, still batched with decodes; the budget is raised to max_model_len ([arg-defaults]) | whole prompt in one step; config error if the budget is under maxModelLen | an explicit error is clearer than a silent raise |
+| chunking off | whole prompt in one step, still batched with decodes; an unset budget is raised to max_model_len, and an explicit smaller one is a `ValueError` ([arg-defaults]) | whole prompt in one step; config error if the budget is under maxModelLen | the same rule as an explicit budget in vLLM; callers raise it, as for an unset one |
 | defaults under 70 GB | `vllm serve`: max_num_batched_tokens 2048, max_num_seqs 256 ([arg-defaults]) | same in presets | — |
-| gpu_memory_utilization | 0.92 ([cache-cfg]) | n/a, capacity is given in blocks | Q6 |
+| defaults at 70 GB or more | `vllm serve`: 8192 and 1024 on GPUs of 70 GB or more that are not A100s, and 16384 and 1024 at 160 GB or more ([arg-defaults]) | presets keep 2048 and 256 on every GPU | presets are tuned on the A10G; the chapters state the condition (AUDIT.md M5) |
+| gpu_memory_utilization | 0.92 ([cache-cfg]) | the engine takes blocks; generic presets derive them at 0.92 (§7, §12.1) | chapter presets use toy pools (Q6) |
 | async scheduling | on by default; plans one step ahead ([async]) | synchronous | one step of lookahead would make every event log harder to read |
 | static batching | not a vLLM mode; only `fcfs` and `priority` exist ([sched-cfg]) | teaching baseline from yu2022 §3 | — |
-| contiguous-max | not vLLM; pre-paged systems reserved the max length (kwon2023 §3.1, §6.1 "Max"; yu2022 §4.2) | first-fit, equal regions | — |
+| contiguous-max | not vLLM; pre-paged systems reserved the max length (kwon2023 §3.1, §6.1 "Max") | first-fit, equal regions | Orca reserves each request's own max tokens instead (yu2022 §4.2); that is in the backlog (Q4) |
 
 The "chunking off" row corrects a common assumption. Turning off chunked
 prefill in V1 does *not* bring back the old prefill-first scheduler; it only
@@ -726,7 +743,10 @@ Each line becomes a chapter's "What this leaves out" entry where it applies.
 
 1. One GPU. No tensor, pipeline, or data parallelism.
 2. Step time comes from a roofline, not a measurement. No CPU scheduling time,
-   CUDA-graph padding, or kernel launch costs. The default overhead is 0.
+   CUDA-graph padding, or kernel launch costs. The step overhead is 0, and
+   memory bandwidth utilization is llmsize's 0.65 (Q5). bench-ieb's
+   single-request decode on the A10G implies about 0.76, so simulated decode is
+   slower than that measurement.
 3. Scheduling is synchronous: each step is planned after the last one ends.
    vLLM's async scheduling is on by default and plans one step ahead.
 4. The paged attention kernel's own slowdown is not charged (kwon2023 §7.1).
@@ -739,20 +759,29 @@ Each line becomes a chapter's "What this leaves out" entry where it applies.
    53-bit hash with verification instead of sha256.
 9. Preemption is recompute only, as in vLLM V1. The CPU swap tier from
    kwon2023 §4.5 is not modeled.
-10. Scheduling is FCFS only. No priority scheduling, and no per-request
-    `max_tokens` limit beyond `maxModelLen`.
+10. Scheduling is FCFS only. No priority or cache-aware scheduling
+    (zheng2024 §3), and no per-request `max_tokens` limit beyond
+    `maxModelLen`.
 11. No lookahead slots or speculative decoding. The watermark is 0, which is
     vLLM's default.
 12. Block 0 is not reserved as a null block, so all `numBlocks` are usable.
 13. No structured output, LoRA, multimodal encoders, KV offload, or
     disaggregated prefill, and none of the queue-skipping those features cause.
-14. KV capacity is given in blocks. It is not derived from GPU memory (Q6).
+14. KV capacity is given in blocks (Q6). Generic presets derive it from
+    llmsize's usable VRAM × 0.92 minus the weights. That leaves out
+    activations, CUDA graphs, and runtime overhead, so it overstates vLLM's
+    real pool. Chapter presets use toy pools.
 15. Contiguous-max reserves equal regions, so it shows reservation waste but
-    almost no external fragmentation (Q4).
+    no external fragmentation beyond the tail gap (Q4).
 16. Static batching: finished requests stop computing. Orca's baseline also
     spends compute on them (yu2022 §3).
 17. KV writes, sampling cost, and activation memory are ignored.
 18. Dense full-attention models only. No MoE, MLA, or sliding window.
+19. Static batching has no batching timeout. A new batch forms from whoever is
+    waiting as soon as the last one ends; it never waits to fill up.
+20. Static batching streams each token as it is made. Request-level systems
+    return results only when the whole batch ends (yu2022 §3). TTFT counts the
+    first token generated, and E2E counts the batch end.
 
 ## 10. Test plan
 
@@ -855,36 +884,47 @@ with caching on and invariants off, must run in under 1 s in Node. The test
 takes the best of 3 runs. A second run with invariants on reports its time but
 does not gate.
 
-## 11. Open questions
+## 11. Decisions (were open questions)
 
-1. **Q1: invariant 4.** OK to restate it as in §6? The prompt's version fails by
-   one token, and fails again after a preemption.
+All eight were decided by the author on 2026-10-02.
+
+1. **Q1: invariant 4.** Restate it as in §6? The prompt's version fails by one
+   token, and fails again after a preemption.
+   - **Decided: yes.**
 2. **Q2: `metrics(events, config)`** instead of `metrics(state)`?
+   - **Decided: yes.**
 3. **Q3: two extra events**, `CacheInsert` and `Reject`?
+   - **Decided: yes.**
 4. **Q4: external fragmentation.** With equal `maxModelLen` regions,
-   contiguous-max shows reservation waste but almost no gaps. Should we add
+   contiguous-max shows reservation waste but almost no gaps. Add
    `reserve: 'max-model-len' | 'request-max'`, where the second reserves
-   `prompt + outputLen` (Orca's per-request reservation, yu2022 §4.2)? That
-   would show real gaps. It is a small scope increase.
-5. **Q5: step overhead.** It is 0 by default. We could calibrate it from bench-ieb
-   `single_request_latency` (measured TPOT minus the roofline) on Llama-3.1-8B
-   and A10G. That makes it a derived, measured constant with a file link.
+   `prompt + outputLen` (Orca's per-request reservation, yu2022 §4.2)?
+   - **Decided: not in v1.** Regions stay equal. Chapter 2 labels the tail gap
+     honestly, as free space too small for a region, and says real gaps are
+     not modeled (§9.15). Per-request reservation is in the backlog
+     (tasks/todo.md).
+5. **Q5: step overhead.** Calibrate it from bench-ieb `single_request_latency`
+   (measured TPOT minus the roofline) on Llama-3.1-8B and A10G?
    - **Checked for Prompt 5: this does not work.** bench-ieb's concurrency-1 run
      decodes about 33 ms per token on the A10G (30.2 tok/s). The roofline
      predicts 38.5 ms, so the leftover is negative.
    - The measurement implies an MBU near 0.76, against llmsize's 0.65.
-   - Recommendation: keep the overhead at 0, keep llmsize's MBU, and say so.
-6. **Q6: default `numBlocks`.** 2000 is a teaching value. Alternatively,
-   gen-data could compute the real vLLM KV pool for Llama-3.1-8B on A10G with
-   llmsize's planner and use that.
+   - **Decided: overhead 0 and MBU 0.65**, stated in the chapters through
+     §9.2.
+6. **Q6: default `numBlocks`.** Keep the teaching value of 2000, or derive the
+   pool from GPU memory?
+   - **Decided:** the generic presets derive capacity from GPU memory, as in
+     sandbox decision 1 (§7, §12.1). Chapter presets keep their toy pools.
 7. **Q7: order of work.** Building the sim needs Prompt 1 steps 1 (vitest) and
-   4 (gen-data, for `roofline-ref.json`). Proposed order: Prompt 1 steps 1–4,
-   then the sim, then Prompt 1 steps 5–9.
+   4 (gen-data, for `roofline-ref.json`). Order: Prompt 1 steps 1–4, then the
+   sim, then Prompt 1 steps 5–9.
+   - **Decided: yes.**
 8. **Q8: two sources disagree on free order.** vllm-apc-doc says freed blocks
    all go to the tail of the free queue, in reverse order. The code at
    `cfd54ca8` (`BlockPool.free_blocks`) sends unhashed blocks to the front, for
-   LIFO reuse, and hashed blocks to the tail. I follow the code, since it is
-   what vLLM does today, and I note the doc's version in SOURCES.md. OK?
+   LIFO reuse, and hashed blocks to the tail.
+   - **Decided: follow the code.** The doc's version stays recorded in
+     SOURCES.md note 9.
 
 ## 12. Sandbox: limits and share links
 
@@ -913,15 +953,18 @@ limits, so the two cannot drift.
 | block size | `bs` | 8, 16, 32, 64, 128 | 16 |
 | prefix caching | `pc` | 0, 1 | 1 |
 | scheduler | `sc` | `static`, `continuous` | `continuous` |
-| max_num_seqs | `ns` | 1 – 1,024 | 256 |
-| max_num_batched_tokens | `bt` | 16 – 131,072 | 2048 |
+| max_num_seqs | `ns` | 1 – 1,024 | 256 (vLLM's default on GPUs under 70 GB) |
+| max_num_batched_tokens | `bt` | 16 – 131,072 | 2048 (vLLM's default on GPUs under 70 GB) |
 | chunked prefill | `cp` | 0, 1 | 1 |
 | max_model_len | `ml` | 64 – the model's max context (≤ 131,072) | 4096 |
 
 **Rules across fields:**
 - Prefix caching is forced off with `contiguous-max`, with a notice.
-- With chunked prefill off, `bt` is raised to `ml`, as vLLM does, and the UI
-  says so.
+- With chunked prefill off, `bt` is raised to `ml`, and the UI says so. vLLM
+  does this only when the budget is unset; an explicit smaller budget is a
+  `ValueError` there (§8).
+- `ns` and `bt` keep their defaults on every GPU. vLLM uses larger ones on GPUs
+  of 70 GB or more (§8), and the control help says so.
 - The workload generator clips lengths to `ml`.
 - A run stops with a plain-language error after 5,000,000 steps.
 
