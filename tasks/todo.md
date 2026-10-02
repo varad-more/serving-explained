@@ -140,7 +140,16 @@ Goal: a live, empty-but-real site with the shell every chapter will use.
 Each step ends with `pnpm test`, `pnpm typecheck`, `pnpm lint`, and `pnpm build`
 passing, then one commit.
 
-- [ ] **1. Scaffold.**
+- [x] **1. Scaffold.** Done 2026-10-02.
+  - **Verified:** `pnpm test` (1 file, 2 tests), `pnpm typecheck` (`tsc -b`
+    over the app and scripts projects), `pnpm lint`, and `pnpm build` pass.
+    Lint is type-aware: a probe file with an `any` member access failed
+    `no-unsafe-member-access`, then was deleted. `dist/index.html` loads its
+    script from `/serving-explained/assets/`.
+  - **TypeScript is pinned to `~6.0.3`:** typescript-eslint 8.71 supports
+    TypeScript below 6.1.0, so 7.0.2 cannot be used yet.
+  - `build` is `vite build` until step 3 adds postbuild. `gen:data`,
+    `gen:og`, and `gen:sources` point at scripts that steps 3–5 add.
   - Pin pnpm in `packageManager`. Use Vite 8, React 19.3, TypeScript strict
     with `noUncheckedIndexedAccess`, and `@mdx-js/rollup` as a pre plugin.
   - Lint with ESLint flat config (typescript-eslint strict-type-checked plus

@@ -1,0 +1,6 @@
+# Prose docs are formatted by hand.
+*.md
+pnpm-lock.yaml
+# Generated: never edited by hand.
+src/data/*.json
+public/og
