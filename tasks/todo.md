@@ -167,7 +167,18 @@ passing, then one commit.
   - `engines.node >= 24`, because the scripts run as TypeScript.
   - `LICENSE` (Apache-2.0, for code) and `LICENSE-CONTENT` (CC BY 4.0, for text
     and media), since the repo is already public (Prompt 9 decision 1).
-- [ ] **2. Routes and router.**
+- [x] **2. Routes and router.** Done 2026-10-02.
+  - **Verified:** `pnpm test` (2 files, 12 tests: path matching under `/` and
+    `/serving-explained/`, with and without trailing slashes, unknown, nested,
+    and outside-base paths), plus typecheck, lint, and build. The build emits
+    one chunk per route.
+  - **Checked in Chromium** against `vite preview`, with no console errors:
+    - a Link click changes the URL and title and focuses the new h1
+    - Back returns to the landing page
+    - `/nope` renders "Page not found"
+    - `/kv-cache#x` is rewritten to `/kv-cache/#x`
+  - Landing, sandbox, glossary, and not-found pages live in `src/pages/`; the
+    lazy map is `src/pages.ts`, and the shell is `src/App.tsx`.
   - `src/routes.ts` holds metadata only (slug, title, description, OG image),
     so the Node postbuild script can import it.
   - Pages are `React.lazy` chunks, one per route.

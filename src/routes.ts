@@ -62,7 +62,13 @@ export const routes = [
   },
 ] as const satisfies readonly Route[];
 
-export type Slug = (typeof routes)[number]["slug"];
+export type AppRoute = (typeof routes)[number];
+export type Slug = AppRoute["slug"];
+
+/** The document title for a route. */
+export function pageTitle(route: Route): string {
+  return route.slug === "" ? route.title : `${route.title} – serving-explained`;
+}
 
 /** A route's path below the site base: "/" or "/<slug>/". */
 export function routePath(slug: string): string {
