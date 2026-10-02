@@ -192,7 +192,19 @@ passing, then one commit.
     - sandbox
     - glossary, rendered from `src/chapters/glossary.ts`
   - Tests (vitest): path matching with base `/` and with `/serving-explained/`.
-- [ ] **3. Static HTML per route.**
+- [x] **3. Static HTML per route.** Done 2026-10-02.
+  - **Verified:** `pnpm test` (3 files, 17 tests), plus typecheck, lint, and
+    build. The postbuild tests cover:
+    - one file per route plus `404.html`
+    - unique titles and descriptions
+    - absolute canonical, `og:url`, `og:image`, and `twitter:image` URLs
+    - `noindex` on the 404 page
+    - a committed 1200×630 PNG for every route (also an added check)
+  - `pnpm build` writes 8 HTML files. Over `vite preview`, curl shows each
+    route's own title and `og:image` in the raw HTML. Chromium loads
+    `/prefix-caching/` with no console errors and no failed requests (the
+    favicon included).
+  - `pnpm gen:og` wrote 7 images (34–54 KB). I viewed two of them.
   - `scripts/postbuild.ts` writes `dist/<slug>/index.html` for every route, with
     that route's `<title>`, description, canonical, and `og:*` and `twitter:*`
     tags. The image is `og/<slug>.png`, absolute from `SITE_URL`.
