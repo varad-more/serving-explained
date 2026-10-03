@@ -61,6 +61,11 @@ export default defineConfig(
     },
   },
   {
+    // Tests index arrays they have just checked; `!` keeps them short.
+    files: ["tests/**"],
+    rules: { "@typescript-eslint/no-non-null-assertion": "off" },
+  },
+  {
     files: ["**/*.js"],
     extends: [tseslint.configs.disableTypeChecked],
   },
