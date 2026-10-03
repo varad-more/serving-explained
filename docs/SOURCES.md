@@ -19,7 +19,7 @@ m19).
 | vllm-apc-doc | Automatic Prefix Caching (design doc) | vLLM project | vLLM docs | 2026 | https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/docs/design/prefix_caching.md | What prefix caching is and why it saves prefill (L3); V1 prefix cache: block hash = (parent hash, block tokens, extra keys); only full blocks cached; sha256 as the default hash (Note 2); touching hit blocks and evicting on pop (L146–147); free queue with LRU eviction, finished blocks freed in reverse order; ref counts. Rendered: https://docs.vllm.ai/en/latest/design/prefix_caching/ | verified |
 | vllm-pa-doc | Paged Attention (design doc) | vLLM project | vLLM docs | 2026 | https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/docs/design/paged_attention.md | History only: how the original paged attention kernel read keys and values from blocks. The doc says it no longer describes current code. Rendered: https://docs.vllm.ai/en/latest/design/paged_attention/ | verified, legacy |
 | vllm-src | vLLM source code | vLLM project | GitHub vllm-project/vllm | 2026 | https://github.com/vllm-project/vllm/tree/cfd54ca8819de923dcf555807298eaca34dd342d | Current V1 scheduler and KV cache manager behavior. docs/SIM.md lists the exact files and lines. Also `vllm/utils/torch_utils.py` L39–41: fp8 KV is stored as one byte (`torch.uint8`). | verified |
-| llmsize-math | The math (llmsize docs/MATH.md) | Varad More | GitHub varad-more/llm-calculator | 2026 | https://github.com/varad-more/llm-calculator/blob/51b97463fb9bd91b7688325280c2d9da1d1561a9/docs/MATH.md | Every `computed` number: KV bytes per token, weight bytes, usable VRAM, roofline throughput, and the MBU/MFU assumptions | verified |
+| llmsize-math | The math (llmsize docs/MATH.md) | Varad More | GitHub varad-more/llm-calculator | 2026 | https://github.com/varad-more/llm-calculator/blob/5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf/docs/MATH.md | Every `computed` number: KV bytes per token, weight bytes, usable VRAM, roofline throughput, and the MBU/MFU assumptions | verified |
 | bench-ieb | inference-engine-benchmark-system | Varad More | GitHub varad-more/inference-engine-benchmark-system | 2026 | https://github.com/varad-more/inference-engine-benchmark-system/tree/1c964318addd2c742b53b0f0cf4a2cad791cace9 | `measured` numbers for vLLM vs. SGLang on 1x A10G: TTFT, TPOT, throughput ramps, long context, decode length sweeps. Cite the exact result file, never the README. | verified, see notes |
 | bench-kvtt | kv-transfer-tax | Varad More | GitHub varad-more/kv-transfer-tax | 2026 | https://github.com/varad-more/kv-transfer-tax/tree/56b5ab5df85d5881d9dad76eb6f2d44bf833a40c | `measured` numbers for disaggregated vs. colocated serving of Llama-3.1-8B on 4x A10G (vLLM 0.24.0, NIXL 1.3.1), including a `max-num-batched-tokens` sweep. Cite the exact result file. Also cited for code: `proxy/replica_lb.py` L56–75 routes by least-outstanding or round-robin only, with no prefix awareness, and README L113–115 says it runs N independent servers (chapter 4 teaser). | verified, see notes |
 
@@ -82,5 +82,8 @@ m19).
     70 TF dense (140 with sparsity), FP32 35 TF, and TF32 35 TF dense. The 125
     figure matches the A10, not the A10G. Bandwidth (600 GB/s) agrees. The
     author approved the fix on 2026-10-02 (AUDIT.md M9): llmsize takes the
-    datasheet's dense figures in Build 1, before gen-data runs. Then
-    llmsize-math is re-pinned to the fixed commit.
+    datasheet's dense figures in Build 1, before gen-data runs. The fix is
+    commit `5d5d029` on branch `fix/a10g-tflops` (varad-more/llm-calculator#1,
+    open on 2026-10-02). The author chose to generate `src/data` from that
+    commit before the merge, so llmsize-math is pinned to it. Re-pin to the
+    merge commit once #1 lands.

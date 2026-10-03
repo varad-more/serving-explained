@@ -1,0 +1,47 @@
+{
+  "_provenance": {
+    "source": "llmsize",
+    "repo": "https://github.com/varad-more/llm-calculator",
+    "commit": "5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf",
+    "math": "https://github.com/varad-more/llm-calculator/blob/5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf/docs/MATH.md",
+    "functions": [
+      "estimateThroughput (bf16 weights and KV, tp 1, chunk 2048)"
+    ],
+    "generated_at": "2026-10-02T23:57:40.906Z",
+    "generator": "scripts/gen-data.ts"
+  },
+  "mbu_decode": {
+    "value": 0.65,
+    "source_url": "https://www.databricks.com/blog/llm-inference-performance-engineering-best-practices"
+  },
+  "mfu_prefill": {
+    "value": 0.45,
+    "source_url": "https://arxiv.org/abs/2204.02311"
+  },
+  "configs": [
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "gpu": "a10g-24",
+      "concurrency": 8,
+      "avgSeqLen": 1024,
+      "decodeTokensPerSecond": 193.98614557618387,
+      "decodeStepSeconds": 0.041240058542521905
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "gpu": "l4-24",
+      "concurrency": 16,
+      "avgSeqLen": 512,
+      "decodeTokensPerSecond": 474.377194382103,
+      "decodeStepSeconds": 0.0337284342280423
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "gpu": "h100-sxm-80",
+      "concurrency": 32,
+      "avgSeqLen": 2048,
+      "decodeTokensPerSecond": 2811.29491956172,
+      "decodeStepSeconds": 0.011382654938596337
+    }
+  ]
+}

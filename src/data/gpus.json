@@ -1,0 +1,77 @@
+{
+  "_provenance": {
+    "source": "llmsize",
+    "repo": "https://github.com/varad-more/llm-calculator",
+    "commit": "5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf",
+    "math": "https://github.com/varad-more/llm-calculator/blob/5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf/docs/MATH.md",
+    "functions": [
+      "getGpu",
+      "usableVram",
+      "defaultAssumptions"
+    ],
+    "generated_at": "2026-10-02T23:57:40.906Z",
+    "generator": "scripts/gen-data.ts"
+  },
+  "gpus": [
+    {
+      "id": "a10g-24",
+      "name": "NVIDIA A10G 24GB",
+      "vramBytes": 25769803776,
+      "usableVramBytes": 24159191040,
+      "reservedFraction": 0.0625,
+      "reservedFractionFrom": "gpu",
+      "memBandwidthBytesPerSec": 600000000000,
+      "bf16Tflops": 70,
+      "source_url": "https://d1.awsstatic.com/product-marketing/ec2/NVIDIA_AWS_A10G_DataSheet_FINAL_02_17_2022.pdf",
+      "notes": "GDDR6 datacenter cards ship with in-band ECC enabled, which stores parity in the framebuffer itself and costs 1/16 of capacity. AWS documents the result per instance: 22 GiB of 24 on the A10G (g5) and L4 (g6), 44 GiB of 48 on the L40S (g6e). The 1/16 is the mechanism and matches those figures to within AWS's whole-GiB rounding. Consumer GeForce cards have no ECC and are not reduced. Figures: https://docs.aws.amazon.com/ec2/latest/instancetypes/ac.html"
+    },
+    {
+      "id": "l4-24",
+      "name": "NVIDIA L4 24GB",
+      "vramBytes": 25769803776,
+      "usableVramBytes": 24159191040,
+      "reservedFraction": 0.0625,
+      "reservedFractionFrom": "gpu",
+      "memBandwidthBytesPerSec": 300000000000,
+      "bf16Tflops": 121,
+      "source_url": "https://resources.nvidia.com/en-us-l4/l4-datasheet",
+      "notes": "GDDR6 datacenter cards ship with in-band ECC enabled, which stores parity in the framebuffer itself and costs 1/16 of capacity. AWS documents the result per instance: 22 GiB of 24 on the A10G (g5) and L4 (g6), 44 GiB of 48 on the L40S (g6e). The 1/16 is the mechanism and matches those figures to within AWS's whole-GiB rounding. Consumer GeForce cards have no ECC and are not reduced. Figures: https://docs.aws.amazon.com/ec2/latest/instancetypes/ac.html"
+    },
+    {
+      "id": "l40s-48",
+      "name": "NVIDIA L40S 48GB",
+      "vramBytes": 51539607552,
+      "usableVramBytes": 48318382080,
+      "reservedFraction": 0.0625,
+      "reservedFractionFrom": "gpu",
+      "memBandwidthBytesPerSec": 864000000000,
+      "bf16Tflops": 362.05,
+      "source_url": "https://resources.nvidia.com/en-us-l40s/l40s-datasheet-28413",
+      "notes": "GDDR6 datacenter cards ship with in-band ECC enabled, which stores parity in the framebuffer itself and costs 1/16 of capacity. AWS documents the result per instance: 22 GiB of 24 on the A10G (g5) and L4 (g6), 44 GiB of 48 on the L40S (g6e). The 1/16 is the mechanism and matches those figures to within AWS's whole-GiB rounding. Consumer GeForce cards have no ECC and are not reduced. Figures: https://docs.aws.amazon.com/ec2/latest/instancetypes/ac.html"
+    },
+    {
+      "id": "h100-sxm-80",
+      "name": "NVIDIA H100 SXM5 80GB",
+      "vramBytes": 85899345920,
+      "usableVramBytes": 85555748536.32,
+      "reservedFraction": 0.004,
+      "reservedFractionFrom": "assumption",
+      "memBandwidthBytesPerSec": 3352000000000,
+      "bf16Tflops": 989.4,
+      "source_url": "https://resources.nvidia.com/en-us-tensor-core/nvidia-tensor-core-gpu-datasheet",
+      "notes": null
+    },
+    {
+      "id": "m4-max-128",
+      "name": "Apple M4 Max 128GB",
+      "vramBytes": 137438953472,
+      "usableVramBytes": 103079215104,
+      "reservedFraction": 0.25,
+      "reservedFractionFrom": "gpu",
+      "memBandwidthBytesPerSec": 546000000000,
+      "bf16Tflops": 11.6,
+      "source_url": "https://www.apple.com/newsroom/2024/10/apple-introduces-m4-pro-and-m4-max/",
+      "notes": "40-core GPU. arXiv:2502.05317 measured peak FP32 via Metal Performance Shaders SGEMM on the base chip (M2 2.24, M3 2.47, M4 2.90 TFLOPS at 10 GPU cores), scaled by Apple's published core count for this configuration. https://arxiv.org/abs/2502.05317 fp16/bf16 are set equal to fp32 rather than assuming Apple's half-rate multiplier, so prefill here is a floor, not a peak. Decode is bandwidth-bound and uses Apple's own published figure. Apple GPUs address unified memory, but Metal caps a process at recommendedMaxWorkingSetSize, ~75% of RAM, which llama.cpp logs and treats as a hard ceiling; raise it with sysctl iogpu.wired_limit_mb. https://developer.apple.com/forums/thread/732035 Tensor parallelism across Apple devices is not a thing; the link is zeroed so any tp>1 shows as unserviceable rather than plausible."
+    }
+  ]
+}

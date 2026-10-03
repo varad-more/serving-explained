@@ -215,7 +215,35 @@ passing, then one commit.
     4 replaces it with cards rendered from the real site.
   - Tests: postbuild output has one file per route, unique titles, and absolute
     OG URLs.
-- [ ] **4. Generated data from llmsize.**
+- [x] **4. Generated data from llmsize.** Done 2026-10-02, from the unmerged
+  fix commit `5d5d029`, as the author chose.
+  - **Verified:** `pnpm test` (4 files, 25 tests, with zod schemas for all four
+    files), typecheck, lint, and build pass. The values match this plan's
+    numbers: KV per token, weights, usable VRAM, and the Phi-3.5-mini vs.
+    Llama-3.2-3B pair. gen-data refused a dirty llmsize checkout.
+  - SOURCES.md pins llmsize-math to `5d5d029`. When #1 merges, rerun
+    `pnpm gen:data` on llmsize main and re-pin.
+  - **llmsize fix:** branch `fix/a10g-tflops`, commit `5d5d029`, PR #1, with CI
+    green. It sets the a10g-24 dense figures from the datasheet (fp32 35, tf32
+    35, fp16 70, bf16 70, int8 140) and the guard's sparse bf16 (140). llmsize
+    `pnpm test` passes 86/86, with Python parity on 16 fixtures; `pnpm goldens`
+    produced no fixture diff.
+  - **Written and checked against the branch:** `scripts/gen-data.ts`
+    and `tests/data.test.ts` (zod schemas). The checks were `pnpm test` (4 files,
+    25 tests), typecheck, lint, and build. gen-data refused a dirty checkout and
+    left `src/data` unchanged.
+  - **Other GPUs checked against their datasheets (plan item, 2026-10-02):**
+    - The bf16 figures the site uses match: L4 121, L40S 362.05, and H100 989.4
+      against the datasheet's 989.5.
+    - The three NVIDIA `source_url`s now redirect to nvidia.com's homepage (curl).
+      The figures were read from archived or current copies instead.
+    - m4-max-128's 11.6 comes from arXiv:2502.05317 (its notes), not from its
+      `source_url`.
+    - Waiting on the author: dead links would reach the site through
+      gpus.json.
+  - **Added beyond the plan:** `vramBytes` and `reservedFractionFrom` per GPU, and
+    a `contrast` record in models.json. roofline-ref.json leaves out llmsize's
+    `bound`, which compares decode time with prefill time.
   - **Before gen-data runs, fix llmsize (AUDIT.md M9, approved).** In
     `../llm-calculator`, set `a10g-24` to the dense figures in its own
     `source_url` datasheet: bf16 70, fp32 35, and tf32 35 TFLOPS. Check every

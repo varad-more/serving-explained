@@ -1,0 +1,2080 @@
+{
+  "_provenance": {
+    "source": "llmsize",
+    "repo": "https://github.com/varad-more/llm-calculator",
+    "commit": "5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf",
+    "math": "https://github.com/varad-more/llm-calculator/blob/5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf/docs/MATH.md",
+    "functions": [
+      "kvBytesForSequence"
+    ],
+    "generated_at": "2026-10-02T23:57:40.906Z",
+    "generator": "scripts/gen-data.ts"
+  },
+  "blockSize": 16,
+  "entries": [
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 256,
+      "bytes": 83886080
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 384,
+      "bytes": 125829120
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 512,
+      "bytes": 167772160
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 768,
+      "bytes": 251658240
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 1024,
+      "bytes": 335544320
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 1536,
+      "bytes": 503316480
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 2048,
+      "bytes": 671088640
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 3072,
+      "bytes": 1006632960
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 4096,
+      "bytes": 1342177280
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 6144,
+      "bytes": 2013265920
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 8192,
+      "bytes": 2684354560
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 12288,
+      "bytes": 4026531840
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 16384,
+      "bytes": 5368709120
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 24576,
+      "bytes": 8053063680
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 32768,
+      "bytes": 10737418240
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 256,
+      "bytes": 41943040
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 384,
+      "bytes": 62914560
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 512,
+      "bytes": 83886080
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 768,
+      "bytes": 125829120
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 1024,
+      "bytes": 167772160
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 1536,
+      "bytes": 251658240
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 2048,
+      "bytes": 335544320
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 3072,
+      "bytes": 503316480
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 4096,
+      "bytes": 671088640
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 6144,
+      "bytes": 1006632960
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 8192,
+      "bytes": 1342177280
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 12288,
+      "bytes": 2013265920
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 16384,
+      "bytes": 2684354560
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 24576,
+      "bytes": 4026531840
+    },
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 32768,
+      "bytes": 5368709120
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 256,
+      "bytes": 14680064
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 384,
+      "bytes": 22020096
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 512,
+      "bytes": 29360128
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 768,
+      "bytes": 44040192
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 1024,
+      "bytes": 58720256
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 1536,
+      "bytes": 88080384
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 2048,
+      "bytes": 117440512
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 3072,
+      "bytes": 176160768
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 4096,
+      "bytes": 234881024
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 6144,
+      "bytes": 352321536
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 8192,
+      "bytes": 469762048
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 12288,
+      "bytes": 704643072
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 16384,
+      "bytes": 939524096
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 24576,
+      "bytes": 1409286144
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 32768,
+      "bytes": 1879048192
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 256,
+      "bytes": 7340032
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 384,
+      "bytes": 11010048
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 512,
+      "bytes": 14680064
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 768,
+      "bytes": 22020096
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 1024,
+      "bytes": 29360128
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 1536,
+      "bytes": 44040192
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 2048,
+      "bytes": 58720256
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 3072,
+      "bytes": 88080384
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 4096,
+      "bytes": 117440512
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 6144,
+      "bytes": 176160768
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 8192,
+      "bytes": 234881024
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 12288,
+      "bytes": 352321536
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 16384,
+      "bytes": 469762048
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 24576,
+      "bytes": 704643072
+    },
+    {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 32768,
+      "bytes": 939524096
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "bf16",
+      "tokens": 256,
+      "bytes": 67108864
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "bf16",
+      "tokens": 384,
+      "bytes": 100663296
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "bf16",
+      "tokens": 512,
+      "bytes": 134217728
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "bf16",
+      "tokens": 768,
+      "bytes": 201326592
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "bf16",
+      "tokens": 1024,
+      "bytes": 268435456
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "bf16",
+      "tokens": 1536,
+      "bytes": 402653184
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "bf16",
+      "tokens": 2048,
+      "bytes": 536870912
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "bf16",
+      "tokens": 3072,
+      "bytes": 805306368
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "bf16",
+      "tokens": 4096,
+      "bytes": 1073741824
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "bf16",
+      "tokens": 6144,
+      "bytes": 1610612736
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "bf16",
+      "tokens": 8192,
+      "bytes": 2147483648
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "bf16",
+      "tokens": 12288,
+      "bytes": 3221225472
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "bf16",
+      "tokens": 16384,
+      "bytes": 4294967296
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "bf16",
+      "tokens": 24576,
+      "bytes": 6442450944
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "bf16",
+      "tokens": 32768,
+      "bytes": 8589934592
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "bf16",
+      "tokens": 40960,
+      "bytes": 10737418240
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "fp8",
+      "tokens": 256,
+      "bytes": 33554432
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "fp8",
+      "tokens": 384,
+      "bytes": 50331648
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "fp8",
+      "tokens": 512,
+      "bytes": 67108864
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "fp8",
+      "tokens": 768,
+      "bytes": 100663296
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "fp8",
+      "tokens": 1024,
+      "bytes": 134217728
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "fp8",
+      "tokens": 1536,
+      "bytes": 201326592
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "fp8",
+      "tokens": 2048,
+      "bytes": 268435456
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "fp8",
+      "tokens": 3072,
+      "bytes": 402653184
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "fp8",
+      "tokens": 4096,
+      "bytes": 536870912
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "fp8",
+      "tokens": 6144,
+      "bytes": 805306368
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "fp8",
+      "tokens": 8192,
+      "bytes": 1073741824
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "fp8",
+      "tokens": 12288,
+      "bytes": 1610612736
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "fp8",
+      "tokens": 16384,
+      "bytes": 2147483648
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "fp8",
+      "tokens": 24576,
+      "bytes": 3221225472
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "fp8",
+      "tokens": 32768,
+      "bytes": 4294967296
+    },
+    {
+      "model": "Qwen/Qwen3-32B",
+      "kvDtype": "fp8",
+      "tokens": 40960,
+      "bytes": 5368709120
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "bf16",
+      "tokens": 256,
+      "bytes": 37748736
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "bf16",
+      "tokens": 384,
+      "bytes": 56623104
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "bf16",
+      "tokens": 512,
+      "bytes": 75497472
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "bf16",
+      "tokens": 768,
+      "bytes": 113246208
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "bf16",
+      "tokens": 1024,
+      "bytes": 150994944
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "bf16",
+      "tokens": 1536,
+      "bytes": 226492416
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "bf16",
+      "tokens": 2048,
+      "bytes": 301989888
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "bf16",
+      "tokens": 3072,
+      "bytes": 452984832
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "bf16",
+      "tokens": 4096,
+      "bytes": 603979776
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "bf16",
+      "tokens": 6144,
+      "bytes": 905969664
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "bf16",
+      "tokens": 8192,
+      "bytes": 1207959552
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "bf16",
+      "tokens": 12288,
+      "bytes": 1811939328
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "bf16",
+      "tokens": 16384,
+      "bytes": 2415919104
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "bf16",
+      "tokens": 24576,
+      "bytes": 3623878656
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "bf16",
+      "tokens": 32768,
+      "bytes": 4831838208
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "bf16",
+      "tokens": 40960,
+      "bytes": 6039797760
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "fp8",
+      "tokens": 256,
+      "bytes": 18874368
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "fp8",
+      "tokens": 384,
+      "bytes": 28311552
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "fp8",
+      "tokens": 512,
+      "bytes": 37748736
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "fp8",
+      "tokens": 768,
+      "bytes": 56623104
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "fp8",
+      "tokens": 1024,
+      "bytes": 75497472
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "fp8",
+      "tokens": 1536,
+      "bytes": 113246208
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "fp8",
+      "tokens": 2048,
+      "bytes": 150994944
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "fp8",
+      "tokens": 3072,
+      "bytes": 226492416
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "fp8",
+      "tokens": 4096,
+      "bytes": 301989888
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "fp8",
+      "tokens": 6144,
+      "bytes": 452984832
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "fp8",
+      "tokens": 8192,
+      "bytes": 603979776
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "fp8",
+      "tokens": 12288,
+      "bytes": 905969664
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "fp8",
+      "tokens": 16384,
+      "bytes": 1207959552
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "fp8",
+      "tokens": 24576,
+      "bytes": 1811939328
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "fp8",
+      "tokens": 32768,
+      "bytes": 2415919104
+    },
+    {
+      "model": "Qwen/Qwen3-8B",
+      "kvDtype": "fp8",
+      "tokens": 40960,
+      "bytes": 3019898880
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 256,
+      "bytes": 132120576
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 384,
+      "bytes": 198180864
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 512,
+      "bytes": 264241152
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 768,
+      "bytes": 396361728
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 1024,
+      "bytes": 528482304
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 1536,
+      "bytes": 792723456
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 2048,
+      "bytes": 1056964608
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 3072,
+      "bytes": 1585446912
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 4096,
+      "bytes": 2113929216
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 6144,
+      "bytes": 3170893824
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 8192,
+      "bytes": 4227858432
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 12288,
+      "bytes": 6341787648
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 16384,
+      "bytes": 8455716864
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 24576,
+      "bytes": 12683575296
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 32768,
+      "bytes": 16911433728
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 49152,
+      "bytes": 25367150592
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 65536,
+      "bytes": 33822867456
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 98304,
+      "bytes": 50734301184
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 131072,
+      "bytes": 67645734912
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 256,
+      "bytes": 66060288
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 384,
+      "bytes": 99090432
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 512,
+      "bytes": 132120576
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 768,
+      "bytes": 198180864
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 1024,
+      "bytes": 264241152
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 1536,
+      "bytes": 396361728
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 2048,
+      "bytes": 528482304
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 3072,
+      "bytes": 792723456
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 4096,
+      "bytes": 1056964608
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 6144,
+      "bytes": 1585446912
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 8192,
+      "bytes": 2113929216
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 12288,
+      "bytes": 3170893824
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 16384,
+      "bytes": 4227858432
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 24576,
+      "bytes": 6341787648
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 32768,
+      "bytes": 8455716864
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 49152,
+      "bytes": 12683575296
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 65536,
+      "bytes": 16911433728
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 98304,
+      "bytes": 25367150592
+    },
+    {
+      "model": "meta-llama/Llama-3.1-405B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 131072,
+      "bytes": 33822867456
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 256,
+      "bytes": 83886080
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 384,
+      "bytes": 125829120
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 512,
+      "bytes": 167772160
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 768,
+      "bytes": 251658240
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 1024,
+      "bytes": 335544320
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 1536,
+      "bytes": 503316480
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 2048,
+      "bytes": 671088640
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 3072,
+      "bytes": 1006632960
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 4096,
+      "bytes": 1342177280
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 6144,
+      "bytes": 2013265920
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 8192,
+      "bytes": 2684354560
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 12288,
+      "bytes": 4026531840
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 16384,
+      "bytes": 5368709120
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 24576,
+      "bytes": 8053063680
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 32768,
+      "bytes": 10737418240
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 49152,
+      "bytes": 16106127360
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 65536,
+      "bytes": 21474836480
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 98304,
+      "bytes": 32212254720
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 131072,
+      "bytes": 42949672960
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 256,
+      "bytes": 41943040
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 384,
+      "bytes": 62914560
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 512,
+      "bytes": 83886080
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 768,
+      "bytes": 125829120
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 1024,
+      "bytes": 167772160
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 1536,
+      "bytes": 251658240
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 2048,
+      "bytes": 335544320
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 3072,
+      "bytes": 503316480
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 4096,
+      "bytes": 671088640
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 6144,
+      "bytes": 1006632960
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 8192,
+      "bytes": 1342177280
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 12288,
+      "bytes": 2013265920
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 16384,
+      "bytes": 2684354560
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 24576,
+      "bytes": 4026531840
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 32768,
+      "bytes": 5368709120
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 49152,
+      "bytes": 8053063680
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 65536,
+      "bytes": 10737418240
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 98304,
+      "bytes": 16106127360
+    },
+    {
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 131072,
+      "bytes": 21474836480
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 256,
+      "bytes": 33554432
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 384,
+      "bytes": 50331648
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 512,
+      "bytes": 67108864
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 768,
+      "bytes": 100663296
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 1024,
+      "bytes": 134217728
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 1536,
+      "bytes": 201326592
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 2048,
+      "bytes": 268435456
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 3072,
+      "bytes": 402653184
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 4096,
+      "bytes": 536870912
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 6144,
+      "bytes": 805306368
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 8192,
+      "bytes": 1073741824
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 12288,
+      "bytes": 1610612736
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 16384,
+      "bytes": 2147483648
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 24576,
+      "bytes": 3221225472
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 32768,
+      "bytes": 4294967296
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 49152,
+      "bytes": 6442450944
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 65536,
+      "bytes": 8589934592
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 98304,
+      "bytes": 12884901888
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 131072,
+      "bytes": 17179869184
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 256,
+      "bytes": 16777216
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 384,
+      "bytes": 25165824
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 512,
+      "bytes": 33554432
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 768,
+      "bytes": 50331648
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 1024,
+      "bytes": 67108864
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 1536,
+      "bytes": 100663296
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 2048,
+      "bytes": 134217728
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 3072,
+      "bytes": 201326592
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 4096,
+      "bytes": 268435456
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 6144,
+      "bytes": 402653184
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 8192,
+      "bytes": 536870912
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 12288,
+      "bytes": 805306368
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 16384,
+      "bytes": 1073741824
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 24576,
+      "bytes": 1610612736
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 32768,
+      "bytes": 2147483648
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 49152,
+      "bytes": 3221225472
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 65536,
+      "bytes": 4294967296
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 98304,
+      "bytes": 6442450944
+    },
+    {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 131072,
+      "bytes": 8589934592
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 256,
+      "bytes": 29360128
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 384,
+      "bytes": 44040192
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 512,
+      "bytes": 58720256
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 768,
+      "bytes": 88080384
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 1024,
+      "bytes": 117440512
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 1536,
+      "bytes": 176160768
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 2048,
+      "bytes": 234881024
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 3072,
+      "bytes": 352321536
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 4096,
+      "bytes": 469762048
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 6144,
+      "bytes": 704643072
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 8192,
+      "bytes": 939524096
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 12288,
+      "bytes": 1409286144
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 16384,
+      "bytes": 1879048192
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 24576,
+      "bytes": 2818572288
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 32768,
+      "bytes": 3758096384
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 49152,
+      "bytes": 5637144576
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 65536,
+      "bytes": 7516192768
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 98304,
+      "bytes": 11274289152
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "bf16",
+      "tokens": 131072,
+      "bytes": 15032385536
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 256,
+      "bytes": 14680064
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 384,
+      "bytes": 22020096
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 512,
+      "bytes": 29360128
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 768,
+      "bytes": 44040192
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 1024,
+      "bytes": 58720256
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 1536,
+      "bytes": 88080384
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 2048,
+      "bytes": 117440512
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 3072,
+      "bytes": 176160768
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 4096,
+      "bytes": 234881024
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 6144,
+      "bytes": 352321536
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 8192,
+      "bytes": 469762048
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 12288,
+      "bytes": 704643072
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 16384,
+      "bytes": 939524096
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 24576,
+      "bytes": 1409286144
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 32768,
+      "bytes": 1879048192
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 49152,
+      "bytes": 2818572288
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 65536,
+      "bytes": 3758096384
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 98304,
+      "bytes": 5637144576
+    },
+    {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "kvDtype": "fp8",
+      "tokens": 131072,
+      "bytes": 7516192768
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 256,
+      "bytes": 100663296
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 384,
+      "bytes": 150994944
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 512,
+      "bytes": 201326592
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 768,
+      "bytes": 301989888
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 1024,
+      "bytes": 402653184
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 1536,
+      "bytes": 603979776
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 2048,
+      "bytes": 805306368
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 3072,
+      "bytes": 1207959552
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 4096,
+      "bytes": 1610612736
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 6144,
+      "bytes": 2415919104
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 8192,
+      "bytes": 3221225472
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 12288,
+      "bytes": 4831838208
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 16384,
+      "bytes": 6442450944
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 24576,
+      "bytes": 9663676416
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 32768,
+      "bytes": 12884901888
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 49152,
+      "bytes": 19327352832
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 65536,
+      "bytes": 25769803776
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 98304,
+      "bytes": 38654705664
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "bf16",
+      "tokens": 131072,
+      "bytes": 51539607552
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 256,
+      "bytes": 50331648
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 384,
+      "bytes": 75497472
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 512,
+      "bytes": 100663296
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 768,
+      "bytes": 150994944
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 1024,
+      "bytes": 201326592
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 1536,
+      "bytes": 301989888
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 2048,
+      "bytes": 402653184
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 3072,
+      "bytes": 603979776
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 4096,
+      "bytes": 805306368
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 6144,
+      "bytes": 1207959552
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 8192,
+      "bytes": 1610612736
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 12288,
+      "bytes": 2415919104
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 16384,
+      "bytes": 3221225472
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 24576,
+      "bytes": 4831838208
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 32768,
+      "bytes": 6442450944
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 49152,
+      "bytes": 9663676416
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 65536,
+      "bytes": 12884901888
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 98304,
+      "bytes": 19327352832
+    },
+    {
+      "model": "microsoft/Phi-3.5-mini-instruct",
+      "kvDtype": "fp8",
+      "tokens": 131072,
+      "bytes": 25769803776
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "bf16",
+      "tokens": 256,
+      "bytes": 33554432
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "bf16",
+      "tokens": 384,
+      "bytes": 50331648
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "bf16",
+      "tokens": 512,
+      "bytes": 67108864
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "bf16",
+      "tokens": 768,
+      "bytes": 100663296
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "bf16",
+      "tokens": 1024,
+      "bytes": 134217728
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "bf16",
+      "tokens": 1536,
+      "bytes": 201326592
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "bf16",
+      "tokens": 2048,
+      "bytes": 268435456
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "bf16",
+      "tokens": 3072,
+      "bytes": 402653184
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "bf16",
+      "tokens": 4096,
+      "bytes": 536870912
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "bf16",
+      "tokens": 6144,
+      "bytes": 805306368
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "bf16",
+      "tokens": 8192,
+      "bytes": 1073741824
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "bf16",
+      "tokens": 12288,
+      "bytes": 1610612736
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "bf16",
+      "tokens": 16384,
+      "bytes": 2147483648
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "bf16",
+      "tokens": 24576,
+      "bytes": 3221225472
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "bf16",
+      "tokens": 32768,
+      "bytes": 4294967296
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "fp8",
+      "tokens": 256,
+      "bytes": 16777216
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "fp8",
+      "tokens": 384,
+      "bytes": 25165824
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "fp8",
+      "tokens": 512,
+      "bytes": 33554432
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "fp8",
+      "tokens": 768,
+      "bytes": 50331648
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "fp8",
+      "tokens": 1024,
+      "bytes": 67108864
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "fp8",
+      "tokens": 1536,
+      "bytes": 100663296
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "fp8",
+      "tokens": 2048,
+      "bytes": 134217728
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "fp8",
+      "tokens": 3072,
+      "bytes": 201326592
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "fp8",
+      "tokens": 4096,
+      "bytes": 268435456
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "fp8",
+      "tokens": 6144,
+      "bytes": 402653184
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "fp8",
+      "tokens": 8192,
+      "bytes": 536870912
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "fp8",
+      "tokens": 12288,
+      "bytes": 805306368
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "fp8",
+      "tokens": 16384,
+      "bytes": 1073741824
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "fp8",
+      "tokens": 24576,
+      "bytes": 1610612736
+    },
+    {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "kvDtype": "fp8",
+      "tokens": 32768,
+      "bytes": 2147483648
+    }
+  ]
+}
