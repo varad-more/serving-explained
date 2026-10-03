@@ -401,14 +401,38 @@ passing, then one commit.
     and `deploy-pages`, at their current majors (checked today: v6, v5, v5). It
     uses `concurrency: pages` and least-privilege `permissions`.
   - README stub: one sentence and the live URL.
-- [ ] **9. Verify live.**
+- [x] **9. Verify live.** Done 2026-10-02 at https://varadmore.me/serving-explained/.
+  - **Verified:**
+    - curl: all 7 routes return 200 with their own titles; `/no-such-page/`
+      returns 404 with the not-found page; `/kv-cache` redirects (301) to
+      `/kv-cache/`; preview images and the favicon return 200.
+    - `SMOKE_BASE_URL=https://varadmore.me/serving-explained/` smoke suite:
+      27 of 27 pass in Chromium, WebKit, and Firefox.
+    - Lighthouse 13.5.0, recorded under Results.
   - Every route returns 200 at the Pages URL, checked with curl and with the
     smoke suite pointed at the live site.
   - Lighthouse (mobile and desktop) on `/` and `/kv-cache/`, recorded below.
 
 ### Results
 
-_Empty until the steps run._
+- **Live:** https://varadmore.me/serving-explained/ (deployed 2026-10-02).
+- **CI:** the first CI-and-deploy run on `main` passed both jobs:
+  https://github.com/varad-more/serving-explained/actions/runs/37086424863.
+  The Linux baselines came from
+  https://github.com/varad-more/serving-explained/actions/runs/37086269474.
+- **Lighthouse 13.5.0** (`pnpm dlx lighthouse@13`, Chrome headless,
+  2026-10-02):
+
+  | page | form factor | performance | accessibility | best practices | SEO | LCP | CLS | TBT |
+  |---|---|---|---|---|---|---|---|---|
+  | `/` | mobile | 100 | 100 | 100 | 100 | 1.3 s | 0 | 0 ms |
+  | `/` | desktop | 100 | 100 | 100 | 100 | 0.3 s | 0 | 0 ms |
+  | `/kv-cache/` | mobile | 100 | 100 | 100 | 100 | 1.2 s | 0 | 0 ms |
+  | `/kv-cache/` | desktop | 100 | 100 | 100 | 100 | 0.3 s | 0 | 0 ms |
+
+  Lighthouse 13.5 also reports an "agentic browsing" category: 100 on all
+  four. The pages are placeholders, so these scores set a baseline, not a
+  verdict on the chapters.
 
 ## Prompt 2: sim engine
 

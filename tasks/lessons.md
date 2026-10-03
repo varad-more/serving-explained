@@ -4,6 +4,17 @@ Mistakes, corrections, and surprises. Newest first.
 
 ## 2026-10-02
 
+- **Never name a zsh variable `path`.** It is tied to `PATH`, so `for path in
+  …` emptied PATH and every command after it failed. Rule: use `route`, `p`,
+  or `file` in shell loops.
+- **Tab order tests must walk forward in DOM order.** Chromium and WebKit wrap
+  Tab around the document; Firefox hands focus to the browser chrome. A test
+  that tabbed backwards passed in two browsers by accident. Rule: visit
+  controls in DOM order, and run keyboard tests in all three browsers.
+- **WebKit on macOS ignores `min-height` on native selects.** They stay 23 px
+  tall until `appearance: none`. Rule: measure target sizes in WebKit, not
+  only Chromium.
+
 - **A property test can pass without reaching the path it is for.** 300 random
   runs passed with zero preemptions: the generator spread arrivals too thin to
   fill memory. Rule: count the interesting events across a property test's
