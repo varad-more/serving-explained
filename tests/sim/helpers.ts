@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { ContiguousPool } from "../../src/sim/contiguous.ts";
 import { PagedPool } from "../../src/sim/paged.ts";
 import {
@@ -118,4 +119,25 @@ export function applyWork(s: EngineState, work: Scheduled[]): void {
       r.prefilling = false;
     }
   }
+}
+
+/** src/data, read the way the CLI reads it. */
+export function loadData(): {
+  models: import("../../src/simConfig.ts").ModelEntry[];
+  gpus: import("../../src/simConfig.ts").GpuEntry[];
+  roofline: {
+    configs: {
+      model: string;
+      gpu: string;
+      concurrency: number;
+      avgSeqLen: number;
+      decodeTokensPerSecond: number;
+    }[];
+  };
+} {
+  const read = (f: string): unknown =>
+    JSON.parse(readFileSync(`src/data/${f}`, "utf8"));
+  const models = (read("models.json") as { models: never[] }).models;
+  const gpus = (read("gpus.json") as { gpus: never[] }).gpus;
+  return { models, gpus, roofline: read("roofline-ref.json") as never };
 }
