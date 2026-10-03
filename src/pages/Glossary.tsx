@@ -2,7 +2,7 @@ import { glossary } from "../chapters/glossary.ts";
 
 export default function Glossary() {
   return (
-    <main>
+    <>
       <h1>Glossary</h1>
       {glossary.length === 0 ? (
         <p>No terms yet. Each chapter adds the terms it defines.</p>
@@ -16,6 +16,6 @@ export default function Glossary() {
           ))}
         </dl>
       )}
-    </main>
+    </>
   );
 }

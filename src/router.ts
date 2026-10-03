@@ -11,14 +11,18 @@ export function normalizePath(pathname: string): string {
   return pathname.endsWith("/") ? pathname : `${pathname}/`;
 }
 
+/** The path below `base` ("/kv-cache/"), or null outside the base. */
+export function localPath(pathname: string, base: string): string | null {
+  const path = normalizePath(pathname);
+  return path.startsWith(base) ? `/${path.slice(base.length)}` : null;
+}
+
 /** The route at `pathname` under `base`, or undefined for a page not found. */
 export function matchRoute(
   pathname: string,
   base: string,
 ): AppRoute | undefined {
-  const path = normalizePath(pathname);
-  if (!path.startsWith(base)) return undefined;
-  const local = `/${path.slice(base.length)}`;
+  const local = localPath(pathname, base);
   return routes.find((r) => routePath(r.slug) === local);
 }
 

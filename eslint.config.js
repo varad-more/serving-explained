@@ -7,6 +7,7 @@ export default defineConfig(
   {
     ignores: [
       "dist",
+      "dist-ks",
       "src/data",
       "test-results",
       "playwright-report",

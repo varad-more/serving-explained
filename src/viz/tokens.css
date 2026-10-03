@@ -1,0 +1,169 @@
+/*
+ * Design tokens, Direction B "Signal Box" (DESIGN.md). Light by default; dark
+ * under prefers-color-scheme unless [data-theme="light"]; [data-theme="dark"]
+ * forces dark. Any element can carry data-theme, so the kitchen sink shows
+ * both themes on one page. Aliases are declared in every theme block because
+ * a custom property resolves var() where it is declared.
+ *
+ * Gaps DESIGN.md leaves, filled here: --req-k-label is the "label ink" column
+ * of the requests table; --block-shared-edge and --badge-ink are --ink;
+ * the callout tokens are their band colors.
+ */
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #fafaf7;
+  --surface: #ffffff;
+  --surface-2: #ecece6;
+  --ink: #111111;
+  --ink-2: #4d4d4d;
+  --rule: #d6d6d0;
+  --rule-strong: #111111;
+  --highlight: #ffcc00;
+  --on-highlight: #111111;
+  --focus: #111111;
+  --req-1: #2563c9;
+  --req-2: #d1461b;
+  --req-3: #c13b8a;
+  --req-4: #b06f00;
+  --req-5: #0f8fb3;
+  --req-6: #4f7f12;
+  --req-7: #7347c7;
+  --req-8: #0a865d;
+  --req-1-label: #ffffff;
+  --req-2-label: #ffffff;
+  --req-3-label: #ffffff;
+  --req-4-label: #111111;
+  --req-5-label: #111111;
+  --req-6-label: #ffffff;
+  --req-7-label: #ffffff;
+  --req-8-label: #ffffff;
+  --block-free: #e9e9e3;
+  --block-free-edge: #4d4d4d;
+  --block-waste: #8a8a84;
+  --block-shared-edge: var(--ink);
+  --badge-ink: var(--ink);
+  --callout-simplification: var(--surface);
+  --callout-reality: var(--surface-2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #111315;
+    --surface: #181b1e;
+    --surface-2: #23272b;
+    --ink: #f2f2ee;
+    --ink-2: #a9abad;
+    --rule: #2c2f33;
+    --rule-strong: #e8e8e2;
+    --highlight: #ffcc00;
+    --on-highlight: #111111;
+    --focus: #ffcc00;
+    --req-1: #4d8ff0;
+    --req-2: #e2602f;
+    --req-3: #e05ca8;
+    --req-4: #b8820c;
+    --req-5: #1fa3c6;
+    --req-6: #6e9a28;
+    --req-7: #9a7cf0;
+    --req-8: #1f9e72;
+    --req-1-label: #111111;
+    --req-2-label: #111111;
+    --req-3-label: #111111;
+    --req-4-label: #111111;
+    --req-5-label: #111111;
+    --req-6-label: #111111;
+    --req-7-label: #111111;
+    --req-8-label: #111111;
+    --block-free: #262a2e;
+    --block-free-edge: #a9abad;
+    --block-waste: #6a6e75;
+    --block-shared-edge: var(--ink);
+    --badge-ink: var(--ink);
+    --callout-simplification: var(--surface);
+    --callout-reality: var(--surface-2);
+  }
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #111315;
+  --surface: #181b1e;
+  --surface-2: #23272b;
+  --ink: #f2f2ee;
+  --ink-2: #a9abad;
+  --rule: #2c2f33;
+  --rule-strong: #e8e8e2;
+  --highlight: #ffcc00;
+  --on-highlight: #111111;
+  --focus: #ffcc00;
+  --req-1: #4d8ff0;
+  --req-2: #e2602f;
+  --req-3: #e05ca8;
+  --req-4: #b8820c;
+  --req-5: #1fa3c6;
+  --req-6: #6e9a28;
+  --req-7: #9a7cf0;
+  --req-8: #1f9e72;
+  --req-1-label: #111111;
+  --req-2-label: #111111;
+  --req-3-label: #111111;
+  --req-4-label: #111111;
+  --req-5-label: #111111;
+  --req-6-label: #111111;
+  --req-7-label: #111111;
+  --req-8-label: #111111;
+  --block-free: #262a2e;
+  --block-free-edge: #a9abad;
+  --block-waste: #6a6e75;
+  --block-shared-edge: var(--ink);
+  --badge-ink: var(--ink);
+  --callout-simplification: var(--surface);
+  --callout-reality: var(--surface-2);
+}
+
+:root {
+  --font-body: "Helvetica Neue", Helvetica, "Nimbus Sans", Arial, sans-serif;
+  --font-display: var(--font-body);
+  --font-mono:
+    ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas,
+    monospace;
+
+  /* Ratio 1.25 on a 17px base. */
+  --step--2: 12px;
+  --step--1: 14px;
+  --step-0: 17px;
+  --step-1: 21px;
+  --step-2: 27px;
+  --step-3: 33px;
+  --step-4: 42px;
+  --step-5: 52px;
+
+  /* A strict 8px grid; the 4px step is for hairline gaps between blocks. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+  --space-6: 48px;
+  --space-7: 64px;
+  --space-8: 80px;
+  --space-9: 120px;
+
+  /* Changes snap in short steps, like a split-flap board. */
+  --dur-fast: 80ms;
+  --dur-base: 160ms;
+  --ease: steps(4, end);
+
+  /* DESIGN.md: every control's hit area is at least 44 × 44 px. */
+  --target: 44px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+  }
+}

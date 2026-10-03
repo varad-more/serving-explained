@@ -295,7 +295,34 @@ passing, then one commit.
     SourceLink outside MDX.
   - Test: the JSON matches a fresh parse, so it is never stale.
   - Test: every `SourceLink` id used in `src/**/*.mdx` exists.
-- [ ] **6. Design system** (Direction B, Signal Box).
+- [x] **6. Design system** (Direction B, Signal Box). Done 2026-10-02.
+  - **Verified:** `pnpm test` (25 files, 174 tests), typecheck, lint, and
+    build pass. New tests:
+    - the SVG and Canvas request marks draw their slot's pattern and glyph at
+      16–64 px, and the label from 24 px
+    - no `--highlight` background without `--on-highlight` text
+    - the dark token blocks are identical, and light has the same tokens
+    - `measured` without `href` fails to type-check
+    - postbuild refuses a dist that ships the kitchen sink
+  - **Checked in Chromium** on the kitchen sink at 1440 px (light) and 375 px
+    (dark), with screenshots read section by section and no console errors.
+    Fixed what that found:
+    - a glossary popover overflowing 375 px by 61 px
+    - a missing disclosure marker on "Show the answer"
+    - disabled toggles that looked enabled
+    - cramped line badges
+  - **Gaps in DESIGN.md filled in tokens.css:**
+    - `--req-k-label` (the label-ink column)
+    - `--block-shared-edge` and `--badge-ink` (both `--ink`)
+    - the callout tokens as their band colors
+  - The kitchen sink renders a light and a dark panel (`data-theme` on any
+    element), so one page shows every state in both themes. It is built only
+    in dev or with `VITE_KITCHEN_SINK=1` (`pnpm build:ks`, into `dist-ks`).
+  - The App shell gained:
+    - a skip link
+    - a header nav without middle dots and with `aria-current`
+    - the theme toggle
+    - one `<main>`
   - `src/viz/tokens.css`: light by default, dark under `prefers-color-scheme`
     unless `[data-theme=light]`, and `[data-theme=dark]` forced. A tiny inline
     head script sets the theme before paint. The toggle cycles system, light,

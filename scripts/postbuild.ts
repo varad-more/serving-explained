@@ -3,7 +3,7 @@
  * description, canonical URL, and Open Graph and Twitter tags, so links
  * preview correctly without running JavaScript. Also writes dist/404.html.
  */
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pageTitle, routePath, routes, type Route } from "../src/routes.ts";
 import { SITE_URL } from "./site.ts";
@@ -68,7 +68,21 @@ export function postbuild(distDir: string, siteUrl: string): string[] {
   return written;
 }
 
+/** The production dist must not ship the kitchen sink (Prompt 1 step 6). */
+export function assertNoKitchenSink(distDir: string): void {
+  const assets = join(distDir, "assets");
+  for (const file of readdirSync(assets)) {
+    if (
+      /kitchen/i.test(file) ||
+      readFileSync(join(assets, file), "utf8").includes("Kitchen sink")
+    ) {
+      throw new Error(`postbuild: ${file} contains the kitchen sink`);
+    }
+  }
+}
+
 if (import.meta.main) {
+  assertNoKitchenSink("dist");
   const files = postbuild("dist", SITE_URL);
   console.log(`postbuild: wrote ${String(files.length)} pages for ${SITE_URL}`);
 }

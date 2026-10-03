@@ -1,0 +1,49 @@
+/* Kitchen-sink layout only; ships in the kitchen-sink chunk. */
+
+.kitchen__panel {
+  margin: var(--space-6) calc(-1 * var(--space-3)) 0;
+  padding: var(--space-3) var(--space-3) var(--space-6);
+  border-top: 2px solid var(--rule-strong);
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.swatch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--step--2);
+}
+
+.swatch__chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 36px;
+  border: 1px solid var(--rule);
+}
+
+.swatch__chip--text {
+  font-weight: 700;
+}
+
+.marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: flex-end;
+  max-width: none;
+}
+
+.marks__canvas {
+  display: block;
+  margin: var(--space-2) 0;
+  max-width: 100%;
+}

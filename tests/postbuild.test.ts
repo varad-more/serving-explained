@@ -1,8 +1,14 @@
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { postbuild } from "../scripts/postbuild.ts";
+import { assertNoKitchenSink, postbuild } from "../scripts/postbuild.ts";
 import { routes } from "../src/routes.ts";
 
 const SITE = "https://example.com/base/";
@@ -68,5 +74,18 @@ describe("postbuild", () => {
       const png = readFileSync(path);
       expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([1200, 630]);
     }
+  });
+
+  it("refuses a dist that ships the kitchen sink", () => {
+    const dist = mkdtempSync(join(tmpdir(), "postbuild-"));
+    mkdirSync(join(dist, "assets"));
+    writeFileSync(join(dist, "assets", "index-abc.js"), "console.log('app')");
+    expect(() => {
+      assertNoKitchenSink(dist);
+    }).not.toThrow();
+    writeFileSync(join(dist, "assets", "KitchenSink-abc.js"), "x");
+    expect(() => {
+      assertNoKitchenSink(dist);
+    }).toThrow(/kitchen sink/);
   });
 });

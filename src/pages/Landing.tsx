@@ -5,7 +5,7 @@ const chapters = routes.slice(1, 5);
 
 export default function Landing() {
   return (
-    <main>
+    <>
       <h1>serving-explained</h1>
       <p>
         Each chapter explains one mechanism inside an LLM server, using a small
@@ -28,6 +28,6 @@ export default function Landing() {
         Then try them together in the <Link to="/sandbox/">sandbox</Link>, or
         look up a term in the <Link to="/glossary/">glossary</Link>.
       </p>
-    </main>
+    </>
   );
 }

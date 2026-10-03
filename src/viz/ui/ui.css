@@ -1,0 +1,457 @@
+/* Components, Direction B "Signal Box" (DESIGN.md): square corners, heavy
+   rules, no shadows, signal yellow only behind the current step or row. */
+
+/* Buttons and controls: every hit area is at least 44 × 44 px. */
+
+.button,
+.icon-button {
+  min-width: var(--target);
+  min-height: var(--target);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+  border: 2px solid var(--rule-strong);
+  border-radius: 0;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--step--1);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.icon-button {
+  padding: 0;
+}
+
+.button:disabled,
+.icon-button:disabled {
+  border-color: var(--rule);
+  color: var(--ink-2);
+  cursor: not-allowed;
+}
+
+.theme-toggle {
+  border: none;
+  background: transparent;
+  padding: 0 var(--space-2);
+}
+
+.theme-toggle__text {
+  font-size: var(--step--2);
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: var(--space-3) 0;
+  max-width: 40rem;
+}
+
+.control__label {
+  font-size: var(--step--2);
+  font-weight: 700;
+}
+
+.slider__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+input[type="range"] {
+  flex: 1 1 auto;
+  min-width: 120px;
+  height: var(--target);
+  margin: 0;
+  accent-color: var(--ink);
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]:disabled {
+  cursor: not-allowed;
+}
+
+.slider__output {
+  min-width: 6ch;
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+select {
+  min-height: var(--target);
+  padding: 0 var(--space-3);
+  border: 2px solid var(--rule-strong);
+  border-radius: 0;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--step--1);
+}
+
+select:disabled {
+  border-color: var(--rule);
+  color: var(--ink-2);
+}
+
+.select select {
+  align-self: flex-start;
+}
+
+/* Toggle: a switch with its state in words, not color alone. */
+
+.toggle__switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--target);
+  min-width: var(--target);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--step--1);
+  font-weight: 700;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.toggle__track {
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  border: 2px solid var(--rule-strong);
+  background: var(--surface);
+  position: relative;
+}
+
+.toggle__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: var(--ink-2);
+  transition: left var(--dur-fast) var(--ease);
+}
+
+.toggle__switch[aria-checked="true"] .toggle__track {
+  background: var(--ink);
+}
+
+.toggle__switch[aria-checked="true"] .toggle__thumb {
+  left: 20px;
+  background: var(--surface);
+}
+
+.toggle__switch:disabled {
+  color: var(--ink-2);
+  cursor: not-allowed;
+}
+
+.toggle__switch:disabled .toggle__track {
+  border-color: var(--rule);
+  background: var(--surface-2);
+}
+
+.toggle__switch:disabled .toggle__thumb {
+  background: var(--ink-2);
+}
+
+/* Provenance badges: one ink, three shapes. */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 6px;
+  border: 1.5px solid var(--badge-ink);
+  color: var(--badge-ink);
+  font-size: var(--step--2);
+  font-weight: 700;
+  line-height: 18px;
+  white-space: nowrap;
+  vertical-align: middle;
+  text-decoration: none;
+}
+
+.badge--simulated {
+  border-style: dashed;
+}
+
+.badge--measured {
+  background: var(--badge-ink);
+  color: var(--bg);
+}
+
+/* Callouts. */
+
+.callout {
+  margin: var(--space-4) 0;
+  padding: var(--space-3);
+  max-width: 58ch;
+}
+
+.callout--simplification {
+  background: var(--callout-simplification);
+  border-top: 2px dashed var(--rule-strong);
+  border-bottom: 2px dashed var(--rule-strong);
+}
+
+.callout--reality-check {
+  background: var(--callout-reality);
+  border-left: 6px solid var(--highlight);
+}
+
+.callout__label {
+  margin: 0 0 var(--space-2);
+  font-size: var(--step--2);
+  font-weight: 700;
+}
+
+.callout p:last-child {
+  margin-bottom: 0;
+}
+
+/* Figures. */
+
+.figure {
+  margin: var(--space-4) 0;
+  border: 2px solid var(--rule-strong);
+  background: var(--surface);
+}
+
+.figure__body {
+  padding: var(--space-3);
+}
+
+.figure__caption {
+  padding: var(--space-2) var(--space-3);
+  border-top: 2px solid var(--rule-strong);
+  font-size: var(--step--1);
+}
+
+.figure__number {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Steps: a numbered timetable; the active number sits on the yellow bar. */
+
+.step {
+  display: grid;
+  grid-template-columns: 3ch 1fr;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--rule);
+}
+
+.step__number {
+  margin: 0;
+  font-size: var(--step-2);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.step[data-active="true"] .step__number {
+  background: var(--highlight);
+  color: var(--on-highlight);
+  text-align: center;
+}
+
+.step__body > :first-child {
+  margin-top: 0;
+}
+
+.step__show {
+  display: none;
+}
+
+/* Chapter layout (DESIGN.md): the board left and sticky from 1024 px; a
+   sticky strip on top below that; nothing sticky under 560 px tall. */
+
+.chapter__figure {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 36svh;
+  min-height: 160px;
+  overflow: auto;
+  background: var(--bg);
+  border-bottom: 2px solid var(--rule-strong);
+}
+
+.chapter__number {
+  margin: var(--space-5) 0 0;
+  font-size: var(--step-5);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.chapter__steps h1 {
+  margin-top: var(--space-2);
+}
+
+@media (min-width: 1024px) {
+  .chapter {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-6);
+    align-items: start;
+  }
+
+  .chapter__figure {
+    top: var(--space-7);
+    height: auto;
+    max-height: calc(100svh - var(--space-8));
+    border-bottom: none;
+  }
+}
+
+@media (max-height: 559px) {
+  .chapter__figure {
+    position: static;
+    height: auto;
+  }
+
+  .step__show {
+    display: inline-flex;
+    margin-top: var(--space-3);
+  }
+}
+
+/* Playback. */
+
+.playback {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.playback__scrub {
+  flex: 1 1 160px;
+}
+
+.playback__time {
+  min-width: 6ch;
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.playback__note {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: var(--step--1);
+  color: var(--ink-2);
+}
+
+/* Inline text: glossary terms and citations. */
+
+.term {
+  position: relative;
+}
+
+.term__trigger {
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: help;
+}
+
+.term__definition {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 4px);
+  z-index: 2;
+  width: max-content;
+  max-width: min(32ch, 80vw);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--rule-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--step--1);
+  line-height: 1.4;
+}
+
+.source {
+  font-size: 0.9em;
+}
+
+.source--missing {
+  background: var(--highlight);
+  color: var(--on-highlight);
+}
+
+/* Check yourself. */
+
+.check {
+  margin: var(--space-5) 0;
+  padding: var(--space-3);
+  border: 2px solid var(--rule-strong);
+  max-width: 58ch;
+}
+
+.check__label {
+  margin: 0;
+  font-size: var(--step--2);
+  font-weight: 700;
+}
+
+.check__question {
+  margin: var(--space-2) 0;
+}
+
+.check__answer summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--target);
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.check__answer summary::-webkit-details-marker {
+  display: none;
+}
+
+/* The disclosure state in a shape, since inline-flex drops the marker. */
+.check__answer summary::before {
+  content: "+";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--rule-strong);
+  line-height: 1;
+}
+
+.check__answer[open] summary::before {
+  content: "−";
+}
+
+/* Request marks. */
+
+.request-mark {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.request-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-right: var(--space-3);
+  font-weight: 700;
+}

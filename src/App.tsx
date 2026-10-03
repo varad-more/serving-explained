@@ -1,41 +1,90 @@
 import { Suspense, useEffect, useRef } from "react";
-import { NotFound, pages } from "./pages.ts";
-import { pageTitle } from "./routes.ts";
+import { KitchenSink, NotFound, pages } from "./pages.ts";
+import { pageTitle, routePath, routes } from "./routes.ts";
 import {
   Link,
+  localPath,
   matchRoute,
   navigate,
   normalizePath,
   useLocation,
 } from "./router.ts";
+import { ThemeToggle } from "./viz/ui/ThemeToggle.tsx";
+
+const base = import.meta.env.BASE_URL;
+const chapters = routes.slice(1, 5);
+const more = routes.slice(5);
 
 export function App() {
   const location = useLocation();
   const [pathname = "/", hash = ""] = location.split(/(?=#)/);
-  const route = matchRoute(pathname, import.meta.env.BASE_URL);
-  const Page = route ? pages[route.slug] : NotFound;
+  const route = matchRoute(pathname, base);
+  const local = localPath(pathname, base);
+  const kitchenPage = !route && local === "/kitchen-sink/" ? KitchenSink : null;
+  const kitchen = kitchenPage !== null;
+  const Page = route ? pages[route.slug] : (kitchenPage ?? NotFound);
+  const title = route
+    ? pageTitle(route)
+    : kitchen
+      ? "Kitchen sink – serving-explained"
+      : "Page not found – serving-explained";
 
   useEffect(() => {
-    if (route && !pathname.endsWith("/")) {
+    if ((route || kitchen) && !pathname.endsWith("/")) {
       navigate(normalizePath(pathname) + window.location.search + hash, true);
     }
-  }, [route, pathname, hash]);
+  }, [route, kitchen, pathname, hash]);
 
   return (
     <>
-      <header>
-        <Link to="/">serving-explained</Link>
+      <a className="skip" href="#main">
+        Skip to content
+      </a>
+      <header className="site-header">
+        <Link to="/" className="site-header__brand">
+          serving-explained
+        </Link>
+        <nav className="site-nav" aria-label="Chapters">
+          <ol>
+            {chapters.map((r, i) => (
+              <li key={r.slug}>
+                <Link
+                  to={routePath(r.slug)}
+                  aria-current={
+                    local === routePath(r.slug) ? "page" : undefined
+                  }
+                >
+                  <span className="site-nav__num" aria-hidden="true">
+                    0{i + 1}
+                  </span>
+                  {r.title.replace(/^The /, "")}
+                </Link>
+              </li>
+            ))}
+            {more.map((r) => (
+              <li key={r.slug}>
+                <Link
+                  to={routePath(r.slug)}
+                  aria-current={
+                    local === routePath(r.slug) ? "page" : undefined
+                  }
+                >
+                  {r.title}
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </nav>
+        <div className="site-header__theme">
+          <ThemeToggle />
+        </div>
       </header>
-      <Suspense fallback={null}>
-        <Page />
-        <OnNavigate
-          path={pathname}
-          hash={hash}
-          title={
-            route ? pageTitle(route) : "Page not found – serving-explained"
-          }
-        />
-      </Suspense>
+      <main id="main">
+        <Suspense fallback={null}>
+          <Page />
+          <OnNavigate path={pathname} hash={hash} title={title} />
+        </Suspense>
+      </main>
     </>
   );
 }

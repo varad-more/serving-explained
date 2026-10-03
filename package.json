@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/postbuild.ts",
+    "build:ks": "VITE_KITCHEN_SINK=1 vite build --outDir dist-ks --emptyOutDir",
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc -b",

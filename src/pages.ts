@@ -17,3 +17,9 @@ export const pages: Record<Slug, Page> = {
 };
 
 export const NotFound: Page = lazy(() => import("./pages/NotFound.tsx"));
+
+/** Dev builds and VITE_KITCHEN_SINK=1 only; the import is dropped otherwise. */
+export const KitchenSink: Page | null =
+  import.meta.env.DEV || import.meta.env.VITE_KITCHEN_SINK === "1"
+    ? lazy(() => import("./pages/KitchenSink.tsx"))
+    : null;
