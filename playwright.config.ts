@@ -12,6 +12,8 @@ export default defineConfig({
     ? [["list"], ["html", { open: "never" }]]
     : [["list"]],
   use: { trace: "retain-on-failure" },
+  // Performance runs alone (pnpm perf): parallel tests skew frame timing.
+  grepInvert: process.env.PERF ? undefined : /@perf/,
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
     { name: "webkit", use: { ...devices["Desktop Safari"] } },
