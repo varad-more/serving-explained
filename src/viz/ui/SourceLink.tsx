@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from "react";
-import data from "../../data/sources.json";
+import data from "../../data/sources.json" with { type: "json" };
 
 interface Props {
   id: string;

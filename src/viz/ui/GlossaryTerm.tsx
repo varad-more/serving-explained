@@ -78,6 +78,8 @@ export function GlossaryTerm({
       >
         {children}
       </button>
+      {/* A word joiner: no line break between the term and its punctuation. */}
+      {"\u2060"}
       {open && (
         <span
           ref={popRef}

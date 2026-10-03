@@ -78,6 +78,7 @@ input[type="range"]:disabled {
 
 .slider__output {
   min-width: 6ch;
+  white-space: nowrap;
   font-size: var(--step--1);
   font-weight: 700;
 }
@@ -194,6 +195,17 @@ select:disabled {
   border-style: dashed;
 }
 
+.badge--inline {
+  padding: 0 4px;
+  font-size: 11px;
+  line-height: 15px;
+  border-width: 1px;
+}
+
+.num-value {
+  white-space: nowrap;
+}
+
 .badge--measured {
   background: var(--badge-ink);
   color: var(--bg);
@@ -282,19 +294,9 @@ select:disabled {
   display: none;
 }
 
-/* Chapter layout (DESIGN.md): the board left and sticky from 1024 px; a
-   sticky strip on top below that; nothing sticky under 560 px tall. */
-
-.chapter__figure {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  height: 36svh;
-  min-height: 160px;
-  overflow: hidden;
-  background: var(--bg);
-  border-bottom: 2px solid var(--rule-strong);
-}
+/* Chapter layout (DESIGN.md): from 1024 px the board is wide on the left and
+   sticky; narrower, each figure opens below the step that first shows it;
+   under 560 px tall nothing is sticky. */
 
 .chapter__number {
   margin: var(--space-5) 0 0;
@@ -307,6 +309,28 @@ select:disabled {
   margin-top: var(--space-2);
 }
 
+.chapter__objective {
+  margin: var(--space-4) 0;
+  padding: var(--space-3);
+  border-left: 6px solid var(--rule-strong);
+  background: var(--surface);
+  max-width: 58ch;
+}
+
+.chapter__objective-label {
+  margin: 0 0 var(--space-2);
+  font-size: var(--step--2);
+  font-weight: 700;
+}
+
+.chapter__objective p:last-child {
+  margin-bottom: 0;
+}
+
+.chapter__inline-figure {
+  margin: 0 0 var(--space-5);
+}
+
 @media (min-width: 1024px) {
   .chapter {
     display: grid;
@@ -316,17 +340,18 @@ select:disabled {
   }
 
   .chapter__figure {
-    top: var(--space-7);
-    height: auto;
-    max-height: calc(100svh - var(--space-8));
-    border-bottom: none;
+    position: sticky;
+    top: var(--space-4);
+    max-height: calc(100svh - var(--space-5));
+    overflow: auto;
+    padding-top: var(--space-5);
   }
 }
 
 @media (max-height: 559px) {
   .chapter__figure {
     position: static;
-    height: auto;
+    max-height: none;
   }
 
   .step__show {
@@ -359,6 +384,20 @@ select:disabled {
   margin: 0;
   font-size: var(--step--1);
   color: var(--ink-2);
+}
+
+/* A claim alone in its paragraph: MDX drops that paragraph, so the claim
+   sets itself as one. Inside a paragraph it stays inline. */
+
+.claim {
+  display: block;
+  max-width: 58ch;
+  margin: 1em 0;
+}
+
+:is(p, li, h2, h3) .claim {
+  display: inline;
+  margin: 0;
 }
 
 /* Inline text: glossary terms and citations. */

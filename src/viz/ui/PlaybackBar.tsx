@@ -16,7 +16,14 @@ interface Props {
   onSpeed: (speed: number) => void;
   /** Forces the reduced-motion state; defaults to the reader's setting. */
   reducedMotion?: boolean;
+  /** The playhead as words; seconds by default. */
+  formatTime?: (time: number, duration: number) => string;
+  /** The scrub step (default duration / 200). */
+  scrubStep?: number;
 }
+
+const seconds = (t: number, d: number) =>
+  `${t.toFixed(1)} of ${d.toFixed(1)} seconds`;
 
 /**
  * Play, pause, step, scrub, and speed for an animated figure (CLAUDE.md visual
@@ -29,6 +36,7 @@ export function PlaybackBar(props: Props) {
   const scrubId = useId();
   const speedId = useId();
   const { time, duration, playing } = props;
+  const format = props.formatTime ?? seconds;
   return (
     <div className="playback" role="group" aria-label="Playback">
       <button
@@ -75,15 +83,15 @@ export function PlaybackBar(props: Props) {
         type="range"
         min={0}
         max={duration}
-        step={duration / 200 || 1}
+        step={props.scrubStep ?? (duration / 200 || 1)}
         value={time}
-        aria-valuetext={`${time.toFixed(1)} of ${duration.toFixed(1)} seconds`}
+        aria-valuetext={format(time, duration)}
         onChange={(e) => {
           props.onSeek(Number(e.target.value));
         }}
       />
       <output className="playback__time num" htmlFor={scrubId}>
-        {time.toFixed(1)} s
+        {props.formatTime ? format(time, duration) : `${time.toFixed(1)} s`}
       </output>
       <label className="visually-hidden" htmlFor={speedId}>
         Speed

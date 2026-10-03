@@ -7,7 +7,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { GlossaryEntry } from "../chapters/glossary.ts";
 import { Callout } from "../viz/ui/Callout.tsx";
-import { ChapterLayout } from "../viz/ui/ChapterLayout.tsx";
+import { ChapterLayout, ChapterStep } from "../viz/ui/ChapterLayout.tsx";
 import { CheckYourself } from "../viz/ui/CheckYourself.tsx";
 import { Figure } from "../viz/ui/Figure.tsx";
 import { GlossaryTerm } from "../viz/ui/GlossaryTerm.tsx";
@@ -174,20 +174,28 @@ function Panel() {
       <ChapterLayout
         number={0}
         title="A chapter"
-        figure={(active) => (
-          <Figure
-            number="0.2"
-            caption={`The figure for step ${String(active)}.`}
-          >
-            <p className="num">Step {active} of 3</p>
-          </Figure>
-        )}
-        steps={[
-          <p key="1">The first step. Scroll to make the next one active.</p>,
-          <p key="2">The second step.</p>,
-          <p key="3">The third step.</p>,
-        ]}
-      />
+        objective={<p>Say what this layout does at each width.</p>}
+        figures={{
+          demo: (active) => (
+            <Figure
+              number="0.2"
+              caption={`The figure for step ${String(active)}.`}
+            >
+              <p className="num">Step {active} of 3</p>
+            </Figure>
+          ),
+        }}
+      >
+        <ChapterStep figure="demo">
+          <p>The first step. Scroll to make the next one active.</p>
+        </ChapterStep>
+        <ChapterStep figure="demo">
+          <p>The second step.</p>
+        </ChapterStep>
+        <ChapterStep figure="demo">
+          <p>The third step.</p>
+        </ChapterStep>
+      </ChapterLayout>
     </>
   );
 }

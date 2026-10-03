@@ -4,10 +4,14 @@
  * measured is filled and links to its result file. `measured` without `href`
  * does not type-check.
  */
-export type Provenance =
+export type Provenance = (
   | { kind: "simulated" }
   | { kind: "computed" }
-  | { kind: "measured"; href: string };
+  | { kind: "measured"; href: string }
+) & {
+  /** A smaller badge for numbers inside prose. */
+  inline?: boolean;
+};
 
 const MEANING = {
   simulated: "Produced by the toy engine on this page. Not a measurement.",
@@ -16,10 +20,11 @@ const MEANING = {
 } as const;
 
 export function ProvenanceBadge(props: Provenance) {
+  const size = props.inline ? " badge--inline" : "";
   if (props.kind === "measured") {
     return (
       <a
-        className="badge badge--measured"
+        className={`badge badge--measured${size}`}
         href={props.href}
         title={MEANING.measured}
         data-inline
@@ -37,7 +42,10 @@ export function ProvenanceBadge(props: Provenance) {
     );
   }
   return (
-    <span className={`badge badge--${props.kind}`} title={MEANING[props.kind]}>
+    <span
+      className={`badge badge--${props.kind}${size}`}
+      title={MEANING[props.kind]}
+    >
       {props.kind}
     </span>
   );
