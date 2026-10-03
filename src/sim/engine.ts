@@ -10,9 +10,11 @@
  *   6. finish     continuous: Finish, then Free. static: done-in-batch, and
  *                 the batch returns as a unit when its last member is done
  *   7. StepEnd    the cost breakdown and KV counts
+ *   8. invariants with config.checkInvariants (§6)
  */
 import { ContiguousPool } from "./contiguous.ts";
 import { stepCost } from "./cost.ts";
+import { checkInvariants } from "./invariants.ts";
 import { PagedPool } from "./paged.ts";
 import {
   emit,
@@ -133,6 +135,7 @@ function info(e: Engine, stepIndex: number): StepInfo {
 /** One engine iteration. */
 export function step(e: Engine): StepInfo {
   if (e.done) throw new Error("the run is done");
+  const from = e.events.length;
 
   // 1. intake. A step never runs empty: an idle engine jumps to the next arrival.
   intake(e);
@@ -224,6 +227,9 @@ export function step(e: Engine): StepInfo {
     e.waiting.length === 0 &&
     e.running.length === 0 &&
     e.batch.length === 0;
+
+  // 8. invariants
+  if (e.config.checkInvariants) checkInvariants(e, e.events.slice(from));
 
   const result = info(e, e.step);
   e.step++;

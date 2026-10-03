@@ -110,13 +110,13 @@ describe("the Sim object (§2)", () => {
   });
 });
 
-describe("every preset runs to the end, under both policies, with no Reject", () => {
+describe("every preset runs to the end, under both policies, invariants on, with no Reject", () => {
   const data = loadData();
   for (const name of Object.keys(PRESETS) as PresetName[]) {
     for (const policy of ["continuous", "static"] as const) {
       it(`${name}, ${policy}`, () => {
         const config = presetConfig(name, data, { policy });
-        const sim = createSim(config);
+        const sim = createSim({ ...config, checkInvariants: true });
         const end = sim.run();
         expect(end.done).toBe(true);
         const events = sim.events();

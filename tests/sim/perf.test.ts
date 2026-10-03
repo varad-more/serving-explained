@@ -25,4 +25,16 @@ describe("performance", () => {
     );
     expect(Math.min(...times)).toBeLessThan(1000);
   });
+
+  it("reports the time with invariants on (does not gate)", () => {
+    const config = presetConfig("chatbot", loadData(), {
+      count: 1000,
+      numBlocks: 2000,
+    });
+    const start = performance.now();
+    createSim({ ...config, checkInvariants: true }).run();
+    console.log(
+      `perf: with invariants on: ${(performance.now() - start).toFixed(0)} ms`,
+    );
+  });
 });
