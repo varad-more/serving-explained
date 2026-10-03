@@ -1,3 +1,176 @@
-# The KV cache
+import { Link } from "../../router.ts";
+import { ChapterLayout, ChapterStep } from "../../viz/ui/ChapterLayout.tsx";
+import { CheckYourself } from "../../viz/ui/CheckYourself.tsx";
+import { Claim } from "../../viz/ui/Claim.tsx";
+import { GlossaryTerm } from "../../viz/ui/GlossaryTerm.tsx";
+import { Num } from "../../viz/ui/Num.tsx";
+import { SourceLink } from "../../viz/ui/SourceLink.tsx";
+import { F, figures } from "./figures.tsx";
 
-This chapter is not written yet.
+<ChapterLayout
+  number={1}
+  title="The KV cache"
+  objective={<p>Say that the KV cache stores keys and values for every token in every layer, and that it grows linearly with tokens. Say that it, not compute, usually limits how many requests a GPU can serve at once. Estimate it for a model.</p>}
+  figures={figures}
+>
+
+<ChapterStep figure="no-cache" id="without-a-cache">
+
+## Without a cache, work keeps growing
+
+A model reads and writes text as <GlossaryTerm id="token">tokens</GlossaryTerm>, such as words, one token per step (<SourceLink id="kwon2023" at="§1" />).
+A <GlossaryTerm id="request">request</GlossaryTerm> gives it a <GlossaryTerm id="prompt">prompt</GlossaryTerm>, a list of tokens, and asks for more (<SourceLink id="kwon2023" at="§2.2" />).
+
+Each step passes tokens through a stack of <GlossaryTerm id="layer">layers</GlossaryTerm>.
+In each layer, every token gets a <GlossaryTerm id="query">query</GlossaryTerm>, a <GlossaryTerm id="key">key</GlossaryTerm>, and a <GlossaryTerm id="value">value</GlossaryTerm>.
+In <GlossaryTerm id="attention">attention</GlossaryTerm>, the token being processed matches its query against the keys of every token so far, itself included.
+It then averages their values by those matches (<SourceLink id="kwon2023" at="§2.1" />).
+
+Our reasoning from <SourceLink id="kwon2023" at="§2.2" />: without a cache, each step would rerun the model over every earlier token to rebuild their keys and values.
+
+Figure 1.1 follows one request through {F.llama.name}'s <Num value={F.grid.layers} kind="computed" /> layers.
+Each column is one token position, and each row is one layer.
+The prompt has <Num value={F.grid.prompt} kind="simulated" badge={false} /> tokens, and the request generates <Num value={F.grid.outputs} kind="simulated" /> more.
+
+<Claim id="no-cache-work">Counted from the simulated run, the model would process <Num value={F.grid.noCacheFirst} kind="simulated" badge={false} /> positions at the first step, then one more at each step, up to <Num value={F.grid.noCacheLast} kind="simulated" badge={false} />. That is <Num value={F.grid.noCacheTotal} kind="simulated" /> positions in total.</Claim>
+The count is in token positions, not time.
+
+</ChapterStep>
+
+<ChapterStep figure="cache" id="with-a-cache">
+
+## With a cache, each step adds one column
+
+A <GlossaryTerm id="kv-cache">KV cache</GlossaryTerm> stores each key and value once it is computed.
+Later steps read them instead of rebuilding them (<SourceLink id="kwon2023" at="§2.2" />).
+
+The token being processed still reads every key and value so far.
+What the cache saves is rerunning the model over the earlier tokens.
+
+<Claim id="cache-one-column">Here the first step, <GlossaryTerm id="prefill">prefill</GlossaryTerm>, computes all <Num value={F.grid.cacheFirst} kind="simulated" /> prompt positions. Each later <GlossaryTerm id="decode">decode step</GlossaryTerm> computes one new column: one position in every layer.</Claim>
+
+<Claim id="cache-total">In total, the model computes <Num value={F.grid.cacheTotal} kind="simulated" badge={false} /> positions instead of <Num value={F.grid.noCacheTotal} kind="simulated" />. The token just sampled has no keys and values until the next step computes them. So <Num value={F.grid.tokens} kind="simulated" badge={false} /> tokens hold <Num value={F.grid.cacheTotal} kind="simulated" /> positions of cache.</Claim>
+
+</ChapterStep>
+
+<ChapterStep figure="formula" id="how-big">
+
+## How big one column is
+
+Each layer splits attention into several <GlossaryTerm id="attention-head">attention heads</GlossaryTerm>, also called query heads.
+Each query head reads the keys and values of one <GlossaryTerm id="kv-head">KV head</GlossaryTerm> (<SourceLink id="ainslie2023" at="§2.2" />).
+The cache stores one key and one value per KV head, per layer, per token.
+
+So one column takes 2 × L × n<sub>kv</sub> × d<sub>h</sub> × s bytes (<SourceLink id="llmsize-math" at="KV per token" />, <SourceLink id="llmsize-math" at="KV cache" />).
+L is the number of layers, and n<sub>kv</sub> is the number of KV heads.
+d<sub>h</sub> is the <GlossaryTerm id="head-dimension">head dimension</GlossaryTerm>: the numbers in one key or value.
+s is the bytes per number, which is 2 in <GlossaryTerm id="bf16">bf16</GlossaryTerm>.
+
+<Claim id="formula-matches-data">For all <Num value={F.models} kind="computed" /> models in this chapter, the formula gives the same bytes per token as llmsize.</Claim>
+For {F.llama.name}, it is 2 × <Num value={F.llama.layers} kind="computed" badge={false} /> × <Num value={F.llama.kvHeads} kind="computed" badge={false} /> × <Num value={F.llama.headDim} kind="computed" badge={false} /> × 2 = <Num value={F.llama.bytesPerToken} unit="bytes" kind="computed" /> per token.
+That is <Num value={F.llama.kibPerToken} kind="computed" badge={false} /> <GlossaryTerm id="gib">KiB</GlossaryTerm>.
+
+vLLM, a <GlossaryTerm id="serving-engine">serving engine</GlossaryTerm>, stores the cache in blocks of 16 tokens by default (<SourceLink id="vllm-src" at="config/cache.py L71" />).
+So a request is charged for its tokens rounded up to a multiple of 16 (<SourceLink id="llmsize-math" at="KV token count" />).
+Not every engine does this: SGLang stores the cache one token at a time (<SourceLink id="zheng2024" at="§3" />).
+
+</ChapterStep>
+
+<ChapterStep figure="gqa" id="gqa">
+
+## GQA: fewer KV heads, a smaller cache
+
+In <GlossaryTerm id="mha">multi-head attention (MHA)</GlossaryTerm>, every query head has its own KV head.
+In <GlossaryTerm id="gqa">grouped-query attention (GQA)</GlossaryTerm>, a group of query heads shares one (<SourceLink id="ainslie2023" at="§2.2" />).
+The KV head count belongs to the model, not to the server: making an MHA model use GQA takes more training (<SourceLink id="ainslie2023" at="§2.1" />).
+
+{F.gqa.mhaName} uses MHA: <Num value={F.gqa.mhaHeads} kind="computed" badge={false} /> query heads and <Num value={F.gqa.mhaKvHeads} kind="computed" /> KV heads.
+{F.gqa.gqaName} uses GQA: <Num value={F.gqa.gqaHeads} kind="computed" badge={false} /> query heads share <Num value={F.gqa.gqaKvHeads} kind="computed" /> KV heads.
+
+<Claim id="gqa-smaller">Per token, {F.gqa.mhaName} stores <Num value={F.gqa.mhaKib} kind="computed" badge={false} unit="KiB" /> and {F.gqa.gqaName} stores <Num value={F.gqa.gqaKib} kind="computed" badge={false} unit="KiB" />, or <Num value={F.gqa.kvRatio} digits={1} unit="×" kind="computed" /> less. Their <GlossaryTerm id="weights">weights</GlossaryTerm> differ by only <Num value={F.gqa.weightRatio} digits={1} unit="×" kind="computed" />. On an {F.gpu} at <Num value={F.gqa.context} kind="computed" badge={false} /> tokens, <Num value={F.gqa.mhaFit} kind="computed" badge={false} /> {F.gqa.mhaName} requests fit, against <Num value={F.gqa.gqaFit} kind="computed" /> for {F.gqa.gqaName}.</Claim>
+
+Not all of that gap is GQA.
+The KV-head ratio alone is <Num value={F.gqa.kvHeadRatio} unit="×" kind="computed" />.
+The models also differ in layers (<Num value={F.gqa.mhaLayers} kind="computed" badge={false} /> and <Num value={F.gqa.gqaLayers} kind="computed" badge={false} />) and head dimension (<Num value={F.gqa.mhaHeadDim} kind="computed" badge={false} /> and <Num value={F.gqa.gqaHeadDim} kind="computed" />).
+
+</ChapterStep>
+
+<ChapterStep figure="budget" id="memory-budget">
+
+## The memory budget
+
+GPU memory mostly holds the weights and the KV cache (<SourceLink id="kwon2023" at="§1" />).
+Every request shares the same weights (<SourceLink id="kwon2023" at="§2.3" />), but each needs its own KV cache (<SourceLink id="kwon2023" at="§1" />).
+<GlossaryTerm id="usable-memory">Usable memory</GlossaryTerm> is the GPU's memory minus what its driver keeps (<SourceLink id="llmsize-math" at="Usable VRAM" />).
+
+<Claim id="weights-fixed">In Figure 1.5, <GlossaryTerm id="context-length">context length</GlossaryTerm>, requests, and the cache's number format never change the weights bar.</Claim>
+<Claim id="kv-linear">The KV bar is the KV per request times the number of requests. KV per request is the context length times the KV per token. Every context length here is a multiple of 16, so none is rounded up.</Claim>
+
+<Claim id="default-crosses">The figure starts with {F.llama.name} on an {F.gpu}, at <Num value={F.budget.context} kind="computed" badge={false} /> tokens and <Num value={F.budget.concurrency} kind="computed" /> requests. That fits. Drag to <Num value={F.budget.overflow} kind="computed" /> requests and it does not. On this GPU, the weights take <Num value={F.llama.weightsPercent} unit="%" kind="computed" badge={false} /> of usable memory: <Num value={F.llama.weightsGib} digits={2} kind="computed" badge={false} /> of <Num value={F.llama.usableGib} digits={2} unit="GiB" kind="computed" />.</Claim>
+
+So it can look as if the weights are what fill GPU memory.
+<Claim id="kv-outgrows-weights">Now pick the {F.bigGpu}. The weights stay <Num value={F.llama.weightsGib} digits={2} unit="GiB" kind="computed" />. At <Num value={F.budget.context} kind="computed" badge={false} /> tokens, <Num value={F.budget.bigRequests} kind="computed" badge={false} /> requests fit, and their KV takes <Num value={F.budget.bigKvGib} digits={2} unit="GiB" kind="computed" />. That is <Num value={F.budget.bigRatio} digits={1} unit="×" kind="computed" /> the weights.</Claim>
+
+The weights are a fixed cost.
+The KV cache is what grows with context length and <GlossaryTerm id="concurrency">concurrency</GlossaryTerm>.
+
+</ChapterStep>
+
+<ChapterStep figure="budget" id="takeaway">
+
+## The takeaway
+
+<GlossaryTerm id="max-concurrency">Max concurrency</GlossaryTerm> is the most requests that fit at once.
+<GlossaryTerm id="free-memory">Free memory</GlossaryTerm> is usable memory minus the weights.
+Max concurrency ≈ free memory ÷ KV bytes per request.
+
+<Claim id="max-conc-formula">The readout in Figure 1.5 is exactly that ratio, rounded down, with KV per request from llmsize.</Claim>
+It assumes every request holds the full context length.
+For such requests, it is an upper bound: vLLM also keeps memory back, as the note under the figure says.
+
+<Claim id="double-context-halves">Double the context length, and max concurrency halves, rounded down.</Claim>
+{F.llama.name} on an {F.gpu} fits <Num value={F.takeaway.short.fits} kind="computed" badge={false} /> requests at <Num value={F.takeaway.short.context} kind="computed" badge={false} /> tokens, <Num value={F.takeaway.mid.fits} kind="computed" badge={false} /> at <Num value={F.takeaway.mid.context} kind="computed" badge={false} />, and <Num value={F.takeaway.long.fits} kind="computed" badge={false} /> at <Num value={F.takeaway.long.context} kind="computed" />.
+
+<Claim id="fp8-doubles">Store the cache in <GlossaryTerm id="fp8">fp8</GlossaryTerm> instead, and max concurrency doubles, or doubles plus one.</Claim>
+fp8 stores each number in one byte instead of two (<SourceLink id="vllm-src" at="utils/torch_utils.py L39–41" />).
+
+As the vLLM paper argues, GPU memory, not compute, usually limits how many requests run together (<SourceLink id="kwon2023" at="§3" />).
+
+Real requests are often shorter than the maximum context.
+vLLM reserves cache blocks only as a request needs them (<SourceLink id="kwon2023" at="§4.3" />).
+So shorter requests leave room for more than this number.
+<Link to="/paged-attention/">Chapter 2</Link> shows how.
+
+</ChapterStep>
+
+<CheckYourself question={<>{F.check.name} stores <Num value={F.check.kibPerToken} unit="KiB" kind="computed" badge={false} /> per token, and its weights take <Num value={F.check.weightsGib} digits={3} unit="GiB" kind="computed" />. An {F.gpu} has <Num value={F.check.usableGib} digits={3} unit="GiB" kind="computed" /> of usable memory. About how many requests of <Num value={F.check.context} kind="computed" badge={false} /> tokens fit at once? What changes with fp8?</>}>
+
+Free memory is <Num value={F.check.usableGib} digits={3} kind="computed" badge={false} /> − <Num value={F.check.weightsGib} digits={3} kind="computed" badge={false} /> = <Num value={F.check.freeGib} digits={3} unit="GiB" kind="computed" />.
+One request needs <Num value={F.check.context} kind="computed" badge={false} /> × <Num value={F.check.kibPerToken} unit="KiB" kind="computed" badge={false} /> = <Num value={F.check.perRequestGib} digits={3} unit="GiB" kind="computed" />.
+Divide and round down: <Num value={F.check.bf16} kind="computed" /> requests fit.
+fp8 halves the KV per request to <Num value={F.check.perRequestFp8Gib} digits={4} unit="GiB" kind="computed" />, so <Num value={F.check.fp8} kind="computed" /> fit.
+Check both in Figure 1.5.
+
+</CheckYourself>
+
+## What this leaves out
+
+- Memory for activations, logits (the model's output scores), CUDA graphs (recorded GPU work), and the runtime (<SourceLink id="llmsize-math" at="Overhead" />).
+- vLLM's default holdback: it uses 92% of GPU memory (<SourceLink id="vllm-src" at="config/cache.py L101" />).
+- vLLM's default cap of 256 requests at once on GPUs under 70 GiB, and on A100s (<SourceLink id="vllm-src" at="engine/arg_utils.py L2876–2895" />).
+- Every request is charged its full context length. vLLM reserves blocks as tokens arrive (<SourceLink id="kwon2023" at="§4.3" />), which chapter 2 covers.
+- Requests never share a prompt prefix. Chapter 4 adds sharing (<SourceLink id="vllm-apc-doc" />).
+- One GPU, with no tensor parallelism, which splits a model across GPUs ([SIM.md §9.1](https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md#9-simplifications-what-this-leaves-out)).
+- Usable memory rests on an assumed driver reserve (<SourceLink id="llmsize-math" at="Usable VRAM" />).
+- Models that store less KV per token: MLA and sliding-window attention (<SourceLink id="llmsize-math" at="KV per token" />), and hybrids with SSM layers (<SourceLink id="llmsize-math" at="SSM state" />).
+- fp8 applies to the KV cache only, and its small per-tensor scale factors are ignored (<SourceLink id="llmsize-math" at="KV dtype" />). The weights stay in bf16 here.
+- Output quality: the widget counts bytes, so it says nothing about how an fp8 cache affects a model's answers.
+- The no-cache count in Figure 1.1 is our reasoning from <SourceLink id="kwon2023" at="§2.2" />, in token positions, not time.
+
+## Go deeper
+
+- <SourceLink id="kwon2023" at="§2–3" />: how generation uses the KV cache, and why memory limits the batch.
+- <SourceLink id="ainslie2023" />: how grouped-query attention shares KV heads.
+- <SourceLink id="llmsize-math" />: the full memory model, including the overheads this chapter leaves out.
+
+</ChapterLayout>

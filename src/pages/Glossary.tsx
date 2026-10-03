@@ -1,4 +1,5 @@
 import { glossary } from "../chapters/glossary.ts";
+import { SourceLink } from "../viz/ui/SourceLink.tsx";
 
 export default function Glossary() {
   return (
@@ -11,7 +12,15 @@ export default function Glossary() {
           {glossary.map((entry) => (
             <div key={entry.id} id={entry.id}>
               <dt>{entry.term}</dt>
-              <dd>{entry.definition}</dd>
+              <dd>
+                {entry.definition}
+                {entry.source && (
+                  <>
+                    {" "}
+                    (<SourceLink id={entry.source.id} at={entry.source.at} />)
+                  </>
+                )}
+              </dd>
             </div>
           ))}
         </dl>

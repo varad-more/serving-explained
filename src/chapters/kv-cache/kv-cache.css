@@ -1,0 +1,374 @@
+/* Chapter 1 widgets. Fills differ in pattern or outline as well as color. */
+
+.token-grid__band,
+.token-grid__tick,
+.bar__cap-label,
+.chart__tick,
+.chart__axis,
+.chart__tip text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--ink-2);
+}
+
+/* TokenGrid (figures 1.1 and 1.2). */
+
+.token-grid__svg {
+  display: block;
+  width: 100%;
+  max-width: 30rem;
+  height: auto;
+}
+
+.token-grid__rule {
+  stroke: var(--ink-2);
+}
+
+.token-grid__cell--computed {
+  fill: var(--req-1);
+}
+
+.token-grid__cell--stored {
+  fill: var(--surface);
+  stroke: var(--req-1);
+}
+
+.token-grid__cell--sampled {
+  fill: var(--surface);
+  stroke: var(--ink);
+  stroke-dasharray: 2 1;
+}
+
+.token-grid__cell--future {
+  fill: var(--surface-2);
+}
+
+.token-grid__readout p {
+  margin: 0;
+}
+
+.token-grid__readout,
+.budget__readout,
+.budget__heading {
+  margin: var(--space-2) 0;
+}
+
+.token-grid__legend,
+.bar__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: var(--space-2) 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--step--2);
+}
+
+/* One item per line, so changing labels never rewrap the legend. */
+.bar__legend {
+  flex-direction: column;
+}
+
+.token-grid__legend li,
+.bar__legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* KvFormula (figure 1.3). */
+
+.formula {
+  margin: var(--space-3) 0;
+  overflow-x: auto;
+}
+
+.formula math {
+  font-size: var(--step-1);
+}
+
+.formula__lhs {
+  margin: 0;
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.formula__result {
+  font-size: var(--step-0);
+}
+
+.formula__terms,
+.gqa__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--space-2) var(--space-3);
+  margin: var(--space-3) 0 0;
+  font-size: var(--step--1);
+}
+
+.formula__terms dt,
+.gqa__facts dt {
+  font-weight: 700;
+}
+
+.formula__terms dd,
+.gqa__facts dd {
+  margin: 0;
+}
+
+/* GqaContrast (figure 1.4). */
+
+.gqa__row + .gqa__row {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--rule);
+}
+
+.gqa__name {
+  margin: 0 0 var(--space-2);
+}
+
+.heads {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.heads__query {
+  fill: var(--surface);
+  stroke: var(--ink);
+}
+
+.heads__kv {
+  fill: var(--req-1);
+}
+
+.heads__link {
+  stroke: var(--ink-2);
+}
+
+/* MemoryBudget (figure 1.5). */
+
+.budget {
+  display: grid;
+  gap: 0 var(--space-5);
+}
+
+@media (min-width: 1024px) {
+  .budget {
+    grid-template-columns: minmax(14rem, 1fr) 2fr;
+  }
+
+  .budget .callout {
+    grid-column: 1 / -1;
+  }
+}
+
+.budget__controls .control:first-child {
+  margin-top: 0;
+}
+
+/* Wide enough for "128K tokens" and "512 requests", so the slider never resizes. */
+.budget .slider__output {
+  min-width: 12ch;
+}
+
+.radios {
+  padding: 0;
+  border: none;
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--target);
+  cursor: pointer;
+}
+
+.radio input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--ink);
+}
+
+.budget__notice {
+  min-height: 1lh;
+  margin: 0;
+  font-size: var(--step--1);
+  color: var(--ink-2);
+}
+
+/* Two lines reserved, so a longer verdict never moves what follows. */
+.budget__heading {
+  min-height: 2lh;
+  font-weight: 700;
+}
+
+.budget__heading[data-fits="false"]::before {
+  content: "✕ ";
+}
+
+.budget__heading[data-fits="true"]::before {
+  content: "✓ ";
+}
+
+.bar {
+  display: block;
+  width: 100%;
+  height: 58px;
+  overflow: visible;
+}
+
+.bar__free {
+  fill: var(--block-free);
+  stroke: var(--block-free-edge);
+}
+
+.bar__weights {
+  fill: var(--ink-2);
+}
+
+.bar__kv-fill {
+  fill: var(--req-1);
+}
+
+.bar__kv-stripe {
+  stroke: var(--surface);
+  stroke-width: 1.5;
+}
+
+.bar__over-stripe {
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.bar__over {
+  stroke: var(--ink);
+}
+
+.bar__break {
+  fill: none;
+  stroke: var(--surface);
+  stroke-width: 4;
+}
+
+.bar__cap {
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.bar__cap-label {
+  fill: var(--ink);
+}
+
+.swatch {
+  display: inline-block;
+  width: 16px;
+  height: 12px;
+  border: 1px solid var(--rule-strong);
+}
+
+.swatch--weights {
+  background: var(--ink-2);
+}
+
+.swatch--kv {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--req-1) 0 3px,
+    var(--surface) 3px 4.5px
+  );
+}
+
+.swatch--free {
+  background: var(--block-free);
+}
+
+.swatch--over {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--ink) 0 2px,
+    transparent 2px 4px
+  );
+}
+
+.chart {
+  margin-top: var(--space-3);
+}
+
+.chart__title {
+  margin: 0 0 var(--space-1);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.chart__svg {
+  display: block;
+  width: 100%;
+  height: 220px;
+}
+
+.chart__grid {
+  stroke: var(--rule);
+}
+
+.chart__axis {
+  fill: var(--ink);
+}
+
+.chart__line {
+  fill: none;
+  stroke: var(--req-1);
+  stroke-width: 2;
+}
+
+.chart__dot {
+  fill: var(--req-1);
+}
+
+.chart__current {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.chart__note {
+  min-height: 1lh;
+  margin: var(--space-1) 0 0;
+  font-size: var(--step--1);
+}
+
+.chart__tip rect {
+  fill: var(--surface);
+  stroke: var(--rule-strong);
+}
+
+.chart__tip text {
+  fill: var(--ink);
+}
+
+.chart__empty {
+  font-size: var(--step--1);
+}
+
+.chart__table summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--target);
+  cursor: pointer;
+  font-size: var(--step--1);
+}
+
+.chart__table table {
+  border-collapse: collapse;
+  font-size: var(--step--1);
+}
+
+.chart__table th,
+.chart__table td {
+  padding: var(--space-1) var(--space-3);
+  border-bottom: 1px solid var(--rule);
+  text-align: right;
+}

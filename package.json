@@ -16,6 +16,8 @@
     "typecheck": "tsc -b",
     "lint": "eslint . && prettier --check .",
     "e2e": "pnpm build && pnpm build:ks && playwright test",
+    "perf": "pnpm build && PERF=1 playwright test --grep @perf --project=chromium --workers=1",
+    "capture": "pnpm build && node scripts/capture.ts",
     "gen:data": "node scripts/gen-data.ts",
     "gen:sources": "node scripts/gen-sources.ts",
     "gen:og": "node scripts/gen-og.ts",
@@ -28,6 +30,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^10.0.1",
+    "@mdx-js/mdx": "3.1.1",
     "@mdx-js/rollup": "^3.1.1",
     "@playwright/test": "^1.63.0",
     "@types/mdx": "^2.0.14",
