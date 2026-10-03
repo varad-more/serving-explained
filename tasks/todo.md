@@ -351,9 +351,23 @@ _Empty until the steps run._
       `allocate_slots` myself.
 - [x] STOP 1: docs/SIM.md was approved by the author on 2026-10-02. The §2 API
       is frozen, and Q1–Q8 are decided in §11.
-- [ ] Implementation (Build 2). It depends on Prompt 1 steps 1 (vitest) and 4
-      (gen-data, for the roofline cross-check).
-- [ ] STOP 2 report.
+- [x] Implementation (Build 2), 2026-10-02, in nine local commits (rng, hash,
+      and freeQueue; workload and presets; paged and contiguous; scheduler;
+      cost; engine; metrics; invariants; CLI), plus one preset-tuning commit.
+  - **Verified:** `pnpm test` (21 files, 161 tests), typecheck, lint, and
+    build pass at every commit.
+    - G1–G7 matched the hand-written event lists on the first run.
+    - 300 property runs check every invariant after every step, with a
+      coverage check that preemption, hits, eviction, static, contiguous,
+      and chunked runs all occur.
+    - The llmsize cross-check is 0.00% apart on all three configs.
+    - 1,000 chatbot requests run in 139–152 ms (the limit is 1 s).
+    - Every preset runs under both policies with invariants on.
+  - **Tuning:** `paged-vs-contiguous` seed 7 → 37 (SIM.md §7 tuning log).
+- [x] STOP 2 report, 2026-10-02. Its open points for the author:
+  - SIM.md wording to confirm: invariant 8's order, the length streams, the
+    output vocabulary, static batch formation, and empty steps.
+  - Chapter 3 decision 9's result (recorded there).
 
 ## Prompt 3: KV cache chapter (PLAN, approved 2026-10-02)
 
@@ -1075,6 +1089,17 @@ m16; recomputed 2026-10-02).
      then narrow to ITL.
    - **Decided:** if no preset shows TTFT getting worse, narrow the claim to
      ITL and tell the author.
+   - **Result (STOP 2, 2026-10-02): yes, through the token budget.** Raising
+     `max_num_batched_tokens` from 512 to 8,192 raises TTFT:
+     - mean and p99 both rise at every budget step on `agent-loop` (+17%,
+       +29%), `batch-summarize` (+13%, +15%), and `long-prompt-stall`
+       (+9.5%, +9%)
+     - on `rag`, mean TTFT ends 9% higher, though not at every step
+     - p99 ITL rises with the budget on every preset that has long prompts
+     - Raising `max_num_seqs` lowers TTFT, because queueing dominates. The
+       only exceptions are rises of at most 4% at the knee.
+     - So the claim keeps TTFT, scoped to the token budget. The chapter
+       words it after its own tests.
 10. **A nuance I will test.** When long prompts are rare, chunking can *raise*
     p99 ITL. It turns one big stall (under 1% of gaps, so invisible to p99) into
     several smaller ones (over 1%).

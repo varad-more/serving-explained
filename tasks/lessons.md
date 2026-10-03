@@ -4,6 +4,19 @@ Mistakes, corrections, and surprises. Newest first.
 
 ## 2026-10-02
 
+- **A property test can pass without reaching the path it is for.** 300 random
+  runs passed with zero preemptions: the generator spread arrivals too thin to
+  fill memory. Rule: count the interesting events across a property test's
+  runs and assert a floor, so a weak generator fails loudly.
+- **When a test and the engine disagree, work out which is wrong by hand
+  first.** Two scheduler tests and one cross-check threshold were wrong, not
+  the engine (a 12-token prompt fills three blocks of 4, not two). Writing the
+  golden event lists by hand before running found no engine bug.
+- **Close stdin on every shell command.** A stray `cat > file` with no input
+  hung for two minutes. Rule: append `< /dev/null` to commands that might read
+  stdin, and never leave a redirect without a heredoc.
+- **pnpm 12 has no `-s` flag.** Use `pnpm <script>` or `node scripts/x.ts`.
+
 - **Check a stated fact about outside state before building on it.** The
   decisions said the repo "is renamed" and ffmpeg "is installed". `gh api`
   still showed `Serving-Explainer`, and `ffmpeg` was not on PATH. Rule: verify
