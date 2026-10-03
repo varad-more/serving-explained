@@ -82,12 +82,22 @@ input[type="range"]:disabled {
   font-weight: 700;
 }
 
+/* appearance: none, so WebKit honors the 44 px height; the chevron is CSS. */
 select {
+  appearance: none;
   min-height: var(--target);
-  padding: 0 var(--space-3);
+  padding: 0 calc(var(--space-3) + 16px) 0 var(--space-3);
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    right 18px center,
+    right 12px center;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
   border: 2px solid var(--rule-strong);
   border-radius: 0;
-  background: var(--surface);
+  background-color: var(--surface);
   color: var(--ink);
   font: inherit;
   font-size: var(--step--1);
@@ -281,7 +291,7 @@ select:disabled {
   z-index: 1;
   height: 36svh;
   min-height: 160px;
-  overflow: auto;
+  overflow: hidden;
   background: var(--bg);
   border-bottom: 2px solid var(--rule-strong);
 }

@@ -1,0 +1,31 @@
+# Linux screenshot baselines (tasks/todo.md, Prompt 1: "Screenshot baselines
+# are per platform"). Run by hand; it uploads the -linux.png files as an
+# artifact, which the author reviews and commits.
+name: Screenshot baselines (Linux)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  baselines:
+    runs-on: ubuntu-24.04
+    env:
+      SITE_URL: https://varadmore.me/serving-explained/
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build && pnpm build:ks
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright test --project=chromium --grep @screenshot --update-snapshots
+      - uses: actions/upload-artifact@v7
+        with:
+          name: linux-baselines
+          path: e2e/**/*-linux.png
+          if-no-files-found: error

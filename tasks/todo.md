@@ -350,7 +350,29 @@ passing, then one commit.
   - `/kitchen-sink` is registered only when `import.meta.env.DEV` or
     `VITE_KITCHEN_SINK=1`. A check confirms the production `dist` has no
     kitchen-sink chunk.
-- [ ] **7. Playwright.**
+- [x] **7. Playwright.** Done 2026-10-02.
+  - **Verified:** locally, `pnpm e2e` passes 54 tests in Chromium, WebKit,
+    and Firefox, and skips 12: the screenshot tests outside Chromium.
+    - Smoke: each of the 7 routes, raw HTML and rendered, plus unique titles
+      and og:images and the not-found page.
+    - Kitchen sink: a keyboard walk through every control type with a visible
+      focus ring; 44 × 44 px targets and no horizontal scroll at 375 and
+      768 px; axe in light and dark.
+    - Six Chromium screenshots (375, 768, and 1440 px, light and dark).
+    - `pnpm test`, typecheck, lint, and build pass.
+  - **The new tests found:**
+    - WebKit on macOS ignores `min-height` on native selects (23 px), so
+      selects are now `appearance: none` with a CSS chevron.
+    - The check-yourself boxes were named landmarks with the same name (axe
+      `landmark-unique`).
+    - One mistake in my own test: Tab order backwards across the playback bar.
+  - **Baselines:** macOS ones (`-chromium-darwin.png`) are committed for local
+    runs. Linux ones come from the manual workflow
+    `.github/workflows/baselines.yml`, which uploads them as an artifact for
+    review.
+  - `pnpm e2e` builds `dist` and `dist-ks` (the kitchen sink), then serves both
+    with `vite preview`. `SMOKE_BASE_URL` points the smoke suite at a live
+    site.
   - Smoke test against `vite preview` of the production build: every route
     returns 200 from its own `index.html`, has no console errors, and has a
     unique title and `og:image`, both in the raw HTML and after hydration.

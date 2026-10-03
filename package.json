@@ -15,7 +15,7 @@
     "test": "vitest run",
     "typecheck": "tsc -b",
     "lint": "eslint . && prettier --check .",
-    "e2e": "playwright test",
+    "e2e": "pnpm build && pnpm build:ks && playwright test",
     "gen:data": "node scripts/gen-data.ts",
     "gen:sources": "node scripts/gen-sources.ts",
     "gen:og": "node scripts/gen-og.ts",

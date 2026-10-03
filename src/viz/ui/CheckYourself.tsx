@@ -11,13 +11,13 @@ export function CheckYourself({
   defaultOpen?: boolean;
 }) {
   return (
-    <section className="check" aria-label="Check yourself">
+    <div className="check">
       <p className="check__label">Check yourself</p>
       <p className="check__question">{question}</p>
       <details className="check__answer" open={defaultOpen}>
         <summary>Show the answer</summary>
         {children}
       </details>
-    </section>
+    </div>
   );
 }

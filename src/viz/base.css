@@ -96,6 +96,9 @@ code {
 /* The site shell. */
 
 .skip {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target);
   position: absolute;
   left: var(--space-3);
   top: -100px;
