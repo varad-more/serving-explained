@@ -710,7 +710,8 @@ All of these are from kwon2023, checked in the PDF.
 
 ### Preset `paged-vs-contiguous` (SIM.md §7, tentative)
 
-- **Workload:** seed 7; 40 requests, Poisson at 1.5/s.
+- **Workload:** seed 37 (tuned from 7 on 2026-10-02; SIM.md §7 tuning log); 40
+  requests, Poisson at 1.5/s.
   - Prompt body uniform 32–128 tokens, with no shared prefix.
   - Output lognormal, median 100, σ 0.6, clipped to 16–256.
 - **Lengths:** the workload's `maxModelLen` is 384, and the engine's

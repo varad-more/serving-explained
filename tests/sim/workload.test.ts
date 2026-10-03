@@ -120,7 +120,7 @@ describe("PRESETS (docs/SIM.md §7)", () => {
     expect(
       Object.fromEntries(Object.entries(PRESETS).map(([k, p]) => [k, p.seed])),
     ).toMatchObject({
-      "paged-vs-contiguous": 7,
+      "paged-vs-contiguous": 37,
       "batching-basics": 11,
       "long-prompt-stall": 13,
       "shared-system-prompt": 17,

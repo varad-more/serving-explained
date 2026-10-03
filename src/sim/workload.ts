@@ -157,7 +157,7 @@ export const PRESETS: Record<PresetName, Preset> = {
   },
   "paged-vs-contiguous": {
     description: "Short requests on a toy GPU with 1,280 tokens of KV.",
-    seed: 7,
+    seed: 37, // tuned from 7 (docs/SIM.md §7, tuning log)
     workload: {
       count: 40,
       arrival: poisson(1.5),

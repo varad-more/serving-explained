@@ -602,7 +602,7 @@ They are not measurements of real traffic, and the UI says so.
 | `long-prompt-stall` | 80 | Poisson 1.5/s | mixture: 85% uniform 64–256, 15% uniform 6000–7500 | lognormal median 50, σ 0.5, 16–200 | none | prefill stalls, token budget, chunked prefill (chapter 3) |
 
 **`paged-vs-contiguous` overrides** (tentative; tuned once the engine runs):
-- `seed` 7.
+- `seed` 37, tuned from 7 (see the tuning log below).
 - KV capacity is 1,280 tokens: `numBlocks` 80 at `blockSize` 16. The chapter's
   block-size control keeps 1,280 tokens and sets `numBlocks = 1280 / B`.
 - `maxModelLen` 512. The workload's own `maxModelLen` is 384, so every
@@ -660,6 +660,28 @@ They are not measurements of real traffic, and the UI says so.
   whole pool. Running requests take most of it, so cached prefixes are evicted
   before they are reused.
 - Tuning targets: evictions > 0, and a hit rate below `shared-system-prompt`'s.
+
+**Tuning log.** Each chapter preset was run against its targets above, with
+the engine at `ENGINE_VERSION` 1 and the data from llmsize `5d5d029`. Only
+tentative parameters change; no target is loosened. The targets are asserted
+in `tests/sim/presets.test.ts`.
+- **2026-10-02, `paged-vs-contiguous`, seed 7 → 37.** At seed 7, paged
+  preempted 4 times (target: at most 2, read over the whole run). Every other
+  target held.
+  - Before (seed 7): contiguous peaks at 2 running, queue 10 at 10 s and 23 at
+    20 s; paged peaks at 8 running; 4 preemptions.
+  - After (seed 37): contiguous peaks at 2 running, queue 10 at 10 s and 17 at
+    20 s; paged peaks at 8 running; 1 preemption, at 20 s or before.
+  - Chapter 2's planned waste claims still hold at seed 37: over the first
+    20 s, contiguous wastes 77.6% of the pool and paged 3.3%, and paged waste
+    rises strictly with block size (1.5%, 3.3%, 6.8%, 13.6%, 26.2% at B 8–128).
+  - The seed is the only change. The 1,280-token pool, `maxModelLen` 512, and
+    `maxNumSeqs` 8 stay, because chapter 2's numbers (two regions, a 256-token
+    tail gap) depend on them.
+- All other chapter presets met their targets as first written:
+  `batching-basics`, `long-prompt-stall` (stalls are 7.3% of inter-token gaps
+  with chunking and 2.0% without), `shared-system-prompt`, and
+  `cache-pressure`.
 
 **CLI.** `pnpm sim --preset chatbot --scheduler continuous --allocator paged`.
 - Other flags: `--prefix-cache on|off` and `--chunked-prefill on|off` (both
