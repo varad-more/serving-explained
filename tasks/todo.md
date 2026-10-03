@@ -381,7 +381,19 @@ passing, then one commit.
   - Projects for Chromium, WebKit, and Firefox. Screenshots in Chromium at 375,
     768, and 1440, in light and dark: 6 baselines (CHAPTER_DOD items 7, 11,
     and 17).
-- [ ] **8. CI and deploy.**
+- [x] **8. CI and deploy.** Done 2026-10-02.
+  - **Verified:** `pnpm test`, typecheck, lint, and build pass locally. Pages
+    is enabled with `build_type=workflow` through `gh api`; the site URL is
+    varadmore.me/serving-explained/. The first CI run's result is under
+    Results below.
+  - Actions at their current majors: checkout v7, setup-node v7,
+    configure-pages v6, upload-pages-artifact v5, deploy-pages v5,
+    upload-artifact v7. (Checked today; the plan's earlier check said v6, v5,
+    v5 for the three Pages actions, and those still match.)
+  - The deploy job `needs: ci` and runs only on pushes to `main`. CI uploads
+    the Pages artifact; the deploy job runs configure-pages and deploy-pages.
+    CI on `main` is never cancelled by a newer push, since it may be
+    deploying.
   - `.github/workflows/ci.yml` on every push: pnpm install `--frozen-lockfile`,
     typecheck, lint, test, build with `SITE_URL`, Playwright smoke and kitchen
     sink in all three browsers, then upload the Pages artifact.
