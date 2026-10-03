@@ -25,6 +25,42 @@ export default defineConfig(
   },
   reactHooks.configs.flat["recommended-latest"],
   {
+    // docs/SIM.md §1: the engine is pure and deterministic.
+    files: ["src/sim/**"],
+    rules: {
+      "no-restricted-globals": [
+        "error",
+        "Date",
+        "performance",
+        "setTimeout",
+        "setInterval",
+        "setImmediate",
+        "clearTimeout",
+        "clearInterval",
+        "requestAnimationFrame",
+        "queueMicrotask",
+        "window",
+        "document",
+      ],
+      "no-restricted-properties": [
+        "error",
+        { object: "Math", property: "random" },
+      ],
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            "react",
+            "react-dom",
+            "react/*",
+            "react-dom/*",
+            "**/data/*",
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ["**/*.js"],
     extends: [tseslint.configs.disableTypeChecked],
   },

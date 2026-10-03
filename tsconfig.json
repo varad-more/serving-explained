@@ -2,6 +2,7 @@
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.scripts.json" }
+    { "path": "./tsconfig.scripts.json" },
+    { "path": "./src/sim/tsconfig.json" }
   ]
 }
