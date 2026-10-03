@@ -1,0 +1,128 @@
+{
+  "_provenance": {
+    "source": "docs/SOURCES.md",
+    "generator": "scripts/gen-sources.ts"
+  },
+  "sources": [
+    {
+      "id": "kwon2023",
+      "title": "Efficient Memory Management for Large Language Model Serving with PagedAttention",
+      "authors": "Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, et al.",
+      "venue": "SOSP '23, ACM, pp. 611–626",
+      "year": 2023,
+      "url": "https://doi.org/10.1145/3600006.3613165",
+      "citedFor": "Weights persist while KV is allocated per request (§1, Fig. 1); generation and why keys and values are cached (§2.2); KV cache size per token, and GPU memory, not compute, usually limiting the batch (§3); reservation and fragmentation waste in prior systems (§3.1, Fig. 2–3); one block table per request for all layers, with no performance difference (§4.1 and its footnote); blocks, block tables, waste limited to the last block (§4.2–4.3); manually shared prefixes, parallel sampling, beam search, and copy-on-write (§4.4); preemption by recompute or swap (§4.5); kernel overhead (§7.1); recompute vs. swap cost (§7.3); block size ablation, default 16 (§7.2); PagedAttention called \"an attention algorithm\" (§1); token states use 20.4–38.2% of KV memory in the Orca baselines vs. 96.3% in vLLM (§1, Fig. 2); Orca Max, Pow2, and Oracle baselines (§6.1); 2.2× and 4.3× more concurrent requests than Orca Oracle and Max (§6.2, Fig. 13a); 2–4× throughput at similar latency (abstract, §9); paging may slow compute-bound workloads that are not LLMs (§8). arXiv: https://arxiv.org/abs/2309.06180",
+      "status": "verified"
+    },
+    {
+      "id": "yu2022",
+      "title": "Orca: A Distributed Serving System for Transformer-Based Generative Models",
+      "authors": "Gyeong-In Yu, Joo Seong Jeong, Geon-Woo Kim, Soojeong Kim, Byung-Gon Chun",
+      "venue": "USENIX OSDI '22, pp. 521–538",
+      "year": 2022,
+      "url": "https://www.usenix.org/conference/osdi22/presentation/yu",
+      "citedFor": "Problem with request-level batching; iteration-level scheduling; selective batching (§3); per-request max-token reservation (§4.2, Alg. 1)",
+      "status": "verified"
+    },
+    {
+      "id": "zheng2024",
+      "title": "SGLang: Efficient Execution of Structured Language Model Programs",
+      "authors": "Lianmin Zheng, Liangsheng Yin, Zhiqiang Xie, et al.",
+      "venue": "NeurIPS 2024 (Advances in Neural Information Processing Systems 37), pp. 62557–62583",
+      "year": 2024,
+      "url": "https://proceedings.neurips.cc/paper_files/paper/2024/hash/724be4472168f31ba1c9ac630f15dec8-Abstract-Conference.html",
+      "citedFor": "RadixAttention: radix tree over token sequences, pages of one token, LRU leaf eviction, ref-counted nodes, one memory pool shared by cached and running requests, cache-aware scheduling (§3) — the alternative to block hashing. arXiv: https://arxiv.org/abs/2312.07104",
+      "status": "verified"
+    },
+    {
+      "id": "agrawal2023",
+      "title": "SARATHI: Efficient LLM Inference by Piggybacking Decodes with Chunked Prefills",
+      "authors": "Amey Agrawal, Ashish Panwar, Jayashree Mohan, et al.",
+      "venue": "arXiv preprint",
+      "year": 2023,
+      "url": "https://arxiv.org/abs/2308.16369",
+      "citedFor": "Where chunked prefill was first proposed",
+      "status": "verified (preprint)"
+    },
+    {
+      "id": "agrawal2024",
+      "title": "Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve",
+      "authors": "Amey Agrawal, Nitin Kedia, Ashish Panwar, et al.",
+      "venue": "USENIX OSDI '24, pp. 117–134",
+      "year": 2024,
+      "url": "https://www.usenix.org/conference/osdi24/presentation/agrawal",
+      "citedFor": "Prefill is compute-bound and decode memory-bound (§1, §3.1, Fig. 5); TTFT and TBT defined (§2.4); prefill stalls decode (generation stalls) in prefill-first schedulers (§3.2); pipeline-parallel bubbles (§3.3); chunked prefill plus stall-free batching under a per-step token budget (§4.1–4.2, Alg. 3); the token budget trade-off, chunking overhead included (§4.3). arXiv: https://arxiv.org/abs/2403.02310",
+      "status": "verified"
+    },
+    {
+      "id": "ainslie2023",
+      "title": "GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints",
+      "authors": "Joshua Ainslie, James Lee-Thorp, Michiel de Jong, Yury Zemlyanskiy, Federico Lebrón, Sumit Sanghai",
+      "venue": "EMNLP 2023 (main), ACL, pp. 4895–4901",
+      "year": 2023,
+      "url": "https://aclanthology.org/2023.emnlp-main.298/",
+      "citedFor": "Grouped-query attention: query heads split into groups that each share one key head and one value head; GQA-1 is MQA and GQA-H is MHA (§2.2); fewer KV heads shrink the KV cache and the data loaded per decode step (§1, §2.2). DOI: 10.18653/v1/2023.emnlp-main.298. arXiv: https://arxiv.org/abs/2305.13245",
+      "status": "verified"
+    },
+    {
+      "id": "vllm-apc-doc",
+      "title": "Automatic Prefix Caching (design doc)",
+      "authors": "vLLM project",
+      "venue": "vLLM docs",
+      "year": 2026,
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/docs/design/prefix_caching.md",
+      "citedFor": "What prefix caching is and why it saves prefill (L3); V1 prefix cache: block hash = (parent hash, block tokens, extra keys); only full blocks cached; sha256 as the default hash (Note 2); touching hit blocks and evicting on pop (L146–147); free queue with LRU eviction, finished blocks freed in reverse order; ref counts. Rendered: https://docs.vllm.ai/en/latest/design/prefix_caching/",
+      "status": "verified"
+    },
+    {
+      "id": "vllm-pa-doc",
+      "title": "Paged Attention (design doc)",
+      "authors": "vLLM project",
+      "venue": "vLLM docs",
+      "year": 2026,
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/docs/design/paged_attention.md",
+      "citedFor": "History only: how the original paged attention kernel read keys and values from blocks. The doc says it no longer describes current code. Rendered: https://docs.vllm.ai/en/latest/design/paged_attention/",
+      "status": "verified, legacy"
+    },
+    {
+      "id": "vllm-src",
+      "title": "vLLM source code",
+      "authors": "vLLM project",
+      "venue": "GitHub vllm-project/vllm",
+      "year": 2026,
+      "url": "https://github.com/vllm-project/vllm/tree/cfd54ca8819de923dcf555807298eaca34dd342d",
+      "citedFor": "Current V1 scheduler and KV cache manager behavior. docs/SIM.md lists the exact files and lines. Also `vllm/utils/torch_utils.py` L39–41: fp8 KV is stored as one byte (`torch.uint8`).",
+      "status": "verified"
+    },
+    {
+      "id": "llmsize-math",
+      "title": "The math (llmsize docs/MATH.md)",
+      "authors": "Varad More",
+      "venue": "GitHub varad-more/llm-calculator",
+      "year": 2026,
+      "url": "https://github.com/varad-more/llm-calculator/blob/5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf/docs/MATH.md",
+      "citedFor": "Every `computed` number: KV bytes per token, weight bytes, usable VRAM, roofline throughput, and the MBU/MFU assumptions",
+      "status": "verified"
+    },
+    {
+      "id": "bench-ieb",
+      "title": "inference-engine-benchmark-system",
+      "authors": "Varad More",
+      "venue": "GitHub varad-more/inference-engine-benchmark-system",
+      "year": 2026,
+      "url": "https://github.com/varad-more/inference-engine-benchmark-system/tree/1c964318addd2c742b53b0f0cf4a2cad791cace9",
+      "citedFor": "`measured` numbers for vLLM vs. SGLang on 1x A10G: TTFT, TPOT, throughput ramps, long context, decode length sweeps. Cite the exact result file, never the README.",
+      "status": "verified, see notes"
+    },
+    {
+      "id": "bench-kvtt",
+      "title": "kv-transfer-tax",
+      "authors": "Varad More",
+      "venue": "GitHub varad-more/kv-transfer-tax",
+      "year": 2026,
+      "url": "https://github.com/varad-more/kv-transfer-tax/tree/56b5ab5df85d5881d9dad76eb6f2d44bf833a40c",
+      "citedFor": "`measured` numbers for disaggregated vs. colocated serving of Llama-3.1-8B on 4x A10G (vLLM 0.24.0, NIXL 1.3.1), including a `max-num-batched-tokens` sweep. Cite the exact result file. Also cited for code: `proxy/replica_lb.py` L56–75 routes by least-outstanding or round-robin only, with no prefix awareness, and README L113–115 says it runs N independent servers (chapter 4 teaser).",
+      "status": "verified, see notes"
+    }
+  ]
+}

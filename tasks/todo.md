@@ -285,8 +285,14 @@ passing, then one commit.
   - Every file gets `_provenance`: llmsize commit, `generated_at`, functions used,
     and a pinned MATH.md URL.
   - Test: a zod schema for each file.
-- [ ] **5. Sources data.** `scripts/gen-sources.ts` turns docs/SOURCES.md into
-  `src/data/sources.json`.
+- [x] **5. Sources data.** Done 2026-10-02. `scripts/gen-sources.ts` turns
+  docs/SOURCES.md into `src/data/sources.json`.
+  - **Verified:** `pnpm test` (22 files, 164 tests), typecheck, lint, and
+    build pass. The JSON holds all 12 sources.
+  - The new tests caught a parser bug: the first data row (kwon2023) was taken
+    as the table's divider. The parser now checks the divider's shape.
+  - The SourceLink check also scans `.tsx`, because the kitchen sink uses
+    SourceLink outside MDX.
   - Test: the JSON matches a fresh parse, so it is never stale.
   - Test: every `SourceLink` id used in `src/**/*.mdx` exists.
 - [ ] **6. Design system** (Direction B, Signal Box).
