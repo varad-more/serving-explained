@@ -467,7 +467,7 @@ passing, then one commit.
       records an llmsize vs. vLLM gap on memory utilization.
 - [x] PRODUCT.md chapter 1 objective and misconception updated to Prompt 3's
       wording, so DoD item 1 checks the current objective.
-- [x] Part B: the chapter (Build 4). DoD items below; 17 and 22 finish at deploy.
+- [x] Part B: the chapter (Build 4). All 22 DoD items below are ticked.
 
 ### Depends on
 
@@ -764,9 +764,10 @@ was verified.
   the full parallel run, 4× p95 rose to 33 ms. That is why perf runs alone.
 
 **Tests and review**
-- [ ] 17. Screenshots: 6 darwin baselines for kv-cache, and the 6 kitchen-sink
-  baselines regenerated for the ChapterLayout change. Linux: pending the
-  baselines workflow.
+- [x] 17. Screenshots: 6 kv-cache baselines per platform (darwin locally;
+  Linux from the baselines workflow, run 37103536903). The 12 kitchen-sink
+  baselines were regenerated for the ChapterLayout change. CI run 37103638680
+  (branch) and 37103859849 (main) passed with them.
 - [x] 18. Interaction: memory budget, TokenGrid, formula, and GQA contrast tests
   pass in all three browsers (42 kv-cache tests). The GQA figure has no
   controls, so its test checks rendered text against data.
@@ -779,9 +780,12 @@ was verified.
 - [x] 21. Capture: `pnpm capture kv-cache` gives a 7.97 s, 1200×1436 H.264 mp4
   (114 KB) and a 600 px, 12 fps GIF (250 KB). It fails outside 6–10 s or at
   3 MB or more.
-- [ ] 22. Route HTML: dist/kv-cache/index.html has its title, description,
+- [x] 22. Route HTML: dist/kv-cache/index.html has its title, description,
   canonical, og and twitter tags, and a 1200×630 og/kv-cache.png
-  (tests/postbuild.test.ts). Live smoke: pending deploy.
+  (tests/postbuild.test.ts). Live: the smoke suite (27 tests) and the
+  kv-cache suite (42 tests, screenshots excluded) pass against
+  https://varadmore.me/serving-explained/ in all three browsers;
+  og/kv-cache.png returns 200.
 
 ### Fresh-eyes review: findings and answers
 
