@@ -4,13 +4,40 @@ Mistakes, corrections, and surprises. Newest first.
 
 ## 2026-10-02
 
+- **Case-insensitive file names bit twice.** `TokenGrid.tsx` beside
+  `tokenGrid.ts` broke the ESLint project service, as `RequestMark.tsx` and
+  `requestMark.ts` did before. Rule: never give a `.ts` and a `.tsx` file
+  names that differ only in case; name the logic file for what it holds
+  (`gridFrames.ts`).
+- **Prettier rewrites MDX into block JSX.** It split one-line `<Claim>`
+  paragraphs over several lines and added `{" "}`, which changes how MDX
+  parses them. `*.mdx` is now in .prettierignore, like `*.md`.
+- **MDX drops a paragraph that holds only JSX.** A `<Claim>` alone on its line
+  became a bare span outside any `<p>`, so two claims ran together. The fix is
+  CSS: a claim outside a paragraph displays as one.
+- **Playwright's recordVideo ignores deviceScaleFactor,** and so does
+  headless Chromium's screencast: both give 1× frames. `pnpm capture` takes
+  2× screenshots in a loop instead (about 20 fps here).
+- **Measure layout shift strictly first.** Counting input-driven shifts found
+  three real ones that CLS would hide: a wrapping heading, a rewrapping
+  legend, and a slider output that wrapped. CLS itself skips shifts within
+  500 ms of input, so the test asserts on the rest and logs the input total.
+- **Right-aligned numbers in a fixed box still shift.** "9" to "10" moves the
+  text's start. Left-align the number inside its fixed width.
+- **Frame timing needs the machine to itself.** Under the full parallel e2e
+  run, frame p95 rose from 16.7 to 33 ms. Performance tests are tagged
+  `@perf` and run alone with `pnpm perf`.
+- **Use a transform to reveal a skip link.** Moving it with `top` on focus is
+  a layout shift.
 - **Never name a zsh variable `path`.** It is tied to `PATH`, so `for path in
   …` emptied PATH and every command after it failed. Rule: use `route`, `p`,
   or `file` in shell loops.
 - **Tab order tests must walk forward in DOM order.** Chromium and WebKit wrap
   Tab around the document; Firefox hands focus to the browser chrome. A test
   that tabbed backwards passed in two browsers by accident. Rule: visit
-  controls in DOM order, and run keyboard tests in all three browsers.
+  controls in DOM order, or press Shift+Tab toward an earlier control (the
+  chapter 1 `tabTo` picks the direction), and run keyboard tests in all three
+  browsers.
 - **WebKit on macOS ignores `min-height` on native selects.** They stay 23 px
   tall until `appearance: none`. Rule: measure target sizes in WebKit, not
   only Chromium.

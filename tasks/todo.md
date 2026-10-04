@@ -467,7 +467,7 @@ passing, then one commit.
       records an llmsize vs. vLLM gap on memory utilization.
 - [x] PRODUCT.md chapter 1 objective and misconception updated to Prompt 3's
       wording, so DoD item 1 checks the current objective.
-- [ ] Part B: the chapter (Build 4).
+- [x] Part B: the chapter (Build 4). DoD items below; 17 and 22 finish at deploy.
 
 ### Depends on
 
@@ -703,30 +703,147 @@ route `/kv-cache/` gets the title "The KV cache", its description, and
 
 ### DoD checklist (docs/CHAPTER_DOD.md)
 
-Each item is ticked with how it was verified.
+Copied from docs/CHAPTER_DOD.md for chapter 1. Each item is ticked with how it
+was verified.
 
-- [ ] 1 objective and CheckYourself
-- [ ] 2 sources
-- [ ] 3 provenance
-- [ ] 4 claims tested
-- [ ] 5 writing rules
-- [ ] 6 end sections
-- [ ] 7 keyboard and touch
-- [ ] 8 labels
-- [ ] 9 playback
-- [ ] 10 reduced motion
-- [ ] 11 sizes, themes, and browsers
-- [ ] 12 no layout shift
-- [ ] 13 no console errors
-- [ ] 14 axe
-- [ ] 15 interactions within 100 ms
-- [ ] 16 60 fps
-- [ ] 17 screenshots
-- [ ] 18 interaction tests
-- [ ] 19 checks pass
-- [ ] 20 fresh-eyes review
-- [ ] 21 capture
-- [ ] 22 route HTML
+**Content**
+- [x] 1. Objective first, checked last. The chapter opens with PRODUCT.md's
+  objective, word for word. It ends with a CheckYourself on Qwen2.5-7B: free
+  memory ÷ KV per request, then fp8. Its numbers are not in the prose. A test
+  checks that the shown numbers, rounded as shown, give the shown answers.
+- [x] 2. Sources: 35 SourceLinks (33 in prose, 2 in the callout); every id is in sources.json
+  (tests/sources.test.ts). Glossary source ids are checked by
+  writing.test.ts. Our reasoning is marked twice: step 1 ("Our reasoning from
+  kwon2023 §2.2") and the leaves-out line on the no-cache count.
+- [x] 3. Provenance: every number from data or the sim renders through `<Num>`
+  with a `computed` or `simulated` badge, one per sentence or readout. Widget
+  readouts carry their own badges. Quoted numbers (16, 92%, 256, 70 GiB) carry
+  SourceLinks. Review item 18 (a typed "two thirds", typed contexts) was fixed.
+- [x] 4. Claims are tested: 12 `<Claim>` ids, 12 tests against the exact
+  presets and data the chapter imports; the meta-test passes.
+- [x] 5. Writing rules: writing.test.ts passes (sentences under 25 words,
+  including JSX attributes such as the objective; hype words; US spelling;
+  GlossaryTerm ids; glossary definitions). The review found terms used before
+  their definition. All now have a definition at first use, and the glossary
+  gained 8 entries (now 27).
+- [x] 6. End sections: 11 "What this leaves out" lines, each with a source or
+  SIM.md §9.1, except the fp8 output-quality line (no source makes a claim
+  there; see the review answers). "Go deeper" links kwon2023, ainslie2023, and
+  llmsize-math only. The llmsize app link sits in the widget's callout.
+
+**Widgets**
+- [x] 7. Keyboard and touch: the interaction tests reach every control with
+  Tab or Shift+Tab, assert a focus ring, and operate it with arrows, Home,
+  End, or Enter in all three browsers. Hit areas are at least 44 × 44 px at 375
+  and 768 (a radio's area is its label). The chart's tooltip also works from
+  the keyboard.
+- [x] 8. Labels: every control has a visible label. The budget heading,
+  readout, context notice, formula result, TokenGrid readout, and chart point
+  are polite live regions. The TokenGrid's region is off while playing.
+- [x] 9. Playback: TokenGrid has a PlaybackBar. Its frames come from the
+  `TOKEN_GRID` run's event log (gridFrames.ts).
+- [x] 10. Reduced motion: Play is disabled, nothing autoplays, the widget has
+  no CSS transitions, and Step reaches all 6 states (e2e "reduced motion").
+- [x] 11. Sizes, themes, and browsers: there is no horizontal scroll and no SVG
+  text outside its SVG at 375, 768, and 1440 px, in Chromium, WebKit, and
+  Firefox. Screenshots cover light and dark.
+- [x] 12. No layout shift: CLS 0 in the budget and TokenGrid interaction tests
+  (Chromium). A strict count first found 4 real shifts, all fixed: the skip
+  link, a wrapping heading, a rewrapping legend, and a wrapping slider output.
+  Input-driven shifts are logged; opening the table is one (0.164).
+- [x] 13. No console or page errors: every widget test asserts an empty
+  error list.
+- [x] 14. axe: no violations at 768 light and dark, and at 1440 light.
+
+**Performance** (`pnpm perf`: Chromium, one worker, alone; traces in
+`test-results/kv-cache-perf-*/`)
+- [x] 15. Event Timing max: 24 ms at 1×, 32 ms at 4×. p95 over entries of 16 ms
+  or more: 24 and 32 ms. Under the full parallel e2e run, 4× reached 40 ms.
+- [x] 16. rAF over 5 s of 1× playback, restarted at the end: p50 16.7 ms,
+  p95 16.7 ms, max 16.8 ms at 1×; p50 16.7, p95 16.8, max 16.8 ms at 4×. Under
+  the full parallel run, 4× p95 rose to 33 ms. That is why perf runs alone.
+
+**Tests and review**
+- [ ] 17. Screenshots: 6 darwin baselines for kv-cache, and the 6 kitchen-sink
+  baselines regenerated for the ChapterLayout change. Linux: pending the
+  baselines workflow.
+- [x] 18. Interaction: memory budget, TokenGrid, formula, and GQA contrast tests
+  pass in all three browsers (42 kv-cache tests). The GQA figure has no
+  controls, so its test checks rendered text against data.
+- [x] 19. Checks: `pnpm test` (203), `pnpm typecheck`, `pnpm lint`, and
+  `pnpm build` pass.
+- [x] 20. Fresh-eyes review: 18 findings (2 major, 11 minor, 5 nit). 17 were
+  fixed; 1 was answered (step splitting, below).
+
+**Launch assets**
+- [x] 21. Capture: `pnpm capture kv-cache` gives a 7.97 s, 1200×1436 H.264 mp4
+  (114 KB) and a 600 px, 12 fps GIF (250 KB). It fails outside 6–10 s or at
+  3 MB or more.
+- [ ] 22. Route HTML: dist/kv-cache/index.html has its title, description,
+  canonical, og and twitter tags, and a 1200×630 og/kv-cache.png
+  (tests/postbuild.test.ts). Live smoke: pending deploy.
+
+### Fresh-eyes review: findings and answers
+
+1. Major. CheckYourself fp8 was 18 from the shown 8.31 ÷ 0.4375. Fixed: GiB
+   now shown to 3 places (8.315 ÷ 0.4375 = 19.006), and a test checks it.
+2. Major. "Upper bound" holds only if every request has the full context.
+   Fixed in step 6 and the callout. The teaser now says shorter requests leave
+   room for more (kwon2023 §4.3).
+3. GQA gap mixes layers and head dimension. Fixed: a sentence names the 4×
+   KV-head ratio and the other differences. Another says GQA takes training
+   (ainslie2023 §2.1).
+4. Terms used before definition. Fixed: attention, query, request, prompt,
+   serving engine, usable and free memory, and max concurrency are defined at
+   first use and in the glossary. The leaves-out lines gloss their terms.
+5. kv-head glossary entry. Fixed.
+6. prefill under chunked prefill. Fixed: "the step or steps"; the glossary
+   gives kwon2023's names (prompt phase, generation phase).
+7. "Newest token" meant two tokens. Fixed: "the token being processed …
+   itself included" and "the token just sampled" (the legend too).
+8. No-cache step not fully marked as reasoning. Fixed: "Our reasoning from
+   kwon2023 §2.2" and "Counted from the simulated run". The badge stays
+   `simulated`, since the counts come from the run's per-step sequence lengths.
+9. kv-linear vs. block rounding. Fixed: the claim says every context is a
+   multiple of 16. The test now covers every model and dtype, and asserts
+   that.
+10. "So memory, not compute" and "holds the weights and KV". Fixed: "As the
+    vLLM paper argues …" and "mostly holds".
+11. CheckYourself lacked inputs. Fixed: the question gives the weights and
+    usable memory.
+12. Leaves-out gaps. Fixed: sources added and a driver-reserve line added.
+    fp8 output quality is now a scope line ("the widget counts bytes"), with
+    no claim about accuracy and so no source. Flagged for the author.
+13. Steps carry several ideas. Answered, not changed: the six steps and
+    their claims are the approved plan's. Splitting them changes the plan.
+    Flagged for the author.
+14. 256 cap condition. Fixed: "under 70 GiB, and on A100s", L2876–2895.
+15. Block size cited to the paper. Fixed: vllm-src config/cache.py L71.
+16. "Give or take one". Fixed: "doubles, or doubles plus one", matching the
+    test.
+17. Citation sections. Fixed: the formula also cites "KV cache"; hybrids cite
+    "SSM state"; the callout cites llmsize "vLLM"; weights shared cites
+    §2.3; token cites §1; context length cites §2.2. SOURCES.md's cited-for
+    column now lists kwon2023 §2.1, §2.3, and §4.3, ainslie2023 §2.1, and the
+    vllm-src lines.
+18. Hand-typed numbers. Fixed: weights share and the step 6 contexts render
+    from data.
+
+### Deviations from the plan (reported)
+
+- "Go deeper" links SOURCES.md ids only (DoD 6). The plan also listed the
+  llmsize app; that link is in the widget's simplification callout.
+- ChapterLayout on narrow screens shows each figure in full below the step
+  that first uses it (DESIGN.md), not a sticky strip. Kitchen-sink baselines
+  were regenerated.
+- `<Claim>` and `<Num>` are new shared components (DoD 3–4).
+- `@mdx-js/mdx` is a new devDependency (already in the lockfile through
+  @mdx-js/rollup). The writing test uses it to parse MDX.
+- `pnpm capture` takes 2× screenshots in a loop instead of Playwright's
+  recordVideo, which records at 1× only.
+- Performance tests carry `@perf` and run alone (`pnpm perf`), not in CI.
+- The step 4 GQA prose gained two sentences (review item 3), and step 6's
+  teaser changed (review item 2).
 
 ## Prompt 4: paged attention chapter (PLAN, approved 2026-10-02)
 
