@@ -4,62 +4,22 @@
  * errors, axe, reduced motion, and screenshots. Performance is in
  * kv-cache-perf.spec.ts.
  */
-import { AxeBuilder } from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
-import { watchErrors } from "./helpers.ts";
+import { expect, test } from "@playwright/test";
 import {
-  driveBudget,
+  axeViolations,
+  clippedSvgText,
   expectFocusRing,
   figure,
-  mc,
-  open,
+  horizontalOverflow,
+  shifts,
+  smallTargets,
   tabTo,
-} from "./kv-cache.ts";
+  watchErrors,
+  watchShifts,
+} from "./helpers.ts";
+import { driveBudget, mc, open } from "./kv-cache.ts";
 
 const WIDTHS = [375, 768, 1440] as const;
-
-interface Shift {
-  value: number;
-  hadRecentInput: boolean;
-  sources: { node?: Node; previousRect: DOMRect; currentRect: DOMRect }[];
-}
-
-/**
- * Records layout shifts with what moved (item 12). Chromium only: the others
- * have no layout-shift entries. CLS leaves out shifts within 500 ms of an
- * input, such as a disclosure the reader opens; those are logged, not failed.
- */
-async function watchShifts(page: Page) {
-  await page.addInitScript(() => {
-    const w = window as unknown as { shifts: string[]; inputShifts: number };
-    w.shifts = [];
-    w.inputShifts = 0;
-    if (!PerformanceObserver.supportedEntryTypes.includes("layout-shift"))
-      return;
-    new PerformanceObserver((list) => {
-      for (const e of list.getEntries() as unknown as Shift[]) {
-        if (e.hadRecentInput) {
-          w.inputShifts += e.value;
-          continue;
-        }
-        for (const src of e.sources)
-          w.shifts.push(
-            `${e.value.toFixed(5)} ${src.node instanceof Element ? src.node.outerHTML.slice(0, 60) : JSON.stringify(src.node?.textContent)} at ${String(src.previousRect.x)},${String(src.previousRect.y)} → ${String(src.currentRect.x)},${String(src.currentRect.y)}`,
-          );
-      }
-    }).observe({ type: "layout-shift", buffered: true });
-  });
-}
-
-/** Shifts that count toward CLS; logs the input-driven total. */
-async function shifts(page: Page) {
-  const w = await page.evaluate(() => {
-    const x = window as unknown as { shifts: string[]; inputShifts: number };
-    return { shifts: x.shifts, inputShifts: x.inputShifts };
-  });
-  console.log(`input-driven layout shift: ${w.inputShifts.toFixed(5)}`);
-  return w.shifts;
-}
 
 test.describe("kv-cache: widgets", () => {
   test("memory budget: concurrency, context, fp8, model, and chart", async ({
@@ -196,28 +156,8 @@ test.describe("kv-cache: sizes", () => {
       page,
     }) => {
       await open(page, width);
-      expect(
-        await page.evaluate(
-          () =>
-            document.documentElement.scrollWidth -
-            document.documentElement.clientWidth,
-        ),
-      ).toBe(0);
-      const clipped = await page.evaluate(() =>
-        [...document.querySelectorAll("svg text")].flatMap((t) => {
-          const svg = t.closest("svg");
-          if (!svg) return [];
-          const r = t.getBoundingClientRect();
-          const b = svg.getBoundingClientRect();
-          const out =
-            r.left < b.left - 1 ||
-            r.right > b.right + 1 ||
-            r.top < b.top - 1 ||
-            r.bottom > b.bottom + 1;
-          return out ? [t.textContent] : [];
-        }),
-      );
-      expect(clipped).toEqual([]);
+      expect(await horizontalOverflow(page)).toBe(0);
+      expect(await clippedSvgText(page)).toEqual([]);
     });
   }
 
@@ -226,34 +166,7 @@ test.describe("kv-cache: sizes", () => {
       page,
     }) => {
       await open(page, width);
-      // Links and terms inside sentences are exempt, as in WCAG 2.5.8. A
-      // radio's hit area is its label.
-      const small = await page.evaluate(() =>
-        [
-          ...document.querySelectorAll(
-            "button, input, select, summary, a, [tabindex='0']",
-          ),
-        ]
-          .filter(
-            (el) =>
-              !el.closest("[data-inline], p, li") &&
-              !el.hasAttribute("data-inline") &&
-              !el.closest(".visually-hidden"),
-          )
-          .map((el) => {
-            const box =
-              el instanceof HTMLInputElement && el.type === "radio"
-                ? (el.closest("label") ?? el)
-                : el;
-            return { el, r: box.getBoundingClientRect() };
-          })
-          .filter(({ r }) => r.width > 0 && (r.width < 44 || r.height < 44))
-          .map(
-            ({ el, r }) =>
-              `${el.outerHTML.slice(0, 80)} ${String(Math.round(r.width))}×${String(Math.round(r.height))}`,
-          ),
-      );
-      expect(small).toEqual([]);
+      expect(await smallTargets(page)).toEqual([]);
     });
   }
 });
@@ -269,13 +182,7 @@ test.describe("kv-cache: accessibility", () => {
     }) => {
       await page.emulateMedia({ colorScheme });
       await open(page, width);
-      const results = await new AxeBuilder({ page }).analyze();
-      expect(
-        results.violations.map(
-          (v) =>
-            `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(", ")}`,
-        ),
-      ).toEqual([]);
+      expect(await axeViolations(page)).toEqual([]);
     });
   }
 });

@@ -263,18 +263,11 @@
   fill: var(--ink);
 }
 
-.swatch {
-  display: inline-block;
-  width: 16px;
-  height: 12px;
-  border: 1px solid var(--rule-strong);
-}
-
-.swatch--weights {
+.legend-swatch--weights {
   background: var(--ink-2);
 }
 
-.swatch--kv {
+.legend-swatch--kv {
   background: repeating-linear-gradient(
     45deg,
     var(--req-1) 0 3px,
@@ -282,11 +275,11 @@
   );
 }
 
-.swatch--free {
+.legend-swatch--free {
   background: var(--block-free);
 }
 
-.swatch--over {
+.legend-swatch--over {
   background: repeating-linear-gradient(
     -45deg,
     var(--ink) 0 2px,
@@ -310,28 +303,8 @@
   height: 220px;
 }
 
-.chart__grid {
-  stroke: var(--rule);
-}
-
 .chart__axis {
   fill: var(--ink);
-}
-
-.chart__line {
-  fill: none;
-  stroke: var(--req-1);
-  stroke-width: 2;
-}
-
-.chart__dot {
-  fill: var(--req-1);
-}
-
-.chart__current {
-  fill: none;
-  stroke: var(--ink);
-  stroke-width: 2;
 }
 
 .chart__note {
@@ -351,24 +324,4 @@
 
 .chart__empty {
   font-size: var(--step--1);
-}
-
-.chart__table summary {
-  display: flex;
-  align-items: center;
-  min-height: var(--target);
-  cursor: pointer;
-  font-size: var(--step--1);
-}
-
-.chart__table table {
-  border-collapse: collapse;
-  font-size: var(--step--1);
-}
-
-.chart__table th,
-.chart__table td {
-  padding: var(--space-1) var(--space-3);
-  border-bottom: 1px solid var(--rule);
-  text-align: right;
 }

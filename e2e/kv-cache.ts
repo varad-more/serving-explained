@@ -2,14 +2,14 @@
  * Chapter 1's page helpers and its memory-budget interaction script, shared
  * by kv-cache.spec.ts and kv-cache-perf.spec.ts.
  */
-import { expect, type Locator, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import {
   maxConcurrency,
   type KvDtype,
 } from "../src/chapters/kv-cache/budget.ts";
 import { gpu, model } from "../src/chapters/kv-cache/data.ts";
 import { MEMORY_BUDGET_DEFAULTS as D } from "../src/chapters/kv-cache/presets.ts";
-import { BASE } from "./helpers.ts";
+import { BASE, expectFocusRing, figure, tabTo } from "./helpers.ts";
 
 const URL = `${BASE}kv-cache/`;
 
@@ -27,48 +27,6 @@ export async function open(page: Page, width = 768) {
     page.getByRole("heading", { level: 1, name: "The KV cache" }),
   ).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
-}
-
-export const figure = (page: Page, n: string) =>
-  page.locator(".figure").filter({
-    has: page.locator(".figure__number", { hasText: `Fig. ${n}` }),
-  });
-
-/**
- * Presses Tab, or Shift+Tab when `target` comes earlier in the page, until it
- * has focus, as a keyboard user would. (Firefox does not wrap Tab back into
- * the page.)
- */
-export async function tabTo(page: Page, target: Locator, browserName: string) {
-  // WebKit on macOS skips buttons on Tab unless Option is held.
-  const tab =
-    browserName === "webkit" && process.platform === "darwin"
-      ? "Alt+Tab"
-      : "Tab";
-  const handle = await target.elementHandle();
-  const back = await page.evaluate((el) => {
-    const active = document.activeElement;
-    if (!active || active === document.body) return false;
-    return Boolean(
-      el.compareDocumentPosition(active) & Node.DOCUMENT_POSITION_FOLLOWING,
-    );
-  }, handle);
-  const key = back ? `Shift+${tab}` : tab;
-  for (let i = 0; i < 400; i++) {
-    if (await page.evaluate((el) => el === document.activeElement, handle))
-      return;
-    await page.keyboard.press(key);
-  }
-  throw new Error("could not reach the control with Tab");
-}
-
-export async function expectFocusRing(page: Page) {
-  expect(
-    await page.evaluate(() => {
-      const el = document.activeElement;
-      return el ? getComputedStyle(el).outlineStyle !== "none" : false;
-    }),
-  ).toBe(true);
 }
 
 /**

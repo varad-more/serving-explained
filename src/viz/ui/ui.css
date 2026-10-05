@@ -225,7 +225,8 @@ select:disabled {
   border-bottom: 2px dashed var(--rule-strong);
 }
 
-.callout--reality-check {
+.callout--reality-check,
+.callout--misconception {
   background: var(--callout-reality);
   border-left: 6px solid var(--highlight);
 }
@@ -503,4 +504,59 @@ select:disabled {
   gap: var(--space-1);
   margin-right: var(--space-3);
   font-weight: 700;
+}
+
+/* Charts and legend swatches, shared by the chapters. */
+
+.chart__grid {
+  stroke: var(--rule);
+}
+
+.chart__line {
+  fill: none;
+  stroke: var(--req-1);
+  stroke-width: 2;
+}
+
+.chart__dot {
+  fill: var(--req-1);
+}
+
+.chart__current {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.chart__table summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--target);
+  cursor: pointer;
+  font-size: var(--step--1);
+}
+
+.chart__table table {
+  border-collapse: collapse;
+  font-size: var(--step--1);
+}
+
+.chart__table th,
+.chart__table td {
+  padding: var(--space-1) var(--space-3);
+  border-bottom: 1px solid var(--rule);
+  text-align: right;
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 16px;
+  height: 12px;
+  border: 1px solid var(--rule-strong);
+}
+
+.chart__tick {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--ink-2);
 }

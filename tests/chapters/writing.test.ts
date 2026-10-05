@@ -72,11 +72,14 @@ function blocks(node: Node): string[] {
 }
 
 function sentences(text: string): string[] {
-  return text
-    .replace(/\s+/g, " ")
-    .split(/(?<=[.!?])\s+/)
-    .map((s) => s.trim())
-    .filter(Boolean);
+  return (
+    text
+      .replace(/\s+/g, " ")
+      // A sentence can end inside a closing quote or bracket: ".", "?)".
+      .split(/(?<=[.!?]["”’)]?)\s+/)
+      .map((s) => s.trim())
+      .filter(Boolean)
+  );
 }
 
 const words = (sentence: string) =>
@@ -157,5 +160,8 @@ describe("the sentence counter", () => {
       ),
     );
     expect(sentences(block ?? "").map((s) => words(s).length)).toEqual([5, 1]);
+    expect(sentences('"One two." Three.').map((s) => words(s).length)).toEqual([
+      2, 1,
+    ]);
   });
 });

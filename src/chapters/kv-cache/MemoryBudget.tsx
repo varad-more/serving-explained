@@ -274,22 +274,34 @@ function Bar({
       </svg>
       <ul className="bar__legend num">
         <li>
-          <span className="swatch swatch--weights" aria-hidden="true" />
+          <span
+            className="legend-swatch legend-swatch--weights"
+            aria-hidden="true"
+          />
           Weights {gib(b.weights)}
         </li>
         <li>
-          <span className="swatch swatch--kv" aria-hidden="true" />
+          <span
+            className="legend-swatch legend-swatch--kv"
+            aria-hidden="true"
+          />
           KV cache {gib(b.kv)} ({concurrency} × {gib(perRequest)})
         </li>
         <li>
           {b.fits ? (
             <>
-              <span className="swatch swatch--free" aria-hidden="true" />
+              <span
+                className="legend-swatch legend-swatch--free"
+                aria-hidden="true"
+              />
               Free {gib(b.free)}
             </>
           ) : (
             <>
-              <span className="swatch swatch--over" aria-hidden="true" />
+              <span
+                className="legend-swatch legend-swatch--over"
+                aria-hidden="true"
+              />
               Over by {gib(-b.free)}
             </>
           )}
