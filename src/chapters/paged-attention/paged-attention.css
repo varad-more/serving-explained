@@ -1,0 +1,470 @@
+/* Chapter 2 widgets. States differ in pattern or outline as well as color. */
+
+.paged__toy {
+  margin: 0 0 var(--space-2);
+  font-size: var(--step--1);
+  color: var(--ink-2);
+}
+
+.paged__controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0 var(--space-4);
+  margin-bottom: var(--space-2);
+}
+
+.paged__controls .control {
+  margin: var(--space-2) 0;
+}
+
+/* Wide enough for "1.75 per second" and "128 tokens": sliders never resize. */
+.paged__controls .slider__output {
+  min-width: 13ch;
+}
+
+.paged__grid {
+  margin: var(--space-2) 0;
+}
+
+.paged__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-3);
+}
+
+.paged__name {
+  margin: 0 0 var(--space-1);
+  font-size: var(--step-1);
+}
+
+.paged__readout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  margin-bottom: var(--space-2);
+  font-size: var(--step--1);
+}
+
+.paged__readout dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+}
+
+.paged__readout dl div {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.paged__readout dt {
+  color: var(--ink-2);
+}
+
+.paged__readout dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+/* Fixed widths: a value growing a digit never moves what follows it. */
+.paged__readout .w2,
+.paged__readout .w4 {
+  display: inline-block;
+}
+
+.paged__readout .w2 {
+  min-width: 2ch;
+}
+
+.paged__readout .w4 {
+  min-width: 4ch;
+}
+
+.paged__readout [data-hidden="true"] {
+  visibility: hidden;
+}
+
+.paged__split {
+  font-weight: 400;
+  color: var(--ink-2);
+}
+
+.paged__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: var(--space-2) 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--step--2);
+}
+
+.paged__legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.legend-swatch--held {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--req-2) 0 3px,
+    var(--surface) 3px 4.5px
+  );
+}
+
+.legend-swatch--waste {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--block-waste) 0 1.5px,
+    var(--surface) 1.5px 5px
+  );
+}
+
+.legend-swatch--free {
+  background: var(--block-free);
+  border-color: var(--block-free-edge);
+}
+
+.legend-swatch--gap {
+  background: var(--surface);
+  border: 1.5px dashed var(--block-free-edge);
+}
+
+.legend-swatch--selected {
+  background: var(--surface);
+  border: 3px solid var(--highlight);
+}
+
+/* Fixed width up to "100.00 s", so the time never resizes the scrub bar. */
+.paged .playback__time {
+  min-width: 8ch;
+}
+
+.paged__select {
+  margin-top: var(--space-2);
+}
+
+/* BlockGrid. */
+
+.block-grid__focus {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.block-grid__canvas {
+  display: block;
+  cursor: pointer;
+}
+
+.block-grid__window {
+  margin-top: var(--space-2);
+}
+
+.block-grid__summary {
+  display: block;
+  width: 100%;
+  height: 12px;
+}
+
+.summary--free {
+  fill: var(--block-free);
+}
+
+.summary--waste {
+  fill: var(--block-waste);
+}
+
+.summary--gap {
+  fill: var(--surface);
+}
+
+.summary--held {
+  fill: var(--ink-2);
+}
+
+.summary--slot-1 {
+  fill: var(--req-1);
+}
+.summary--slot-2 {
+  fill: var(--req-2);
+}
+.summary--slot-3 {
+  fill: var(--req-3);
+}
+.summary--slot-4 {
+  fill: var(--req-4);
+}
+.summary--slot-5 {
+  fill: var(--req-5);
+}
+.summary--slot-6 {
+  fill: var(--req-6);
+}
+.summary--slot-7 {
+  fill: var(--req-7);
+}
+.summary--slot-8 {
+  fill: var(--req-8);
+}
+
+.summary__window {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.block-grid__pager {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.block-grid__range {
+  margin: var(--space-1) 0 0;
+  font-size: var(--step--1);
+}
+
+/* The selected request's table or region. */
+
+/* A fixed height: tables grow during playback without moving the page. */
+.table-panel {
+  height: 13rem;
+  margin-top: var(--space-2);
+  overflow: auto;
+  font-size: var(--step--1);
+}
+
+.table-panel__table,
+.strip__table {
+  border-collapse: collapse;
+  margin: var(--space-2) 0;
+  font-size: var(--step--1);
+}
+
+.table-panel__table caption,
+.strip__table caption {
+  text-align: left;
+  font-weight: 700;
+  padding-bottom: var(--space-1);
+}
+
+.table-panel__table th,
+.table-panel__table td,
+.strip__table th,
+.strip__table td {
+  padding: 2px var(--space-3) 2px 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: right;
+}
+
+.strip__table tr.is-active td {
+  background: var(--highlight);
+  color: var(--on-highlight);
+}
+
+/* Block-size charts. */
+
+.bs-charts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.mini-chart {
+  margin: 0;
+  width: min(100%, 260px);
+}
+
+.mini-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.mini-chart__title {
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.bs-charts .chart__table {
+  flex-basis: 100%;
+}
+
+/* TokenStrip (figure 2.3). */
+
+.strip__who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+}
+
+.strip__panels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+}
+
+.strip__title {
+  margin: 0 0 var(--space-1);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.strip__tokens {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.strip__label,
+.strip__index {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--ink-2);
+}
+
+.strip__token {
+  fill: var(--strip);
+  stroke: var(--surface);
+  cursor: pointer;
+}
+
+.strip__token--empty {
+  fill: var(--surface);
+  stroke: var(--block-waste);
+  stroke-dasharray: 2 2;
+  cursor: default;
+}
+
+.strip__token--active:not(.strip__token--empty) {
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+
+.strip__token--cursor {
+  fill: var(--highlight);
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.strip__memory {
+  display: block;
+  width: min(100%, 288px);
+  height: auto;
+}
+
+.strip__block {
+  fill: var(--block-free);
+  stroke: var(--block-free-edge);
+  stroke-width: 0.75;
+}
+
+.strip__block--other {
+  fill: var(--ink-2);
+  stroke: var(--surface);
+}
+
+.strip__block--mine {
+  fill: var(--strip);
+  stroke: var(--ink);
+}
+
+.strip__block--active {
+  fill: var(--highlight);
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.strip__block--mine + .strip__index,
+.strip__index {
+  fill: var(--strip-label);
+  font-weight: 700;
+}
+
+.strip__block--active + .strip__index {
+  fill: var(--on-highlight);
+}
+
+.strip__key {
+  margin: var(--space-1) 0 0;
+  font-size: var(--step--2);
+  color: var(--ink-2);
+}
+
+.strip__readout {
+  margin: var(--space-3) 0 0;
+  font-weight: 700;
+}
+
+/* SharedBlocks (figure 2.6). */
+
+/* Room for both rows and two readout lines, so finishing moves nothing. */
+.shared__tables {
+  min-height: 4rem;
+}
+
+.shared__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-1);
+}
+
+.shared__memory {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  margin: var(--space-2) 0;
+}
+
+.shared__block--free {
+  fill: var(--block-free);
+  stroke: var(--block-free-edge);
+}
+
+.shared__block--held {
+  fill: var(--surface);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.shared__block--shared {
+  fill: var(--ink-2);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.shared__inner {
+  fill: none;
+  stroke: var(--surface);
+  stroke-width: 1.5;
+}
+
+.shared__id,
+.shared__owner {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--ink);
+}
+
+.shared__block--shared ~ .shared__id,
+.shared__count {
+  fill: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.shared__readout {
+  min-height: 2lh;
+  margin: var(--space-2) 0;
+  font-weight: 700;
+}

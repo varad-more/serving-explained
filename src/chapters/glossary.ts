@@ -186,4 +186,135 @@ export const glossary: readonly GlossaryEntry[] = [
     definition:
       "The most requests of a given context length whose KV cache fits in free memory at once.",
   },
+  // Chapter 2: paged attention.
+  {
+    id: "slot",
+    term: "Slot",
+    definition: "Room in the KV pool for one token's keys and values.",
+    source: { id: "kwon2023", at: "§3.1, Fig. 3" },
+  },
+  {
+    id: "pagedattention",
+    term: "PagedAttention",
+    definition:
+      "The vLLM paper's design: a block manager hands out fixed-size KV blocks, and an attention kernel reads them wherever they sit.",
+    source: { id: "kwon2023", at: "§4.1–4.2" },
+  },
+  {
+    id: "block",
+    term: "Block (KV block)",
+    definition:
+      "A fixed-size piece of KV memory that holds the keys and values of a set number of tokens.",
+    source: { id: "kwon2023", at: "§4.1" },
+  },
+  {
+    id: "block-size",
+    term: "Block size",
+    definition: "How many tokens one block holds. vLLM's default is 16.",
+    source: { id: "kwon2023", at: "§7.2" },
+  },
+  {
+    id: "logical-block",
+    term: "Logical block",
+    definition:
+      "A request's own numbering of its blocks: 0, 1, 2, in token order. Each maps to one physical block.",
+    source: { id: "kwon2023", at: "§4.2" },
+  },
+  {
+    id: "physical-block",
+    term: "Physical block",
+    definition:
+      "An actual block in GPU memory. A request's physical blocks can sit anywhere in the pool.",
+    source: { id: "kwon2023", at: "§4.2" },
+  },
+  {
+    id: "block-table",
+    term: "Block table",
+    definition:
+      "A request's map from logical blocks to physical blocks, with how many slots each one has filled.",
+    source: { id: "kwon2023", at: "§4.2" },
+  },
+  {
+    id: "page",
+    term: "Page",
+    definition:
+      "In an operating system, a fixed-size piece of memory. Programs see contiguous pages that can sit anywhere physically.",
+    source: { id: "kwon2023", at: "§4.2" },
+  },
+  {
+    id: "contiguous-allocation",
+    term: "Contiguous allocation",
+    definition:
+      "Keeping each request's KV cache in one unbroken range of memory, as earlier serving systems did.",
+    source: { id: "kwon2023", at: "§3.1" },
+  },
+  {
+    id: "reservation",
+    term: "Reservation",
+    definition:
+      "Memory set aside for a request before its tokens exist, here for its maximum possible length.",
+    source: { id: "kwon2023", at: "§3.1" },
+  },
+  {
+    id: "max-model-len",
+    term: "max_model_len",
+    definition:
+      "The longest sequence, prompt plus output, a server will accept.",
+    source: { id: "vllm-src", at: "config/model.py L217–219" },
+  },
+  {
+    id: "internal-fragmentation",
+    term: "Internal fragmentation",
+    definition:
+      "Reserved slots a request never fills, because its sequence ends before its reservation does.",
+    source: { id: "kwon2023", at: "§3.1" },
+  },
+  {
+    id: "external-fragmentation",
+    term: "External fragmentation",
+    definition:
+      "Free memory split into pieces too small to use. In the paper's baselines it came from the memory allocator.",
+    source: { id: "kwon2023", at: "§3.1" },
+  },
+  {
+    id: "gap",
+    term: "Gap",
+    definition:
+      "In this chapter's contiguous grid, free space too small for a region. With equal regions, it is the leftover at the end.",
+  },
+  {
+    id: "reference-count",
+    term: "Reference count",
+    definition:
+      "How many block tables point at one physical block. The block returns to the free queue only at 0.",
+    source: { id: "vllm-apc-doc", at: "L198" },
+  },
+  {
+    id: "preemption",
+    term: "Preemption",
+    definition:
+      "When memory runs out, the engine frees a running request's blocks. vLLM V1 computes its tokens again later.",
+    source: { id: "vllm-src", at: "v1/core/sched/scheduler.py L1540–1562" },
+  },
+  {
+    id: "kernel",
+    term: "Kernel",
+    definition:
+      "A program that runs on the GPU, such as the one that computes attention.",
+    source: { id: "kwon2023", at: "§5, §7.1" },
+  },
+  {
+    id: "throughput",
+    term: "Throughput",
+    definition:
+      "How much work a server finishes per second, in requests or tokens.",
+    source: { id: "kwon2023", at: "§6" },
+  },
+  {
+    id: "prefix-caching",
+    term: "Prefix caching",
+    definition:
+      "Keeping the KV blocks of a prompt's opening tokens, so a later request with the same opening reuses them.",
+    source: { id: "vllm-apc-doc" },
+  },
 ];

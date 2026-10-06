@@ -1,3 +1,198 @@
-# Paged attention
+import { Link } from "../../router.ts";
+import { Callout } from "../../viz/ui/Callout.tsx";
+import { ChapterLayout, ChapterStep } from "../../viz/ui/ChapterLayout.tsx";
+import { CheckYourself } from "../../viz/ui/CheckYourself.tsx";
+import { Claim } from "../../viz/ui/Claim.tsx";
+import { GlossaryTerm } from "../../viz/ui/GlossaryTerm.tsx";
+import { Num } from "../../viz/ui/Num.tsx";
+import { SourceLink } from "../../viz/ui/SourceLink.tsx";
+import { F, figures } from "./figures.tsx";
+import { MaxLenTry } from "./PagedFigure.tsx";
 
-This chapter is not written yet.
+export const SIM9 = "https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md#9-simplifications-what-this-leaves-out";
+
+<ChapterLayout
+  number={2}
+  title="Paged attention"
+  objective={<p>Explain that reserving one contiguous region per request for its maximum length wastes most of the KV memory. Fixed-size blocks plus a per-request block table cut that waste to at most one partly filled block per request, so more requests fit.</p>}
+  figures={figures}
+>
+
+<ChapterStep figure="contiguous" id="recap">
+
+## Every token needs room
+
+<Link to="/kv-cache/">Chapter 1</Link> showed that each token stores a key and a value in every layer.
+For Llama-3.1-8B, that is <Num value={F.kibPerToken} unit="KiB" kind="computed" /> per token.
+A serving engine has to find room for it as each request grows.
+
+This chapter compares two ways to lay that memory out.
+It uses a toy GPU whose KV memory, the pool, holds <Num value={F.capacity} kind="simulated" /> tokens.
+Each token takes one <GlossaryTerm id="slot">slot</GlossaryTerm>.
+By llmsize's count, a real A10G has room for <Num value={F.freeTokens} kind="computed" badge={false} /> tokens after Llama-3.1-8B's weights: <Num value={F.toyShare} kind="computed" /> times as many.
+That count is before vLLM's holdback and overheads, so the real number is lower.
+A small pool keeps the picture readable, and step times still come from Llama-3.1-8B on an A10G.
+The figures run at most <Num value={F.maxNumSeqs} kind="simulated" /> requests at once, so each one keeps its own color and glyph.
+
+</ChapterStep>
+
+<ChapterStep figure="contiguous" id="contiguous">
+
+## Reserve the maximum, use a little
+
+Earlier serving systems kept each request's KV cache in one unbroken range, called <GlossaryTerm id="contiguous-allocation">contiguous allocation</GlossaryTerm> (<SourceLink id="kwon2023" at="§3.1" />).
+They could not know how long an output would be.
+So they made a <GlossaryTerm id="reservation">reservation</GlossaryTerm> for each request's maximum possible length (<SourceLink id="kwon2023" at="§3.1" />).
+The paper's Orca (Max) baseline reserves memory this way; Orca is an earlier serving system (<SourceLink id="kwon2023" at="§6.1" />).
+
+Figure 2.1 does the same.
+When a request starts running, it reserves <GlossaryTerm id="max-model-len">max_model_len</GlossaryTerm> slots, here <Num value={F.maxModelLen} kind="simulated" />.
+But this chapter's <Num value={F.requests} kind="simulated" badge={false} /> requests need <Num value={F.shortest} kind="simulated" badge={false} /> to <Num value={F.longest} kind="simulated" badge={false} /> slots each, <Num value={F.meanLength} kind="simulated" /> on average.
+Each request's KV fills its region from the start; the rest stays hatched, reserved but empty.
+Only <Num value={F.regions} kind="simulated" badge={false} /> regions fit in <Num value={F.capacity} kind="simulated" /> slots.
+Once both are taken, the <Num value={F.gap} kind="simulated" /> slots left at the end are a <GlossaryTerm id="gap">gap</GlossaryTerm>: free space too small for a region.
+
+<Claim id="contiguous-waste-split">So contiguous waste has two parts: reserved slots that hold no KV, and the gap. The readout shows both.</Claim>
+<Claim id="contiguous-wastes-most">Over the first <Num value={F.window} unit="s" kind="simulated" badge={false} />, contiguous allocation wastes <Num value={F.contiguousWaste} digits={1} unit="%" kind="simulated" /> of the pool on average.</Claim>
+
+The paper splits our reserved slots in two: slots kept for future tokens, and slots a request never fills (<SourceLink id="kwon2023" at="§3.1, Fig. 3" />).
+It calls the second kind <GlossaryTerm id="internal-fragmentation">internal fragmentation</GlossaryTerm>.
+Its baselines also lost space between regions to the memory allocator, called <GlossaryTerm id="external-fragmentation">external fragmentation</GlossaryTerm> (<SourceLink id="kwon2023" at="§3.1, §6.1" />).
+<Claim id="only-tail-gap">Our regions are all one size, so at every max_model_len our only gap is the leftover at the end.</Claim>
+
+</ChapterStep>
+
+<ChapterStep figure="paged" id="paged">
+
+## Take memory as it is needed
+
+Paged allocation splits the pool into fixed-size <GlossaryTerm id="block">blocks</GlossaryTerm>, like <GlossaryTerm id="page">pages</GlossaryTerm> in an operating system (<SourceLink id="kwon2023" at="§4.1–4.2" />).
+The <GlossaryTerm id="block-size">block size</GlossaryTerm>, B, is how many tokens a block holds: here <Num value={F.blockSize} kind="simulated" />.
+A request takes blocks for its prompt when it starts, then one more each time its newest block fills (<SourceLink id="kwon2023" at="§4.3" />).
+The paper calls the whole design <GlossaryTerm id="pagedattention">PagedAttention</GlossaryTerm>: a block manager hands out blocks, and an attention kernel reads them wherever they sit (<SourceLink id="kwon2023" at="§4.1–4.2" />).
+
+<Claim id="paged-on-demand">In Figure 2.2, at every step, every block a request holds is full except its newest.</Claim>
+<Claim id="paged-waste-bound">So a request never holds more than B − 1 empty slots, here <Num value={F.blockSize - 1} kind="simulated" />. That bound holds at every block size in this chapter.</Claim>
+
+</ChapterStep>
+
+<ChapterStep figure="table" id="block-table">
+
+## A table maps each request's blocks
+
+A request numbers its own blocks 0, 1, 2, in token order: its <GlossaryTerm id="logical-block">logical blocks</GlossaryTerm> (<SourceLink id="kwon2023" at="§4.2" />).
+Each one maps to a <GlossaryTerm id="physical-block">physical block</GlossaryTerm>, which can sit anywhere in the pool.
+A <GlossaryTerm id="block-table">block table</GlossaryTerm> holds that map, with how many slots each block has filled (<SourceLink id="kwon2023" at="§4.2" />).
+
+<Claim id="table-scattered">In Figure 2.3, no two of r{F.table.req}'s <Num value={F.table.blocks} kind="simulated" /> blocks sit side by side in memory.</Claim>
+The attention <GlossaryTerm id="kernel">kernel</GlossaryTerm> reads each request's keys and values through its table, so the blocks need not touch (<SourceLink id="kwon2023" at="§4.1" />).
+Move along the tokens to see where each one lives.
+
+</ChapterStep>
+
+<ChapterStep figure="compare" id="side-by-side">
+
+## The same requests, side by side
+
+Figure 2.4 runs the same requests on both allocators, in lockstep by simulated time.
+The spread control sets how much output lengths vary around their median of <Num value={F.outputMedian} kind="simulated" /> tokens.
+<Claim id="paged-admits-more">Paged reaches the cap of <Num value={F.pagedPeak} kind="simulated" badge={false} /> running requests. Contiguous runs at most <Num value={F.contiguousPeak} kind="simulated" />, and never preempts, because each reservation already covers the maximum.</Claim>
+
+Packing requests in means memory can run out mid-generation.
+Then the engine uses <GlossaryTerm id="preemption">preemption</GlossaryTerm>: it frees the most recently admitted request's blocks (<SourceLink id="vllm-src" at="v1/core/sched/scheduler.py L746–818" />).
+That request computes its tokens again later (<SourceLink id="vllm-src" at="v1/core/sched/scheduler.py L1540–1562" />, <SourceLink id="kwon2023" at="§4.5" />).
+The paged readout shows the count whenever it is not zero.
+
+<Claim id="visible-in-20s">Within <Num value={F.window} unit="s" kind="simulated" badge={false} />, paged runs <Num value={F.pagedPeak20} kind="simulated" /> at once. Contiguous's queue grows from <Num value={F.waitingAt10} kind="simulated" badge={false} /> waiting at <Num value={F.window / 2} unit="s" kind="simulated" badge={false} /> to <Num value={F.waitingAt20} kind="simulated" /> at <Num value={F.window} unit="s" kind="simulated" badge={false} />. Over the whole run, paged makes <Num value={F.preemptions} kind="simulated" /> {F.preemptions === 1 ? "preemption" : "preemptions"}.</Claim>
+
+<Claim id="paged-less-waste">Over the first <Num value={F.window} unit="s" kind="simulated" badge={false} />, paged wastes <Num value={F.pagedWaste} digits={1} unit="%" kind="simulated" badge={false} /> of the pool on average, against <Num value={F.contiguousWaste} digits={1} unit="%" kind="simulated" /> for contiguous.</Claim>
+
+<Callout kind="reality-check">
+
+The paper measured real systems on real workloads.
+In its experiments, token states filled only 20.4% to 38.2% of KV memory in its Orca baselines, against 96.3% in vLLM (<SourceLink id="kwon2023" at="§1, Fig. 2" />).
+Our numbers are simulated on a toy preset, so they show the mechanism, not real performance.
+
+</Callout>
+
+<Callout kind="misconception">
+
+"Paged attention makes attention faster."
+The paper's PagedAttention kernel read keys and values from blocks that were not contiguous (<SourceLink id="kwon2023" at="§4.1" />).
+That kernel was slower: 20% to 26% higher attention latency than FasterTransformer's, an earlier inference library (<SourceLink id="kwon2023" at="§7.1, Fig. 18a" />).
+The gain was end to end: 2 to 4 times the <GlossaryTerm id="throughput">throughput</GlossaryTerm> at similar latency (<SourceLink id="kwon2023" at="abstract, §9" />).
+It came from batching more requests.
+On a chat dataset (ShareGPT) with a 13-billion-parameter model (OPT-13B), vLLM ran 2.2× more requests at once than Orca (<SourceLink id="kwon2023" at="§6.2, Fig. 13a" />).
+That Orca is the Oracle baseline, which knows each output length ahead (<SourceLink id="kwon2023" at="§6.1" />).
+Against Orca (Max), vLLM ran 4.3× more.
+For neural networks other than LLMs, which are limited by compute, the paper says paging's indirection may slow serving down (<SourceLink id="kwon2023" at="§8" />).
+
+</Callout>
+
+</ChapterStep>
+
+<ChapterStep figure="block-size" id="block-size">
+
+## Block size changes waste and table length
+
+A bigger block leaves more empty slots in each request's newest block.
+A smaller one means more table entries per request.
+
+<Claim id="block-size-raises-waste">In Figure 2.5, mean paged waste over the first <Num value={F.window} unit="s" kind="simulated" /> rises with every step up in block size. It goes from <Num value={F.bs.wasteSmallest} digits={1} unit="%" kind="simulated" badge={false} /> at <Num value={F.bs.smallest} kind="simulated" badge={false} /> tokens to <Num value={F.bs.wasteLargest} digits={1} unit="%" kind="simulated" /> at <Num value={F.bs.largest} kind="simulated" badge={false} />.</Claim>
+<Claim id="block-size-shortens-tables">Mean table length falls the other way: from <Num value={F.bs.tableSmallest} digits={1} kind="simulated" badge={false} /> blocks per request to <Num value={F.bs.tableLargest} digits={1} kind="simulated" />.</Claim>
+
+The paper's trade-off is about speed as well as memory (<SourceLink id="kwon2023" at="§7.2" />).
+Too small a block can leave the GPU's parallelism unused when the kernel reads the cache.
+Too large a block wastes more slots, and blocks are less often shared.
+On ShareGPT, block sizes 16 to 128 gave the best performance; on another dataset, Alpaca, 16 and 32 worked well (<SourceLink id="kwon2023" at="§7.2" />).
+vLLM's default is 16 (<SourceLink id="vllm-src" at="config/cache.py L71" />).
+Our simulation does not model kernel speed, so the figure shows memory only.
+
+</ChapterStep>
+
+<ChapterStep figure="shared" id="shared-blocks">
+
+## Blocks can be shared
+
+Our reasoning from <SourceLink id="kwon2023" at="§2.2" />: a token's keys and values depend only on it and the tokens before it.
+So two prompts that start the same compute the same keys and values for that start.
+With <GlossaryTerm id="prefix-caching">prefix caching</GlossaryTerm> on, their block tables can point at the same physical blocks (<SourceLink id="vllm-apc-doc" />).
+Figure 2.6 runs two requests at block size <Num value={F.shared.blockSize} kind="simulated" badge={false} /> whose prompts share their first <Num value={F.shared.prefix} kind="simulated" /> tokens.
+
+<Claim id="shared-refcount">While both run, the prefix's <Num value={F.shared.prefix / F.shared.blockSize} kind="simulated" /> blocks each have a <GlossaryTerm id="reference-count">reference count</GlossaryTerm> of 2: two tables point at each.</Claim>
+A block goes back to the free queue only when its count drops to 0 (<SourceLink id="vllm-apc-doc" at="L198" />).
+<Link to="/prefix-caching/">Chapter 4</Link> covers when blocks can be shared.
+
+</ChapterStep>
+
+<CheckYourself question={<>Predict first: raise max_model_len from <Num value={F.maxModelLen} kind="simulated" badge={false} /> to <Num value={F.check.raised} kind="simulated" />. What happens to the most requests contiguous runs at once? And paged?</>}>
+
+<Claim id="max-model-len-hurts-contiguous-only">Contiguous drops to <Num value={F.check.contiguousPeak} kind="simulated" badge={false} /> request at a time: one region of <Num value={F.check.raised} kind="simulated" badge={false} /> slots fits in <Num value={F.capacity} kind="simulated" badge={false} />, leaving a gap of <Num value={F.check.gap} kind="simulated" />. Paged does not change at all, event for event. It reserves nothing ahead, and no request here is longer than <Num value={F.longest} kind="simulated" /> tokens, so every setting accepts them all.</Claim>
+
+<MaxLenTry />
+
+</CheckYourself>
+
+## What this leaves out
+
+- Regions of different sizes: no buddy allocation and no per-request reservation, so the only gap is the leftover at the end (<SourceLink id="kwon2023" at="§3.1, §6.1" />, <a href={SIM9}>SIM.md §9.15</a>).
+- A real pool: this one holds <Num value={F.capacity} kind="simulated" badge={false} /> tokens and at most <Num value={F.maxNumSeqs} kind="simulated" /> requests. vLLM's default cap is 256 requests on GPUs under 70 GiB, and on A100s (<SourceLink id="vllm-src" at="engine/arg_utils.py L2876–2895" />).
+- vLLM's holdback and overheads: the A10G count in step 1 includes neither (<a href={SIM9}>SIM.md §9.14</a>).
+- More than one GPU (<a href={SIM9}>SIM.md §9.1</a>).
+- Measured step times: ours come from a simple model of compute and memory speed, a roofline, with no step overhead (<a href={SIM9}>SIM.md §9.2</a>). It assumes <Num value={F.mbu} digits={2} kind="computed" /> memory-bandwidth use (<SourceLink id="llmsize-math" at="Throughput" />).
+- The paged kernel's slowdown, which we do not charge to step time (<SourceLink id="kwon2023" at="§7.1" />, <a href={SIM9}>SIM.md §9.4</a>).
+- Scheduling other than first come, first served, and per-request output limits (<a href={SIM9}>SIM.md §9.10</a>).
+- Copy-on-write, beam search, and parallel sampling (<SourceLink id="kwon2023" at="§4.4" />).
+- Swapping preempted requests to CPU memory (<SourceLink id="kwon2023" at="§4.5" />). vLLM V1 recomputes instead, as we do (<SourceLink id="vllm-src" at="v1/core/sched/scheduler.py L1540–1562" />).
+- vLLM's reserved null block, lookahead slots for speculative decoding, and asynchronous scheduling (<a href={SIM9}>SIM.md §9.12, §9.11, §9.3</a>).
+- Separate tables per head and layer: we keep one table per request, and the paper found the two designs perform the same (<SourceLink id="kwon2023" at="§4.1, footnote 1" />).
+- Block size's effect on kernel speed, which stays qualitative here (<SourceLink id="kwon2023" at="§7.2" />).
+
+## Go deeper
+
+- <SourceLink id="kwon2023" at="§3–4, §7" />: the memory waste in earlier systems, PagedAttention, and its costs.
+- <SourceLink id="vllm-pa-doc" />: the history of the original paged attention kernel.
+- <SourceLink id="vllm-src" at="v1/core/block_pool.py, v1/core/kv_cache_manager.py" />: how vLLM allocates and frees blocks today.
+- <SourceLink id="yu2022" at="§4.2" />: how Orca reserved memory for each request's maximum length.
+
+</ChapterLayout>
