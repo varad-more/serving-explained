@@ -72,6 +72,21 @@ const SCENES: Record<string, Scene> = {
       await pause(page, 900);
     },
   },
+  // Compare mode at 2× from t = 0: the same requests on both allocators.
+  "paged-attention": {
+    figure: "2.4",
+    css: `
+      .site-header, .skip, .paged__controls, .paged__legend,
+      .paged__select { display: none !important; }
+    `,
+    setup: async (fig) => {
+      await fig.getByLabel("Speed").selectOption("2");
+    },
+    run: async (fig, page) => {
+      await fig.getByRole("button", { name: "Play" }).click();
+      await pause(page, 8000);
+    },
+  },
 };
 
 function run(cmd: string, args: string[]) {
