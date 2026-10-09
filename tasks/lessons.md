@@ -2,6 +2,24 @@
 
 Mistakes, corrections, and surprises. Newest first.
 
+## 2026-10-09
+
+- **Don't kill processes in a command.** A command that included
+  `pkill -f "vite preview"` was rejected. Playwright's webServer reuses a
+  running preview server, and `pnpm build` refreshes the `dist` it serves, so
+  nothing needs killing.
+- **Named `<section>`s are landmarks.** Figures 2.1, 2.2, and 2.4 each had
+  sections named "Contiguous" and "Paged", and axe failed `landmark-unique`.
+  Repeated widget parts are `role="group"`, which is not a landmark.
+- **Firefox's SVG text box starts about 3 px left of its x.** Labels at
+  x = 0 failed the clipped-text check in Firefox only. Inset SVG labels by a
+  few pixels.
+- **Step feedback needs a fine enough clock.** One engine step is about
+  40 ms, so a time shown to 0.1 s did not change on Step. Compare mode
+  shows 2 decimals.
+- **Seeking a React range input in a test** needs the native `value` setter
+  plus an `input` event; setting `.value` alone is invisible to React.
+
 ## 2026-10-02
 
 - **Case-insensitive file names bit twice.** `TokenGrid.tsx` beside

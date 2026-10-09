@@ -858,7 +858,7 @@ was verified.
 - [x] SIM.md: added the preset `paged-vs-contiguous` and per-preset engine
       overrides (`seed`, `kv`, `scheduler`) to the `Preset` type. SIM.md was
       approved with them on 2026-10-02.
-- [ ] The chapter (Build 4).
+- [x] The chapter (Build 4). DoD items below; 17 and 22 finish at deploy.
 
 ### Depends on
 
@@ -1153,28 +1153,129 @@ snapshot at every step, so the widget draws what the engine did.
 
 ### DoD checklist (docs/CHAPTER_DOD.md)
 
-- [ ] 1 objective and CheckYourself
-- [ ] 2 sources
-- [ ] 3 provenance
-- [ ] 4 claims tested
-- [ ] 5 writing rules
-- [ ] 6 end sections
-- [ ] 7 keyboard and touch
-- [ ] 8 labels
-- [ ] 9 playback
-- [ ] 10 reduced motion
-- [ ] 11 sizes, themes, and browsers
-- [ ] 12 no layout shift
-- [ ] 13 no console errors
-- [ ] 14 axe
-- [ ] 15 interactions within 100 ms
-- [ ] 16 60 fps
-- [ ] 17 screenshots
-- [ ] 18 interaction tests
-- [ ] 19 checks pass
-- [ ] 20 fresh-eyes review
-- [ ] 21 capture
-- [ ] 22 route HTML
+Copied from docs/CHAPTER_DOD.md for chapter 2. Each item is ticked with how it
+was verified.
+
+**Content**
+- [x] 1. Objective first, checked last: PRODUCT.md's objective, word for word.
+  CheckYourself asks the reader to predict both allocators' running counts at
+  max_model_len 1024 before revealing; a "Try it" control sits inside the
+  answer.
+- [x] 2. Sources: 40 SourceLinks, all ids in sources.json
+  (tests/sources.test.ts); glossary source ids checked by writing.test.ts. Our
+  reasoning is marked in step 7 ("Our reasoning from kwon2023 §2.2").
+- [x] 3. Provenance: every number from data or the sim renders through `<Num>`,
+  with at least one badge per sentence; widget readouts carry their own badge.
+  Paper and vLLM numbers carry SourceLinks. Review item 11 removed the last
+  hand-typed numbers from captions and labels.
+- [x] 4. Claims: 13 `<Claim>` ids, 13 tests on the configs the chapter imports;
+  the meta-test passes. `only-tail-gap` was added after review item 12.
+  tests/viz/frames.test.ts (frames-match-snapshots) passes at every block size,
+  on a preemption-heavy workload, and on the prefix-caching teaser.
+- [x] 5. Writing rules: writing.test.ts passes (its sentence splitter now also
+  ends a sentence at a closing quote). 19 glossary terms added (46 in all).
+- [x] 6. End sections: 12 "What this leaves out" lines, each with a source or a
+  SIM.md §9 entry; "Go deeper" links kwon2023, vllm-pa-doc, vllm-src, and
+  yu2022 only.
+
+**Widgets**
+- [x] 7. Keyboard and touch: in all three browsers the tests Tab (or Shift+Tab)
+  to the block grid, token strip, sliders, selects, and Step, check the focus
+  ring, and operate them with arrows, Enter, or Home. Hit areas are at least
+  44 × 44 px at 375 and 768. Grid cells and tokens also respond to tap.
+- [x] 8. Labels: every control has a visible label. Readouts are polite live
+  regions when paused (off while playing); the grid cursor, token strip,
+  shared-blocks readout, and Try it control announce too.
+- [x] 9. Playback: figures 2.1, 2.2, 2.4, 2.5 (one PlaybackBar over sim time)
+  and 2.6 (by step). Frames come from the event log alone and match the
+  engine's snapshot at every step (frames-match-snapshots).
+- [x] 10. Reduced motion: Play is disabled and Step walks the step ends (e2e).
+- [x] 11. Sizes, themes, browsers: no horizontal scroll and no clipped SVG text
+  at 375, 768, and 1440 in Chromium, WebKit, and Firefox (a Firefox-only clip
+  of the strip labels was fixed).
+- [x] 12. No layout shift: 0 in the compare and token-strip tests; readout
+  values have fixed widths, the preemption item is laid out at 0, and panels
+  reserve their height. Input-driven shift logged: 0.
+- [x] 13. No console or page errors in any widget test.
+- [x] 14. axe: no violations at 768 light and dark, and 1440 light (after
+  making repeated grid sections groups, not landmarks).
+
+**Performance** (`pnpm perf`, Chromium, one worker; traces in
+`test-results/paged-attention-perf-*/`)
+- [x] 15. Event Timing over control changes, each re-running both sims: max 24 ms
+  at 1×, 32 ms at 4×; p95 over entries of 16 ms or more: 24 and 32 ms.
+- [x] 16. rAF over 5 s of compare playback at block size 8 (160 cells per grid):
+  p50 16.7, p95 16.8, max 16.8 ms at 1×; p50 16.7, p95 16.8, max 33.4 ms at 4×.
+
+**Tests and review**
+- [ ] 17. Screenshots: 6 darwin baselines, paused at t = 12 s. Linux: pending
+  the baselines workflow.
+- [x] 18. Interaction: compare controls, grid keyboard, token strip, shared
+  blocks, mobile window, reduced motion, and the wide layout: 15 tests × 3
+  browsers, all passing.
+- [x] 19. Checks: `pnpm test` (225), `pnpm typecheck`, `pnpm lint`, and
+  `pnpm build` pass.
+- [x] 20. Fresh-eyes review: 22 findings (2 major, 13 minor, 6 nit); 19 fixed,
+  3 answered (below).
+
+**Launch assets**
+- [x] 21. Capture: `pnpm capture paged-attention`: 8.10 s, 1200×1288 H.264 mp4
+  (571 KB) and a 600 px, 12 fps GIF (1.02 MB), compare mode at 2× from t = 0.
+- [ ] 22. Route HTML: dist/paged-attention/index.html has its title,
+  description, canonical, og and twitter tags, and a 1200×630 image. Live:
+  pending deploy.
+
+### Fresh-eyes review: findings and answers
+
+1. Major. "PagedAttention" undefined. Fixed: step 3 defines it (block manager
+   plus kernel), with a glossary entry.
+2. Major. Request lengths never stated. Fixed: step 2 gives 64 to 376 slots,
+   190 on average; step 5 explains the spread control.
+3. Same prefix, same KV: marked "Our reasoning from kwon2023 §2.2".
+4. Prefill takes several blocks. Fixed: heading "Take memory as it is needed",
+   prompt blocks at start then one at a time, cited to §4.3; caption too.
+5. "Queue keeps growing" stronger than its test. Fixed: "grows from 10 at 10 s
+   to 17 at 20 s", which the test asserts.
+6. "Not side by side" stronger than its test. Fixed: the test now requires no
+   two blocks to be neighbors; the claim says so.
+7. Paged unchanged at 1024 also needs requests under 384 tokens. Fixed.
+8. Kernel tense and undefined baselines. Fixed: past tense, FasterTransformer,
+   ShareGPT, OPT-13B, Orca, and Oracle glossed; step 2 now names Orca (Max).
+9. A10G count overstated. Fixed: "by llmsize's count, before vLLM's holdback
+   and overheads"; a leaves-out line added (SIM.md §9.14).
+10. Terms before definition. Fixed: slot, pool, B, block size, reference count,
+    roofline, and the vLLM extras are defined at first use.
+11. Badges and typed numbers. Fixed in prose, captions, labels, and the MBU line.
+12. Gap claims. Fixed: "once both are taken"; new claim `only-tail-gap`, tested at
+    every max_model_len.
+13. "Up to 8" is the cap. Fixed: "reaches the cap of 8"; contiguous never
+    preempts, now in the claim and its test.
+14. Preemption citation. Fixed: L746–818 for the victim, L1540–1562 for the
+    recompute; glossary cites vllm-src.
+15. Table length as a cost. Fixed: heading "Block size changes waste and table
+    length"; the paper's speed trade-off stated as the paper's.
+16. Block terms on the contiguous grid. Fixed: contiguous cells read "Slots
+    16–31: in r6's region"; the grid is a "memory grid"; legend "Free".
+17. Step 5 holds several ideas. Answered: the step list is the approved plan's.
+18. Footnote is about per head and layer. Fixed.
+19. max_model_len glossary second sentence. Fixed: removed.
+20. Strip readout mixed indexing. Fixed: "position 0 of 0–15".
+21. "Freed only at 0" with caching. Fixed: "goes back to the free queue only at
+    0" (vllm-apc-doc L198).
+22. Knob vs. CheckYourself, and role="grid". Answered: the plan put the
+    prediction on max_model_len; the grid is a canvas, so it is one focusable
+    group with a live cell cursor (role="grid" needs cell elements, which
+    axe would require).
+
+### Deviations from the plan (reported)
+
+- New claim `only-tail-gap` (review item 12), with its test.
+- The grid is `role="group"` with a live cell cursor, not `role="grid"`.
+- Step 3's heading is "Take memory as it is needed", and step 6's is "Block
+  size changes waste and table length" (review items 4 and 15).
+- Compare mode shows the playhead to 2 decimals, so Step visibly moves it.
+- Shared e2e helpers moved to e2e/helpers.ts and e2e/perf.ts; chapter 1's
+  specs use them, and still pass.
 
 ## Prompt 5: continuous batching chapter (PLAN, approved 2026-10-02)
 
