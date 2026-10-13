@@ -858,7 +858,7 @@ was verified.
 - [x] SIM.md: added the preset `paged-vs-contiguous` and per-preset engine
       overrides (`seed`, `kv`, `scheduler`) to the `Preset` type. SIM.md was
       approved with them on 2026-10-02.
-- [x] The chapter (Build 4). DoD items below; 17 and 22 finish at deploy.
+- [x] The chapter (Build 4). All 22 DoD items below are ticked.
 
 ### Depends on
 
@@ -1208,8 +1208,10 @@ was verified.
   p50 16.7, p95 16.8, max 16.8 ms at 1×; p50 16.7, p95 16.8, max 33.4 ms at 4×.
 
 **Tests and review**
-- [ ] 17. Screenshots: 6 darwin baselines, paused at t = 12 s. Linux: pending
-  the baselines workflow.
+- [x] 17. Screenshots: 6 baselines per platform, paused at t = 12 s (darwin
+  locally; Linux from the baselines workflow, run 38001280611, where the 12
+  existing Linux baselines came back byte-identical). CI runs 38001451362
+  (branch) and 38002027933 (main) passed with them.
 - [x] 18. Interaction: compare controls, grid keyboard, token strip, shared
   blocks, mobile window, reduced motion, and the wide layout: 15 tests × 3
   browsers, all passing.
@@ -1221,9 +1223,11 @@ was verified.
 **Launch assets**
 - [x] 21. Capture: `pnpm capture paged-attention`: 8.10 s, 1200×1288 H.264 mp4
   (571 KB) and a 600 px, 12 fps GIF (1.02 MB), compare mode at 2× from t = 0.
-- [ ] 22. Route HTML: dist/paged-attention/index.html has its title,
-  description, canonical, og and twitter tags, and a 1200×630 image. Live:
-  pending deploy.
+- [x] 22. Route HTML: dist/paged-attention/index.html has its title,
+  description, canonical, og and twitter tags, and a 1200×630 image
+  (tests/postbuild.test.ts). Live: smoke plus both chapters' specs (114 tests,
+  screenshots excluded) pass against https://varadmore.me/serving-explained/
+  in all three browsers; og/paged-attention.png returns 200.
 
 ### Fresh-eyes review: findings and answers
 
