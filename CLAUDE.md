@@ -63,6 +63,11 @@ Allowed without asking: d3-scale, d3-shape, d3-array.
 - A request conflicts with these rules, or scope would grow.
 - A new dependency seems necessary.
 - You would change the public API of src/sim after it is approved.
+- A CLAUDE.md or CHAPTER_DOD.md rule conflicts with an approved plan. You may
+  apply the rule without asking only when the change is presentational
+  (splitting a step, headings, wording, Go deeper links) and changes no claim,
+  number, test, preset, or sim API. List every such change under Deviations
+  in your report. Anything else: ask first.
 
 ## Never
 - Deploy anywhere except through the repo's GitHub Pages workflow.
