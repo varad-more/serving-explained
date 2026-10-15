@@ -2085,6 +2085,8 @@ as worded; no test is loosened.
      its own body.
    - A counter shows the prefix recomputed n times, totaling X tokens, via
      `<Num>` (simulated).
+   - Preempted requests compute the prefix again. Request 9's second prefill
+     appears as a labelled recompute (author, 2026-10-15).
    - Claim: `repeated-prefill`. Sources: vllm-apc-doc (introduction).
 2. **Block keys.** Figure `HashChain`: the shared prefix as a row of blocks.
    Each shows its first tokens, its parent's key, and its own key, as 6 hex
@@ -2142,8 +2144,10 @@ as worded; no test is loosened.
   - Unique prompts get no hits, except a preempted request reusing its own
     blocks.
   - A decode step costs the same.
+  - With caching on, more requests run per decode step, so p50 ITL rises
+    slightly while p99 falls (decision 4).
   - Claims: `unique-no-hits`, `self-hit-after-preemption`,
-    `decode-cost-unchanged`.
+    `decode-cost-unchanged`, `caching-raises-p50-itl`.
 - **CheckYourself** (predict, then run): "Set the shared prefix to 100 tokens at
   block size 64. What fraction of each prefix is reused?"
   - Answer: 64 of 100 tokens, one full block. The partial block is recomputed.
@@ -2220,15 +2224,21 @@ blocks), and `PartialBlocks` (SVG, 5 rows).
   - Precondition: 0 preemptions in both runs.
   - Then the hit rate is 0, and per-request TTFTs are exactly equal (`===`)
     with caching on and off.
-- **`repeated-prefill`:** with caching off, prefix tokens computed = (sharing
-  requests) × 600.
+- **`repeated-prefill`:** with caching off, prefix tokens computed = 600 ×
+  (sharing requests + preempted sharing requests): 54 + 9, 37,800 tokens.
+  Request 9 is preempted and is in step 1's figure.
 - **`full-blocks-only`:** every `CacheInsert` is for a full block.
 - **`hit-walks-chain`:** each sharing request after the first hits
   ⌊600/B⌋·B tokens while the prefix stays cached.
 - **`refcount-counts-sharers`:** a prefix block's reference count equals the
   running requests that use it.
-- **`sharing-saves-memory`:** peak blocks per running request are lower with
-  caching on.
+- **`sharing-saves-memory`:** physical blocks in use (each shared block
+  counted once) divided by running requests, averaged over sim time while at
+  least one request runs, are lower with caching on. Each step's end state is
+  weighted by how long playback shows it. Also: max running 8 vs 6, and the
+  time-averaged queue is shorter.
+- **`caching-raises-p50-itl`:** with caching on, p50 ITL is higher and p99 ITL
+  is lower; mean requests per decode step are higher (the cause).
 - **`shared-tokens-floor`, `full-hit-cap`, `checkyourself-100-at-64`.**
 - **`lru-evicts-head`:** every `Evict` pops the block at the head of the free
   queue (rank 1).
@@ -2342,6 +2352,28 @@ tests/chapters/prefix-caching.test.ts has one test per planned claim (21).
 Also found (decision 4): with caching on, p50 ITL is 40.4 ms against 39.7 ms
 off (+1.8%), as decision 4 expected. p99 ITL falls, 124 ms against 441 ms,
 because the off run's longer prefills and preemptions stall decodes.
+
+**The author's answers (2026-10-15).**
+
+1. `repeated-prefill`: the claim states both parts, 54 requests plus 9
+   preempted ones computing the prefix again. The test asserts the identity
+   and the exact values. Step 1's figure labels request 9's second prefill as
+   a recompute.
+2. `sharing-saves-memory`: the peak becomes the time average defined above,
+   plus max running and mean queue. The prose defines the metric in one
+   sentence.
+3. `caching-raises-p50-itl`: added. The test asserts direction, not
+   magnitude, plus the cause. The prose says "slightly" and shows the bound
+   numbers.
+4. Order: chapter 3 lands first (v0.6-ch3); then this branch is rebased onto
+   it, and the prose is written.
+
+All 22 claims pass (`pnpm test`; the meta-test waits for the MDX). Numbers
+moved with the exact definition. STOP 1 weighted each step's end state by
+that step's own duration; playback shows a state until the next step ends.
+Blocks per running request are now 24.0 vs 46.9 (was 24.1 vs 46.6). The queue
+is 2.4 vs 13.2 (was 2.3 vs 12.8). p50 ITL 40.4 vs 39.7 ms, p99 124 vs 441 ms.
+Requests per decode step are 6.0 vs 4.5.
 
 ## Prompt 7: sandbox (PLAN, approved 2026-10-02)
 

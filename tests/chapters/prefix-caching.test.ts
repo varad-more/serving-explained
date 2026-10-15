@@ -14,6 +14,7 @@ import {
   decodePair,
   FULL_HIT,
   PRESSURE,
+  REPEATED_FIGURE,
   SELF_HIT,
   SHARED,
   sharers,
@@ -23,6 +24,11 @@ import {
   type CacheOptions,
   type PresetKey,
 } from "../../src/chapters/prefix-caching/presets.ts";
+import {
+  decodeBatch,
+  prefixPrefill,
+  timeAverages,
+} from "../../src/chapters/prefix-caching/stats.ts";
 import {
   blockKeys,
   createSim,
@@ -155,14 +161,17 @@ const L = SHARED.prefixLen;
 
 const CLAIMS: Record<string, () => void> = {
   "repeated-prefill": () => {
-    // With caching off, prefix tokens computed = sharing requests × 600.
+    // With caching off, 54 sharing requests compute the 600-token prefix, and
+    // the 9 that get preempted compute it again: 600 × (54 + 9) = 37,800.
     const r = sharedOff();
-    const { members, ids } = onePrefix(r.config, L);
-    let prefix = 0;
-    for (const e of ofType(r.events, "PrefillChunk"))
-      if (ids.has(e.req))
-        prefix += Math.max(0, Math.min(e.start + e.tokens, L) - e.start);
-    expect(prefix).toBe(members.length * L);
+    const p = prefixPrefill(r.config, r.events, L);
+    expect(p.tokens).toBe(L * (p.sharers + p.preempted.length));
+    expect(p.sharers).toBe(54);
+    expect(p.preempted).toHaveLength(9);
+    expect(p.tokens).toBe(37_800);
+    // Step 1's figure labels request 9's second prefill as a recompute.
+    expect(p.preempted).toContain(9);
+    expect(9).toBeLessThan(REPEATED_FIGURE.requests);
   },
 
   "one-token-changes-chain": () => {
@@ -263,14 +272,30 @@ const CLAIMS: Record<string, () => void> = {
   },
 
   "sharing-saves-memory": () => {
-    // Peak blocks per running request are lower with caching on.
-    const peak = (r: Run) =>
-      Math.max(
-        ...ofType(r.events, "StepEnd")
-          .filter((e) => e.running > 0)
-          .map((e) => e.kv.allocated / SHARED.blockSize / e.running),
-      );
-    expect(peak(shared())).toBeLessThan(peak(sharedOff()));
+    // Physical blocks in use (each shared block once) per running request,
+    // averaged over sim time while a request runs, are lower with caching
+    // on. More requests run at once, and fewer wait.
+    const on = timeAverages(shared().events, SHARED.blockSize);
+    const off = timeAverages(sharedOff().events, SHARED.blockSize);
+    expect(on.blocksPerRunning).toBeLessThan(off.blocksPerRunning);
+    expect(on.maxRunning).toBe(8);
+    expect(off.maxRunning).toBe(6);
+    expect(on.queue).toBeLessThan(off.queue);
+    // This preset's values, to one decimal.
+    expect(on.blocksPerRunning).toBeCloseTo(24.0, 1);
+    expect(off.blocksPerRunning).toBeCloseTo(46.9, 1);
+    expect(on.queue).toBeCloseTo(2.4, 1);
+    expect(off.queue).toBeCloseTo(13.2, 1);
+  },
+
+  "caching-raises-p50-itl": () => {
+    // With caching on, p50 ITL is higher and p99 ITL is lower, because more
+    // requests run in each decode step.
+    const on = shared();
+    const off = sharedOff();
+    expect(on.m.summary.itl.p50).toBeGreaterThan(off.m.summary.itl.p50);
+    expect(on.m.summary.itl.p99).toBeLessThan(off.m.summary.itl.p99);
+    expect(decodeBatch(on.events)).toBeGreaterThan(decodeBatch(off.events));
   },
 
   "share-fraction-raises-hits": () => {
