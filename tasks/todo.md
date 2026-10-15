@@ -1756,53 +1756,65 @@ Copied from docs/CHAPTER_DOD.md for chapter 3. Each item is ticked with how it
 was verified.
 
 **Content**
-- [ ] 1. Objective first, checked last: PRODUCT.md's objective opens the
-  chapter; CheckYourself needs the mechanism, not recall.
-- [ ] 2. Sources: every technical claim has a `SourceLink`; ids exist in
-  sources.json; our own reasoning says so.
-- [ ] 3. Provenance: every number from data or the sim renders through `<Num>`
-  with a badge; source numbers carry a `SourceLink`; measured numbers link
-  their result files.
-- [ ] 4. Claims tested: one test per `<Claim id>` on the configs the chapter
-  imports; the meta-test passes.
-- [ ] 5. Writing rules: writing.test.ts passes; one idea per step, US
-  English, terms defined at first use (review).
-- [ ] 6. End sections: "What this leaves out", one line per simplification
-  with its source or SIM.md §9 entry; "Go deeper" links SOURCES.md ids only.
+- [x] 1. Objective first, checked last: PRODUCT.md's objective opens the
+  chapter. CheckYourself asks "grow or shrink, and why?"; the answer gives the
+  mechanism (batches last as long as their longest request) and the confound
+  (the mean output grows with σ).
+- [x] 2. Sources: every technical sentence has a `SourceLink` or says "our
+  reasoning"; `tests/sources.test.ts` and the review checked the ids.
+- [x] 3. Provenance: every sim, data, and benchmark number renders through
+  `<Num>` from `figures.tsx` (`F`), with a badge in each sentence. Measured
+  numbers link their result file or log line; `<Num kind="measured">` is new.
+- [x] 4. Claims tested: 17 claims, one test each, plus the meta-test
+  (`tests/chapters/continuous-batching.test.ts`, 18 pass).
+- [x] 5. Writing rules: `writing.test.ts` passes; terms defined at first use
+  (the review's list fixed); nine steps, one idea each.
+- [x] 6. End sections: 16 "leaves out" lines, each with a source or SIM.md
+  §9 entry; "Go deeper" links SOURCES.md ids only.
 
 **Widgets**
-- [ ] 7. Keyboard and touch: Tab reaches every control, arrows, Enter, or
-  Space operate it, focus is visible; hit areas at least 44 × 44 px at 375 and
-  768; nothing on hover alone.
-- [ ] 8. Labels: every control has a visible label; changing readouts are
-  polite live regions.
-- [ ] 9. Playback: every animated widget has a PlaybackBar and is driven by
-  the event log.
-- [ ] 10. Reduced motion: no transitions or autoplay; Step shows every state.
-- [ ] 11. Sizes, themes, browsers: 375, 768, 1440 px, light and dark, no
-  horizontal scroll or clipped labels, in Chromium, WebKit, and Firefox.
-- [ ] 12. No layout shift: CLS 0 in the interaction test.
-- [ ] 13. No console or page errors.
-- [ ] 14. axe: no violations.
+- [x] 7. Keyboard and touch: the e2e tests Tab to the Step button, the
+  scheduler radio (arrows), the chunking switch (Space), the budget slider
+  (arrows), the GPU select, the sweep's slider (arrows, Home), and both chart
+  cursors (arrows, Home, End), with focus rings. Every control is at least
+  44 × 44 px at 375 and 768 (e2e, three browsers). Charts have table views.
+- [x] 8. Labels: every control has a visible label; readouts and chart
+  readouts are polite live regions (off while playing).
+- [x] 9. Playback: Figures 3.2–3.6 have a PlaybackBar; the timeline is drawn
+  from the event log (`timeline.ts`, checked against the engine in
+  `tests/viz/timeline.test.ts`).
+- [x] 10. Reduced motion: Play disabled; Step moves to the next step end in
+  either run (e2e, three browsers).
+- [x] 11. Sizes, themes, browsers: no horizontal scroll or clipped SVG text
+  at 375, 768, and 1440 in Chromium, WebKit, and Firefox; screenshots light
+  and dark.
+- [x] 12. No layout shift: CLS 0 in the interaction test (input-driven
+  0.00002, from the toggle).
+- [x] 13. No console or page errors (interaction tests).
+- [x] 14. axe: no violations at 768 light and dark, and 1440 light.
 
-**Performance** (Chromium, with and without 4× CPU throttling, traces saved)
-- [ ] 15. Interactions respond within 100 ms (Event Timing max; report max
-  and p95).
-- [ ] 16. Animation holds 60 fps: rAF p95 at most 18 ms, no frame over 50 ms
-  (report p50, p95, max).
+**Performance** (Chromium, traces saved under test-results)
+- [x] 15. Interactions (Step, scheduler, chunking, budget): Event Timing max
+  24 ms, p95 24 at 1×; max 32, p95 32 at 4×.
+- [x] 16. Compare playback of Figure 3.6 at 4× speed: frames p50/p95/max
+  16.7/16.7/16.8 ms at 1× and 16.7/16.8/33.4 ms at 4× CPU. The first 4× run
+  failed at p50 33 ms: every frame re-sorted the gaps. Readouts and
+  histograms now read prefix statistics built once per run. One later 4× run
+  hit p95 33 ms at load average 10; a rerun gave the numbers above.
 
 **Tests and review**
-- [ ] 17. Screenshots: Chromium at 375, 768, and 1440 px, light and dark.
-- [ ] 18. Interaction: one Playwright test per widget in all three browsers,
-  asserting rendered text changes.
-- [ ] 19. Checks: `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm build`.
-- [ ] 20. Fresh-eyes review by a sub-agent; every point fixed or answered.
+- [x] 17. Screenshots: Chromium at 375, 768, and 1440, light and dark,
+  paused at t = 15 s (darwin baselines; Linux from the baselines workflow).
+- [x] 18. Interaction: 15 Playwright tests × 3 browsers, 45 pass.
+- [x] 19. `pnpm test` (262), `pnpm typecheck`, `pnpm lint`, `pnpm build`.
+- [x] 20. Fresh-eyes review by a sub-agent: 33 points, answered below.
 
 **Launch assets**
-- [ ] 21. Capture: `pnpm capture continuous-batching`, 6–10 s, mp4 and a GIF
-  under 3 MB.
-- [ ] 22. Route HTML: title, description, canonical, og and twitter tags, and
-  a 1200×630 image, checked by postbuild and the live smoke test.
+- [x] 21. Capture: `pnpm capture continuous-batching`: 8.13 s, mp4 358 KB
+  (1200 × 1886), GIF 1.63 MB.
+- [x] 22. Route HTML: title "Continuous batching – serving-explained",
+  description, canonical, og and twitter tags, and og/continuous-batching.png
+  at 1200 × 630 (postbuild; live smoke test after deploy).
 
 ### Build log
 
@@ -1874,6 +1886,73 @@ as worded; no test is loosened.
      Chunking raises stall steps from 0.23% to 0.79% of steps and cuts max
      ITL from 4.09 to 1.22 s.
 4. Git: rebase normally and leave commit dates alone.
+
+### Fresh-eyes review: findings and answers
+
+1. Major. "So far" throughput kept falling after a run ended in compare
+   mode. Fixed: readouts stop at the run's end; a test checks it.
+2. Major. The cause in `chunking-slows-long-prefill` was wrong: other
+   prompts' prefill chunks share the long prompt's steps (5,144 tokens),
+   not decodes (348). **Needs the author:** the decided wording named
+   decodes. The branch has the corrected cause, asserted; see the question
+   in the report.
+3. Major. "Slot" meant a KV token in chapter 2. Fixed: "batch slot", defined
+   with max_num_seqs in step 2, with a glossary entry.
+4. Major. The misconception mixed batch size and token budget. Fixed: "a
+   batch grows in two ways"; no untested sim claim about max_num_seqs.
+5. Major. The measured callout overstated its link. Fixed: "a related
+   trade-off"; the reasoning now says little of TTFT is prefill. Not
+   restored: "prefix caching on", which the files do not record.
+6. Fixed: the roofline does charge KV re-reads; the line now names GPU
+   efficiency (agrawal2024 §4.3) and zero overhead (SIM.md §9.2) apart.
+7. Fixed: the p99 sentence is in the claim, asserted: p99 is below every
+   stall gap in both runs and rises with chunking.
+8. Fixed: the queue chart plots the step-end queue the prose measures.
+9. Fixed: a note says what "So far" counts.
+10. Fixed: "held" is a solid outline, added to DESIGN.md.
+11. Fixed: y range labels, a key, and a note that axes do not start at 0.
+    Answer: the 2,048 tick crowded 8,192; the ring and slider show it.
+12. Partly: the question now asks "and why", and the answer adds the mean
+    output's rise. The question itself is the approved plan's.
+13. Fixed: "on Figure 3.2's short prompts"; decode-only steps at 8,192 are
+    asserted memory-bound.
+14. Fixed: "over all requests".
+15. Fixed: "the default for `vllm serve`", cited L2886–2895. Answer: the
+    author asked for "on GPUs under 70 GB".
+16. Fixed: σ, max_num_seqs, TTFT, ITL, the token budget, Orca, Sarathi-
+    Serve, bench-ieb, and the drain defined before use or rephrased.
+17. Fixed: step 5 says chunking is off and the budget rises to 8,192.
+18. Fixed: "Figure 3.1's crossover of 76".
+19. Fixed: both phase claims name their one-request steps.
+20. Fixed: "Figure 3.3's continuous run at its starting settings".
+21. Fixed: "the first half of the arrival window, the first 20.1 s".
+22. Fixed: chunking and rare stalls are two steps; the misconception and
+    the measured callout are their own step (nine steps).
+23. Fixed: bundled lines split; head-of-line blocking reworded; toy pools,
+    MFU, and static's budget and chunking added; §9.13 for prefill machines.
+24. Fixed: prompt count and word range come from bench-ieb.json, recomputed
+    by the test. "SGLang batches continuously" removed (no source).
+25. Fixed: the batch definition covers both kinds of batching.
+26. Fixed: every sentence with a number has a badge; typed literals bound.
+27. Kept the tested thresholds beside the bound numbers; the ITL ratio is
+    now shown.
+28. Fixed: glossary says "common name" or "our name".
+29. Fixed: kwon2023 is "in 2023"; vllm-src is "at the pinned commit".
+30. Fixed: "(does not fit)", with a note on why.
+31. Answer: both ranges cover the recompute path; chapter 2's is narrower.
+32. Fixed: A10G phrasing, per-level links, and why the ratios differ.
+33. Fixed: p99 wording, the sim's single-request decode rate, and
+    "continuous's".
+
+### Deviations from the plan (reported)
+
+- The budget controls run 64–8,192 (the author's answer 2).
+- Nine steps instead of seven: two splits after the review (presentational).
+- A preemption step (the prompt's m15) and a step for rare stalls.
+- The phase claims and two others were narrowed to say exactly what their
+  tests check; tests gained assertions, none lost one.
+- DESIGN.md gained the "held" encoding.
+
 
 ## Prompt 6: prefix caching chapter (PLAN, approved 2026-10-02)
 

@@ -85,6 +85,30 @@ export function BudgetSweep() {
           />
           <ProvenanceBadge kind="simulated" />
         </div>
+        <ul className="sweep__key">
+          <li>
+            <svg width="12" height="12" aria-hidden="true">
+              <circle
+                className="sweep__dot"
+                data-best="true"
+                cx="6"
+                cy="6"
+                r="5"
+              />
+            </svg>
+            The best budget on that measure
+          </li>
+          <li>
+            <svg width="20" height="20" aria-hidden="true">
+              <circle className="chart__current" cx="10" cy="10" r="8" />
+            </svg>
+            The budget you picked
+          </li>
+          <li>
+            Each panel&apos;s vertical axis spans its own range and does not
+            start at 0.
+          </li>
+        </ul>
         <details className="chart__table">
           <summary>Show the numbers as a table</summary>
           <table className="num">
@@ -114,7 +138,7 @@ export function BudgetSweep() {
 }
 
 const H = 150;
-const P = { left: 12, right: 12, top: 30, bottom: 26 };
+const P = { left: 48, right: 14, top: 30, bottom: 26 };
 
 function SweepChart({
   title,
@@ -155,6 +179,25 @@ function SweepChart({
         role="img"
         aria-label={`${title}: ${data.map((d) => `budget ${String(d.budget)}, ${label(value(d))}`).join("; ")}. Best at ${String(best)}.`}
       >
+        {[lo, hi].map((v) => (
+          <g key={v}>
+            <line
+              className="chart__grid"
+              x1={P.left}
+              x2={W - P.right}
+              y1={y(v)}
+              y2={y(v)}
+            />
+            <text
+              className="sweep__axis"
+              x={P.left - 4}
+              y={y(v) + 4}
+              textAnchor="end"
+            >
+              {label(v)}
+            </text>
+          </g>
+        ))}
         <path
           className="chart__line sweep__line"
           d={data

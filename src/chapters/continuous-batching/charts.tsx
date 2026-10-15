@@ -73,10 +73,12 @@ const valueAt = (points: StepSeries["points"], t: number) => {
 
 /** The queue over time, drawn up to the playhead. */
 export function QueueChart({
+  title,
   series,
   time,
   duration,
 }: {
+  title: string;
   series: readonly StepSeries[];
   time: number;
   duration: number;
@@ -127,9 +129,7 @@ export function QueueChart({
     `At ${String(t)} s: ${series.map((s) => `${s.name} ${String(valueAt(s.points, t))}`).join(", ")} waiting.`;
   return (
     <figure className="cb-chart">
-      <figcaption className="cb-chart__title">
-        Requests waiting in the queue
-      </figcaption>
+      <figcaption className="cb-chart__title">{title}</figcaption>
       {series.length > 1 && <LineLegend series={series} />}
       <div
         className="cb-chart__focus"

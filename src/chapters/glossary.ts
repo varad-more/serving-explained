@@ -328,8 +328,15 @@ export const glossary: readonly GlossaryEntry[] = [
   {
     id: "batch",
     term: "Batch",
-    definition: "The requests a server runs together in one step.",
+    definition:
+      "The requests a server runs together. Under static batching it stays fixed for many steps; under continuous batching it can change at every step.",
     source: { id: "yu2022", at: "§3" },
+  },
+  {
+    id: "batch-slot",
+    term: "Batch slot",
+    definition:
+      "Our name for one place in a batch. vLLM's max_num_seqs sets how many there are. A request holds one from admission until it leaves.",
   },
   {
     id: "compute-bound",
@@ -363,7 +370,7 @@ export const glossary: readonly GlossaryEntry[] = [
     id: "static-batching",
     term: "Static batching",
     definition:
-      "Batching with request-level scheduling. A finished request cannot leave early, and a new one waits for the next batch.",
+      "A common name for batching with request-level scheduling. A finished request cannot leave early, and a new one waits for the next batch.",
     source: { id: "yu2022", at: "§3" },
   },
   {
@@ -377,14 +384,14 @@ export const glossary: readonly GlossaryEntry[] = [
     id: "continuous-batching",
     term: "Continuous batching",
     definition:
-      "Batching with iteration-level scheduling: finished requests leave and waiting ones join at every step.",
+      "A common name for batching with iteration-level scheduling: finished requests leave and waiting ones join at every step.",
     source: { id: "yu2022", at: "§3" },
   },
   {
     id: "bubble",
     term: "Bubble",
     definition:
-      "Under static batching, a slot held by a request that has made all its tokens, doing no work until its batch ends.",
+      "Our name for a batch slot held, under static batching, by a request that has made all its tokens. It does no work until its batch ends.",
     source: { id: "yu2022", at: "§3" },
   },
   {

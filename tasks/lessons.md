@@ -4,6 +4,19 @@ Mistakes, corrections, and surprises. Newest first.
 
 ## 2026-10-15
 
+- **The wide board reuses one component across steps.** Two steps showing
+  the same widget type in different modes kept the first one's state: step
+  4's continuous run inherited step 2's "static" setting. Key each figure by
+  its mode when its state means different things per step.
+- **Sorting every frame is the hidden cost of "so far" readouts.** p50 and
+  p99 of thousands of gaps, re-sorted per frame, gave 33 ms frames at 4×
+  throttling. Precompute every prefix's statistics once per run (a Fenwick
+  tree over ranks); a frame is then a lookup.
+- **Firefox measures SVG text at x = 0 a pixel outside the SVG.** Inset
+  labels by 2 px; the clipped-text check catches it in Firefox only.
+- **Weight a time average the way playback shows it.** A step's end state is
+  on screen until the next step ends, not for the step's own duration. The
+  two weightings moved chapter 4's numbers by up to 0.4.
 - **Snapping taps does not make a small target big.** A tap can map to the
   nearest cell, but each cell's hit area is still its pitch: 39 px at 375.
   Only bigger cells, or fewer columns, reach 44 px.

@@ -101,12 +101,22 @@ export function stalls(r: Run) {
   );
   let gaps = 0;
   let stalledGaps = 0;
+  let minGap = Infinity;
+  const last = new Map<number, number>();
   for (const e of r.events) {
-    if (e.type !== "DecodeToken" || e.index === 0) continue;
+    if (e.type !== "DecodeToken") continue;
+    const prev = last.get(e.req);
+    last.set(e.req, e.t);
+    if (e.index === 0 || prev === undefined) continue;
     gaps++;
-    if (stalled.has(e.step)) stalledGaps++;
+    if (stalled.has(e.step)) {
+      stalledGaps++;
+      minGap = Math.min(minGap, e.t - prev);
+    }
   }
   return {
+    /** The shortest gap between tokens that ends in a stall step. */
+    minGap,
     /** Share of steps that are stall steps. */
     stepShare: stalled.size / stepEnds(r.events).length,
     /** Share of inter-token gaps that end in a stall step. */
@@ -155,4 +165,41 @@ export function crossover(model: string, gpu: string): number {
     else lo = mid + 1;
   }
   return lo;
+}
+
+/**
+ * What shares the long prompts' steps from each one's first admission to its
+ * first token: other requests' prefill tokens, and other requests' decode
+ * tokens (one per decode, not counting a prefill's own first token).
+ */
+export function sharedWork(r: Run) {
+  const long = longIds(r.config);
+  const admit = new Map<number, number>();
+  const first = new Map<number, number>();
+  for (const e of r.events) {
+    if (e.type === "Admit" && !admit.has(e.req)) admit.set(e.req, e.step);
+    if (e.type === "DecodeToken" && e.index === 0) first.set(e.req, e.step);
+  }
+  const prefilled = new Set(
+    r.events
+      .filter((e) => e.type === "PrefillChunk")
+      .map((e) => `${String(e.step)}:${String(e.req)}`),
+  );
+  let otherPrefill = 0;
+  let decodes = 0;
+  for (const id of long) {
+    const a = admit.get(id) ?? 0;
+    const f = first.get(id) ?? -1;
+    for (const e of r.events) {
+      if (e.step < a || e.step > f) continue;
+      if (e.type === "PrefillChunk" && e.req !== id) otherPrefill += e.tokens;
+      if (
+        e.type === "DecodeToken" &&
+        e.req !== id &&
+        !prefilled.has(`${String(e.step)}:${String(e.req)}`)
+      )
+        decodes++;
+    }
+  }
+  return { otherPrefill, decodes };
 }

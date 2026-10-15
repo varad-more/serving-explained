@@ -68,7 +68,7 @@ const CAPTION: Record<Mode, { number: string; caption: string }> = {
   static: {
     number: "3.2",
     caption:
-      "Each lane is a slot. A request takes the lowest free slot when it is admitted. Time runs left to right.",
+      "Each lane is a batch slot. A request takes the lowest free one when it is admitted. Time runs left to right.",
   },
   policy: {
     number: "3.3",
@@ -223,6 +223,10 @@ export function RequestTimeline({ mode }: { mode: Mode }) {
           </div>
         ))}
         <Legend runs={tls} />
+        <p className="cb__note">
+          &ldquo;So far&rdquo; counts the requests that have their first token
+          and the tokens made by the playhead.
+        </p>
         <PlaybackBar
           time={ph.time}
           duration={duration}
@@ -245,9 +249,10 @@ export function RequestTimeline({ mode }: { mode: Mode }) {
         />
         <div className="cb__charts">
           <QueueChart
+            title="Requests waiting at each step's end"
             series={runs.map((r, i) => ({
               name: r.name,
-              points: r.tl.queue,
+              points: r.tl.stepQueue,
               dashed: i === 1,
             }))}
             time={ph.time}
@@ -528,7 +533,7 @@ function Lanes({
       className="cb-lanes"
       viewBox={`0 0 ${String(W)} ${String(H)}`}
       role="img"
-      aria-label={`${name} at ${time.toFixed(2)} s: ${String(running.length)} of ${String(cap)} slots held${bubbles > 0 ? `, ${String(bubbles)} by finished requests` : ""}; ${String(waiting.length)} waiting.`}
+      aria-label={`${name} at ${time.toFixed(2)} s: ${String(running.length)} of ${String(cap)} batch slots held${bubbles > 0 ? `, ${String(bubbles)} by finished requests` : ""}; ${String(waiting.length)} waiting.`}
       data-dashed={dashed}
     >
       <defs>
@@ -737,13 +742,13 @@ const Legend = memo(function Legend({ runs }: { runs: readonly Timeline[] }) {
       {has("bubble") && (
         <li>
           <span className="cb-swatch cb-swatch--bubble" aria-hidden="true" />
-          Finished, still holding its slot
+          Finished, still holding its batch slot
         </li>
       )}
       {has("held") && (
         <li>
           <span className="cb-swatch cb-swatch--held" aria-hidden="true" />
-          Holding its slot, not scheduled this step
+          Holding its batch slot, not scheduled this step
         </li>
       )}
       {stalls && (

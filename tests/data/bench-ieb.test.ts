@@ -41,6 +41,20 @@ describe("bench-ieb measured numbers", () => {
         }[];
       };
       expect(json.requests).toHaveLength(900);
+      const words = (json.requests as unknown as { prompt_len: number }[]).map(
+        (r) => r.prompt_len,
+      );
+      expect(e.promptWords).toEqual({
+        min: Math.min(...words),
+        max: Math.max(...words),
+      });
+      expect(e.prompts).toBe(
+        new Set(
+          (json.requests as unknown as { prompt_id: string }[]).map(
+            (r) => r.prompt_id,
+          ),
+        ).size,
+      );
       e.levels.forEach((level, k) => {
         const rs = json.requests.slice(150 * k, 150 * (k + 1));
         expect(rs.every((r) => r.success && r.output_tokens === 256)).toBe(

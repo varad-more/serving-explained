@@ -53,6 +53,9 @@ signal yellow, used only as a bar behind the current step or row.
   - prefill: an `--ink` fill with diagonal stripes in `--surface`
   - decode: a solid `--ink-2` fill
   - finished but holding its slot (a bubble): the gray waste hatch
+  - holding its slot but not scheduled this step (the token budget ran out):
+    a solid 1.5px `--ink-2` outline with no fill, unlike the queue's dashed
+    one (added 2026-10-15 after chapter 3's review)
   - Each request's run in a lane starts with a 16 px slot tab: the slot's color,
     pattern, and glyph. A segment carries the id label when it is 28 px or
     wider.

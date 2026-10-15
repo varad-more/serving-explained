@@ -62,6 +62,11 @@ export interface Timeline {
   queued: { req: number; from: number; to: number }[];
   /** Queue length changes: the count from each t on. */
   queue: { t: number; n: number }[];
+  /**
+   * Requests waiting at each step's end, held until the next: the queue the
+   * prose measures (StepEnd.waiting).
+   */
+  stepQueue: { t: number; n: number }[];
   /** First tokens: when each came out, and its TTFT. Ascending by t. */
   firsts: { t: number; req: number; ttft: number }[];
   /** Later tokens: when each came out, and its gap. Ascending by t. */
@@ -181,6 +186,7 @@ export function buildTimeline(
     stepEnds: [],
     queued: [],
     queue: [],
+    stepQueue: [],
     firsts: [],
     gaps: [],
     tokens: [],
@@ -285,6 +291,7 @@ export function buildTimeline(
       }
     }
     tl.steps.push({ step: e.step, t0, t1: e.t, stall: false });
+    tl.stepQueue.push({ t: e.t, n: e.waiting });
     tl.stepEnds.push(e.t);
     stepEvents = [];
   }
@@ -354,8 +361,12 @@ export interface Readout {
   tokens: number;
 }
 
-/** The readouts so far, at time t: lookups into the prefix stats. */
-export function readoutAt(tl: Timeline, t: number): Readout {
+/**
+ * The readouts so far, at time t: lookups into the prefix stats. Past the
+ * run's end (a longer run sets the playhead), they stay at the end values.
+ */
+export function readoutAt(tl: Timeline, time: number): Readout {
+  const t = Math.min(time, tl.duration);
   const firsts = countTo(tl.firsts, t);
   const gaps = countTo(tl.gaps, t);
   const tokens = countTo(tl.tokens, t);

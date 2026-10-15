@@ -140,15 +140,25 @@ test.describe("continuous-batching: widgets", () => {
   }) => {
     await open(page, 1440);
     const board = page.locator(".chapter__figure");
-    for (let step = 1; step <= 7; step++) {
+    // Steps 6–7 share Figure 3.6, and steps 8–9 share Figure 3.7.
+    const figures = [
+      "3.1",
+      "3.2",
+      "3.3",
+      "3.4",
+      "3.5",
+      "3.6",
+      "3.6",
+      "3.7",
+      "3.7",
+    ];
+    for (const [i, n] of figures.entries()) {
       await page
-        .locator(`.step[data-step="${String(step)}"]`)
+        .locator(`.step[data-step="${String(i + 1)}"]`)
         .evaluate((el) => {
           el.scrollIntoView({ block: "center" });
         });
-      await expect(board.locator(".figure__number")).toHaveText(
-        `Fig. 3.${String(step)}`,
-      );
+      await expect(board.locator(".figure__number")).toHaveText(`Fig. ${n}`);
     }
   });
 });

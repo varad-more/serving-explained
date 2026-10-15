@@ -45,7 +45,7 @@ export function PhaseBars() {
               value: m,
               label: fits(m, gpu)
                 ? modelLabel(m)
-                : `${modelLabel(m)}: weights do not fit`,
+                : `${modelLabel(m)} (does not fit)`,
               disabled: !fits(m, gpu),
             }))}
             onChange={setModel}
@@ -57,12 +57,16 @@ export function PhaseBars() {
               value: g,
               label: fits(model, g)
                 ? gpuName(g)
-                : `${gpuName(g)}: weights do not fit`,
+                : `${gpuName(g)} (does not fit)`,
               disabled: !fits(model, g),
             }))}
             onChange={setGpu}
           />
         </div>
+        <p className="cb__note">
+          A pair is disabled when the weights leave too little memory for this
+          request.
+        </p>
         {steps && (
           <div className="phase" aria-live="polite">
             <StepBars

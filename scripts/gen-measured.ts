@@ -42,6 +42,9 @@ interface Request {
   success: boolean;
   ttft_ms: number;
   output_tokens: number;
+  prompt_id: string;
+  /** Words, not tokens: benchmarks/runner.py L433 counts prompt.split(). */
+  prompt_len: number;
 }
 
 const read = (path: string) => readFileSync(`${VENDOR}/${path}`, "utf8");
@@ -82,6 +85,11 @@ function main() {
       imageLine,
       file: path,
       savedLine,
+      prompts: new Set(json.requests.map((r) => r.prompt_id)).size,
+      promptWords: {
+        min: Math.min(...json.requests.map((r) => r.prompt_len)),
+        max: Math.max(...json.requests.map((r) => r.prompt_len)),
+      },
       levels: levels.map((concurrency, k) => {
         const rs = json.requests.slice(k * PER_LEVEL, (k + 1) * PER_LEVEL);
         if (rs.length !== PER_LEVEL || !rs.every((r) => r.success))

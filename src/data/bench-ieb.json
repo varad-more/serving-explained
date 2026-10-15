@@ -21,6 +21,11 @@
       "imageLine": 15,
       "file": "results_concurrency64/llama-3-1-8b-instruct/throughput_ramp_extended_vllm_1776486559.json",
       "savedLine": 56,
+      "prompts": 4,
+      "promptWords": {
+        "min": 13,
+        "max": 18
+      },
       "levels": [
         {
           "concurrency": 1,
@@ -102,6 +107,11 @@
       "imageLine": 16,
       "file": "results_concurrency64/llama-3-1-8b-instruct/throughput_ramp_extended_sglang_1776488646.json",
       "savedLine": 97,
+      "prompts": 4,
+      "promptWords": {
+        "min": 13,
+        "max": 18
+      },
       "levels": [
         {
           "concurrency": 1,

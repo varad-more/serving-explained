@@ -108,9 +108,10 @@
   height: auto;
 }
 
+/* Held but not scheduled: a solid outline, unlike the queue's dashed one. */
 .cb-seg--held {
   stroke: var(--ink-2);
-  stroke-dasharray: 3 2;
+  stroke-width: 1.5;
 }
 
 .cb-seg__label rect {
@@ -211,7 +212,7 @@
 
 .cb-swatch--held {
   background: none;
-  border: 1.5px dashed var(--ink-2);
+  border: 1.5px solid var(--ink-2);
 }
 
 .cb-swatch--band {
@@ -367,4 +368,26 @@
   min-height: 2.6em;
   font-size: var(--step--1);
   font-weight: 700;
+}
+
+.sweep__axis {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--ink-2);
+}
+
+.sweep__key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--step--2);
+}
+
+.sweep__key li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
 }

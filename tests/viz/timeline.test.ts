@@ -69,6 +69,9 @@ describe("timeline", () => {
       expect(tl.queued).toHaveLength(admits);
       expect(tl.queue.at(-1)?.n).toBe(0);
       expect(queueAt(tl, tl.duration)).toEqual([]);
+      // The step-end queue is StepEnd.waiting, one point per step.
+      const ends = tl.events.filter((e) => e.type === "StepEnd");
+      expect(tl.stepQueue.map((q) => q.n)).toEqual(ends.map((e) => e.waiting));
     });
 
     it(`${name}: readouts at the end equal metrics()`, () => {
@@ -80,6 +83,9 @@ describe("timeline", () => {
       expect(r.ttftP99).toBe(s.ttft.p99);
       expect(r.itlP50).toBe(s.itl.p50);
       expect(r.itlP99).toBe(s.itl.p99);
+      // A longer run in the same figure moves the playhead past this run's
+      // end; the readouts stay at their end values.
+      expect(readoutAt(tl, tl.duration + 30)).toEqual(r);
     });
   }
 

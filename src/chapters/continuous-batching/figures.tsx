@@ -34,6 +34,7 @@ import {
   meanQueue,
   memoryBound,
   phaseSteps,
+  sharedWork,
   stalls,
 } from "./stats.ts";
 import { runTimeline } from "./timeline.ts";
@@ -77,6 +78,12 @@ const gap = (sigma: number) =>
     .mean -
   runTimeline("batching-basics", { ...BASICS, sigma }).m.summary.ttft.mean;
 const end = lastArrival(basics.config);
+/** Mean output length of `batching-basics` at a spread σ. */
+const meanOutput = (sigma: number) => {
+  const reqs = runTimeline("batching-basics", { ...BASICS, sigma }).config
+    .requests;
+  return reqs.reduce((s, r) => s + r.outputLen, 0) / reqs.length;
+};
 const stall = PRESETS["long-prompt-stall"].workload;
 const basicsWorkload = PRESETS["batching-basics"].workload;
 const lognormal = (d: typeof basicsWorkload.outputLen) =>
@@ -112,9 +119,12 @@ export const F = {
     prefillMemory: phase.prefill.memoryS,
     decodeCompute: phase.decode.computeS,
     decodeMemory: phase.decode.memoryS,
+    /** One request alone: one token per decode step. */
+    decodeRate: 1 / phase.decode.duration,
     crossover: crossover(PHASE_DEFAULT.model, PHASE_DEFAULT.gpu),
   },
   mbu: COST_CONSTANTS.mbu.value,
+  mfu: COST_CONSTANTS.mfu.value,
   basics: {
     requests: basics.config.requests.length,
     rate: BASICS.rate,
@@ -124,6 +134,7 @@ export const F = {
     window: BUBBLE_WINDOW_S,
     bubbles: 100 * bubbleShare(basicsStatic, BUBBLE_WINDOW_S),
     lastArrival: end,
+    halfWindow: end / 2,
     queueFirstHalf: meanQueue(basicsStatic.events, 0, end / 2),
     queueSecondHalf: meanQueue(basicsStatic.events, end / 2, end),
     queueStatic: meanQueue(basicsStatic.events, 0, end),
@@ -135,6 +146,7 @@ export const F = {
   },
   preempt: {
     blocks: PREEMPT_POOL.blocks,
+    blockSize: PREEMPT_POOL.blockSize,
     tokens: PREEMPT_POOL.blocks * PREEMPT_POOL.blockSize,
     count: preempt.m.summary.preemptions,
   },
@@ -155,6 +167,7 @@ export const F = {
     maxModelLen: off.config.scheduler.maxModelLen,
     offP50: off.m.summary.itl.p50,
     offP99: off.m.summary.itl.p99,
+    ratio: off.m.summary.itl.p99 / off.m.summary.itl.p50,
     offMax: maxItl(off),
     onP99: on.m.summary.itl.p99,
     onMax: maxItl(on),
@@ -162,6 +175,8 @@ export const F = {
     a2fOn: longAdmitToFirstToken(on),
     ttftOff: longTtft(off),
     ttftOn: longTtft(on),
+    sharedOn: sharedWork(on),
+    sharedOff: sharedWork(off),
   },
   rare: {
     share: 100 * RARE_LONG_SHARE,
@@ -176,6 +191,7 @@ export const F = {
     p99On: rareOn.m.summary.itl.p99,
   },
   sweep: {
+    count: SWEEP_BUDGETS.length,
     smallest: smallest.budget,
     largest: SWEEP_BUDGETS.at(-1) ?? 0,
     smallestTput: smallest.throughput,
@@ -199,6 +215,8 @@ export const F = {
     to: SIGMAS.at(-1) ?? 0,
     gapFrom: gap(SIGMAS[0]),
     gapTo: gap(SIGMAS.at(-1) ?? 0),
+    meanFrom: meanOutput(SIGMAS[0]),
+    meanTo: meanOutput(SIGMAS.at(-1) ?? 0),
   },
   measured: {
     gpu: bench.gpu,
@@ -209,6 +227,8 @@ export const F = {
     vllm64,
     sglang1,
     sglang64,
+    prompts: bench.engines[0]?.prompts ?? 0,
+    promptWords: bench.engines[0]?.promptWords ?? { min: 0, max: 0 },
     vllmTputX: vllm64.outputTokPerS / vllm1.outputTokPerS,
     sglangTputX: sglang64.outputTokPerS / sglang1.outputTokPerS,
     vllmTtftX: vllm64.p50TtftMs / vllm1.p50TtftMs,

@@ -35,6 +35,7 @@ import {
   meanQueue,
   memoryBound,
   phaseSteps,
+  sharedWork,
   stalls,
   stepEnds,
 } from "../../src/chapters/continuous-batching/stats.ts";
@@ -284,6 +285,14 @@ const CLAIMS: Record<string, () => void> = {
       longAdmitToFirstToken(off),
     );
     expect(Math.abs(longTtft(on) / longTtft(off) - 1)).toBeLessThan(0.05);
+    // The cause: with chunking, a long prompt's chunks share steps with other
+    // prompts' prefill chunks, far more than with decodes, and far more than
+    // its single step does with chunking off.
+    const shared = sharedWork(on);
+    expect(shared.otherPrefill).toBeGreaterThan(10 * shared.decodes);
+    expect(shared.otherPrefill).toBeGreaterThan(
+      10 * sharedWork(off).otherPrefill,
+    );
   },
 
   "chunking-spreads-stalls": () => {
@@ -298,6 +307,11 @@ const CLAIMS: Record<string, () => void> = {
     expect(maxItl(on)).toBeLessThan(maxItl(off));
     expect(stalls(on).gapShare).toBeLessThan(0.01);
     expect(stalls(off).gapShare).toBeLessThan(0.01);
+    // So p99 ITL misses the stalls: in both runs it is below the shortest
+    // gap that ends in a stall step, and with chunking it even rises.
+    for (const r of [on, off])
+      expect(r.m.summary.itl.p99).toBeLessThan(stalls(r).minGap);
+    expect(on.m.summary.itl.p99).toBeGreaterThan(off.m.summary.itl.p99);
   },
 
   "no-free-setting": () => {
@@ -327,6 +341,19 @@ const CLAIMS: Record<string, () => void> = {
     // memory-bound time falls at every step down to 128.
     const above = sweep.slice(1).map((r) => memoryBound(r).seconds);
     expect(strictly(above, 1)).toBe(true);
+    // At the largest budget, steps with no prefill work are memory-bound.
+    const largest = sweep.at(-1);
+    if (!largest) throw new Error("sweep too short");
+    const prefillSteps = new Set(
+      largest.events
+        .filter((e) => e.type === "PrefillChunk")
+        .map((e) => e.step),
+    );
+    const decodeOnly = stepEnds(largest.events).filter(
+      (e) => !prefillSteps.has(e.step),
+    );
+    expect(decodeOnly.length).toBeGreaterThan(0);
+    for (const e of decodeOnly) expect(e.bound).toBe("memory");
     // Every budget does the same compute.
     const compute = (r: Run) =>
       stepEnds(r.events).reduce((s, e) => s + e.computeS, 0);
