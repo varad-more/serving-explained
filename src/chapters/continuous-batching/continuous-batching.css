@@ -100,12 +100,13 @@
 
 /* The lanes. */
 
+/* A fixed pixel height, not one scaled from the measured width: fractional
+   heights made full-page screenshots wobble by 1 px between runs. */
 .cb-lanes,
 .cb-chart__svg,
 .phase__svg {
   display: block;
   width: 100%;
-  height: auto;
 }
 
 /* Held but not scheduled: a solid outline, unlike the queue's dashed one. */
@@ -361,7 +362,6 @@
 .sweep-chart svg {
   display: block;
   width: 100%;
-  height: auto;
 }
 
 .sweep-chart__title {

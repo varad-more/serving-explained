@@ -176,6 +176,7 @@ function SweepChart({
       <svg
         ref={ref}
         viewBox={`0 0 ${String(W)} ${String(H)}`}
+        height={H}
         role="img"
         aria-label={`${title}: ${data.map((d) => `budget ${String(d.budget)}, ${label(value(d))}`).join("; ")}. Best at ${String(best)}.`}
       >

@@ -4,6 +4,9 @@ Mistakes, corrections, and surprises. Newest first.
 
 ## 2026-10-15
 
+- **An SVG scaled to its measured width has a fractional height.** Chapter
+  3's full-page screenshots came out 1 px taller or shorter between CI runs.
+  Give every SVG a fixed pixel height; let only its width follow the layout.
 - **The wide board reuses one component across steps.** Two steps showing
   the same widget type in different modes kept the first one's state: step
   4's continuous run inherited step 2's "static" setting. Key each figure by

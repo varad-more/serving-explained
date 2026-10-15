@@ -115,6 +115,7 @@ function StepBars({
         ref={ref}
         className="phase__svg"
         viewBox={`0 0 ${String(W)} 60`}
+        height={60}
         role="img"
         aria-label={`${title}. Compute time ${secs(step.computeS)}, memory time ${secs(step.memoryS)}. The step takes the longer one: ${step.bound}-bound.`}
       >

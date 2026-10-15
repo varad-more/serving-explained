@@ -144,6 +144,7 @@ export function QueueChart({
           ref={ref}
           className="cb-chart__svg"
           viewBox={`0 0 ${String(W)} ${String(H)}`}
+          height={H}
           role="img"
           aria-label={describe(Math.floor(time))}
           onPointerMove={(e) => {
@@ -372,6 +373,7 @@ export function Histogram({
           ref={ref}
           className="cb-chart__svg"
           viewBox={`0 0 ${String(W)} ${String(H)}`}
+          height={H}
           role="img"
           aria-label={rows
             .map(

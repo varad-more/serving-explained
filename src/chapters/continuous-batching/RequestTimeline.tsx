@@ -532,6 +532,7 @@ function Lanes({
       ref={ref}
       className="cb-lanes"
       viewBox={`0 0 ${String(W)} ${String(H)}`}
+      height={H}
       role="img"
       aria-label={`${name} at ${time.toFixed(2)} s: ${String(running.length)} of ${String(cap)} batch slots held${bubbles > 0 ? `, ${String(bubbles)} by finished requests` : ""}; ${String(waiting.length)} waiting.`}
       data-dashed={dashed}
