@@ -87,6 +87,20 @@ const SCENES: Record<string, Scene> = {
       await pause(page, 8000);
     },
   },
+  // Static vs. continuous at 2× from t = 0: the same requests, both schedulers.
+  "continuous-batching": {
+    figure: "3.3",
+    css: `
+      .site-header, .skip, .cb__controls, .cb__charts { display: none !important; }
+    `,
+    setup: async (fig) => {
+      await fig.getByLabel("Speed").selectOption("2");
+    },
+    run: async (fig, page) => {
+      await fig.getByRole("button", { name: "Play" }).click();
+      await pause(page, 8000);
+    },
+  },
 };
 
 function run(cmd: string, args: string[]) {
