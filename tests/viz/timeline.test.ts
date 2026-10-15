@@ -14,6 +14,8 @@ import {
   STALL_OFF,
 } from "../../src/chapters/continuous-batching/presets.ts";
 import {
+  percentile,
+  prefixStats,
   queueAt,
   readoutAt,
   simulateTimeline,
@@ -80,6 +82,22 @@ describe("timeline", () => {
       expect(r.itlP99).toBe(s.itl.p99);
     });
   }
+
+  it("prefix stats match sorting every prefix, ties included", () => {
+    // Deterministic values with repeats, in no particular order.
+    const values = Array.from({ length: 300 }, (_, i) => (i * 37) % 23);
+    const stats = prefixStats(values);
+    for (let n = 1; n <= values.length; n++) {
+      const sorted = values.slice(0, n).sort((a, b) => a - b);
+      expect(stats.p50[n]).toBe(percentile(sorted, 50));
+      expect(stats.p99[n]).toBe(percentile(sorted, 99));
+      expect(stats.mean[n]).toBeCloseTo(
+        sorted.reduce((a, b) => a + b, 0) / n,
+        9,
+      );
+    }
+    expect(Number.isNaN(stats.p50[0])).toBe(true);
+  });
 
   it("static batching shows bubbles; continuous shows none", () => {
     const phases = (c: (typeof CONFIGS)["static"]) =>

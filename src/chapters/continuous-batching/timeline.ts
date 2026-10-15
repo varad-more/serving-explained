@@ -71,6 +71,68 @@ export interface Timeline {
   /** The first arrival: throughput is measured from it, as metrics() does. */
   start: number;
   preemptions: { t: number; req: number }[];
+  /** TTFTs in the order first tokens came out, with stats for every prefix. */
+  ttft: PrefixStats;
+  /** Gaps in the order tokens came out, with stats for every prefix. */
+  itl: PrefixStats;
+}
+
+/**
+ * Statistics of the first n values of a list, for every n, so a readout at
+ * any playhead is a lookup. Entry 0 is NaN. Percentiles are nearest-rank, as
+ * the sim's metrics use.
+ */
+export interface PrefixStats {
+  values: readonly number[];
+  mean: Float64Array;
+  p50: Float64Array;
+  p99: Float64Array;
+}
+
+/**
+ * One pass in time order: each value goes into a Fenwick tree over its rank
+ * among all the values, and the k-th smallest so far is found by walking the
+ * tree. O(n log n) for every prefix's p50 and p99.
+ */
+export function prefixStats(values: readonly number[]): PrefixStats {
+  const n = values.length;
+  const at = (i: number) => values[i] ?? NaN;
+  const order = values.map((_, i) => i).sort((a, b) => at(a) - at(b) || a - b);
+  const rank = new Int32Array(n);
+  order.forEach((i, r) => {
+    rank[i] = r;
+  });
+  const tree = new Int32Array(n + 1);
+  let top = 1;
+  while (top * 2 <= n) top *= 2;
+  /** The k-th smallest (1-based) of the values inserted so far. */
+  const kth = (k: number) => {
+    let pos = 0;
+    let left = k;
+    for (let step = top; step > 0; step >>= 1) {
+      const next = pos + step;
+      if (next <= n && (tree[next] ?? 0) < left) {
+        pos = next;
+        left -= tree[next] ?? 0;
+      }
+    }
+    return at(order[pos] ?? 0);
+  };
+  const mean = new Float64Array(n + 1).fill(NaN);
+  const p50 = new Float64Array(n + 1).fill(NaN);
+  const p99 = new Float64Array(n + 1).fill(NaN);
+  let sum = 0;
+  for (let i = 0; i < n; i++) {
+    for (let j = (rank[i] ?? 0) + 1; j <= n; j += j & -j)
+      tree[j] = (tree[j] ?? 0) + 1;
+    sum += at(i);
+    const c = i + 1;
+    mean[c] = sum / c;
+    // The same rank as percentile() below: ceil(p / 100 × n), at least 1.
+    p50[c] = kth(Math.max(1, Math.ceil((50 / 100) * c)));
+    p99[c] = kth(Math.max(1, Math.ceil((99 / 100) * c)));
+  }
+  return { values, mean, p50, p99 };
 }
 
 const cache = new Map<string, Timeline>();
@@ -111,7 +173,7 @@ export function buildTimeline(
   const generated = new Map<number, number>();
   const queuedFrom = new Map<number, number>();
   const lastToken = new Map<number, number>();
-  const tl: Omit<Timeline, "medianStep" | "duration" | "m"> = {
+  const tl: Omit<Timeline, "medianStep" | "duration" | "m" | "ttft" | "itl"> = {
     config,
     events,
     segments: [],
@@ -248,6 +310,8 @@ export function buildTimeline(
   tl.segments.sort((a, b) => a.t0 - b.t0 || a.slot - b.slot);
   return {
     ...tl,
+    ttft: prefixStats(tl.firsts.map((f) => f.ttft)),
+    itl: prefixStats(tl.gaps.map((g) => g.itl)),
     m: metrics(events, config),
     medianStep,
     duration: events.at(-1)?.t ?? 0,
@@ -290,25 +354,17 @@ export interface Readout {
   tokens: number;
 }
 
-/** The readouts so far, at time t. At the run's end they equal metrics(). */
+/** The readouts so far, at time t: lookups into the prefix stats. */
 export function readoutAt(tl: Timeline, t: number): Readout {
-  const ttfts = tl.firsts
-    .slice(0, countTo(tl.firsts, t))
-    .map((f) => f.ttft)
-    .sort((a, b) => a - b);
-  const itls = tl.gaps
-    .slice(0, countTo(tl.gaps, t))
-    .map((g) => g.itl)
-    .sort((a, b) => a - b);
+  const firsts = countTo(tl.firsts, t);
+  const gaps = countTo(tl.gaps, t);
   const tokens = countTo(tl.tokens, t);
   return {
     throughput: t > tl.start ? tokens / (t - tl.start) : 0,
-    ttftMean: ttfts.length
-      ? ttfts.reduce((s, x) => s + x, 0) / ttfts.length
-      : NaN,
-    ttftP99: percentile(ttfts, 99),
-    itlP50: percentile(itls, 50),
-    itlP99: percentile(itls, 99),
+    ttftMean: tl.ttft.mean[firsts] ?? NaN,
+    ttftP99: tl.ttft.p99[firsts] ?? NaN,
+    itlP50: tl.itl.p50[gaps] ?? NaN,
+    itlP99: tl.itl.p99[gaps] ?? NaN,
     tokens,
   };
 }

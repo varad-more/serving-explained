@@ -196,7 +196,7 @@ export function QueueChart({
                   className="cb-line__label"
                   x={Math.min(x(time) + 4, W - PAD.right)}
                   y={(ends[i] ?? 0) + 4}
-                  textAnchor={x(time) + 60 > W ? "end" : "start"}
+                  textAnchor={x(time) + 80 > W ? "end" : "start"}
                 >
                   {s.name}
                 </text>
@@ -278,10 +278,39 @@ function LineLegend({ series }: { series: readonly StepSeries[] }) {
 
 export interface HistRow {
   name: string;
-  /** Values so far, any order. */
+  /** Every value of the run, in time order. */
   values: readonly number[];
+  /** How many of them are drawn: those so far. */
+  count: number;
   p50: number;
   p99: number;
+}
+
+/** Each bin's count over the first n values, for every n; cached per list. */
+const cumulative = new WeakMap<
+  readonly number[],
+  Map<readonly number[], Int32Array>
+>();
+function binCounts(values: readonly number[], edges: readonly number[]) {
+  let byEdges = cumulative.get(values);
+  if (!byEdges) {
+    byEdges = new Map();
+    cumulative.set(values, byEdges);
+  }
+  let table = byEdges.get(edges);
+  if (!table) {
+    const bins = edges.length - 1;
+    table = new Int32Array((values.length + 1) * bins);
+    values.forEach((v, i) => {
+      let b = edges.findIndex((e) => v < e) - 1;
+      if (b < 0) b = v < (edges[0] ?? 0) ? 0 : bins - 1;
+      const row = (i + 1) * bins;
+      table?.set(table.subarray(i * bins, row), row);
+      if (table) table[row + b] = (table[row + b] ?? 0) + 1;
+    });
+    byEdges.set(edges, table);
+  }
+  return table;
 }
 
 /**
@@ -313,15 +342,12 @@ export function Histogram({
     PAD.left +
     ((Math.log10(Math.min(Math.max(v, 10 ** lo), 10 ** hi)) - lo) / (hi - lo)) *
       (W - PAD.left - PAD.right);
-  const counts = rows.map((r) => {
-    const c = new Array<number>(bins).fill(0);
-    for (const v of r.values) {
-      let b = edges.findIndex((e) => v < e) - 1;
-      if (b < 0) b = v < (edges[0] ?? 0) ? 0 : bins - 1;
-      c[b] = (c[b] ?? 0) + 1;
-    }
-    return c;
-  });
+  const counts = rows.map((r) => [
+    ...binCounts(r.values, edges).subarray(
+      r.count * bins,
+      (r.count + 1) * bins,
+    ),
+  ]);
   const top = Math.max(1, ...counts.flat());
   const binText = (b: number) =>
     `${secs(edges[b] ?? 0)} to ${secs(edges[b + 1] ?? 0)}`;
@@ -350,7 +376,7 @@ export function Histogram({
           aria-label={rows
             .map(
               (r) =>
-                `${r.name}: ${String(r.values.length)} ${noun}, p50 ${secs(r.p50)}, p99 ${secs(r.p99)}`,
+                `${r.name}: ${String(r.count)} ${noun}, p50 ${secs(r.p50)}, p99 ${secs(r.p99)}`,
             )
             .join("; ")}
           onPointerLeave={() => {

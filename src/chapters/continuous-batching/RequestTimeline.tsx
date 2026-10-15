@@ -1,4 +1,11 @@
-import { useDeferredValue, useId, useMemo, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useDeferredValue,
+  useId,
+  useMemo,
+  useState,
+} from "react";
 import { Figure } from "../../viz/ui/Figure.tsx";
 import { PlaybackBar } from "../../viz/ui/PlaybackBar.tsx";
 import { ProvenanceBadge } from "../../viz/ui/ProvenanceBadge.tsx";
@@ -25,7 +32,6 @@ import {
 } from "./presets.ts";
 import {
   countTo,
-  percentile,
   queueAt,
   readoutAt,
   runTimeline,
@@ -172,9 +178,10 @@ export function RequestTimeline({ mode }: { mode: Mode }) {
   const duration = Math.max(...runs.map((r) => r.tl.duration));
   const ph = usePlayhead(duration);
   const desktop = useMediaQuery("(min-width: 1024px)");
-  const set = (patch: Partial<RunOptions>) => {
+  const set = useCallback((patch: Partial<RunOptions>) => {
     setOptions((o) => ({ ...o, ...patch }));
-  };
+  }, []);
+  const tls = useMemo(() => runs.map((r) => r.tl), [runs]);
   const nextEnd = () =>
     Math.min(
       duration,
@@ -215,7 +222,7 @@ export function RequestTimeline({ mode }: { mode: Mode }) {
             />
           </div>
         ))}
-        <Legend runs={runs.map((r) => r.tl)} />
+        <Legend runs={tls} />
         <PlaybackBar
           time={ph.time}
           duration={duration}
@@ -251,10 +258,14 @@ export function RequestTimeline({ mode }: { mode: Mode }) {
             noun="requests"
             edges={TTFT_EDGES}
             rows={runs.map((r) => {
-              const v = r.tl.firsts
-                .slice(0, countTo(r.tl.firsts, ph.time))
-                .map((f) => f.ttft);
-              return { name: r.name, values: v, ...pcts(v) };
+              const n = countTo(r.tl.firsts, ph.time);
+              return {
+                name: r.name,
+                values: r.tl.ttft.values,
+                count: n,
+                p50: r.tl.ttft.p50[n] ?? NaN,
+                p99: r.tl.ttft.p99[n] ?? NaN,
+              };
             })}
           />
           <Histogram
@@ -262,10 +273,14 @@ export function RequestTimeline({ mode }: { mode: Mode }) {
             noun="gaps"
             edges={ITL_EDGES}
             rows={runs.map((r) => {
-              const v = r.tl.gaps
-                .slice(0, countTo(r.tl.gaps, ph.time))
-                .map((g) => g.itl);
-              return { name: r.name, values: v, ...pcts(v) };
+              const n = countTo(r.tl.gaps, ph.time);
+              return {
+                name: r.name,
+                values: r.tl.itl.values,
+                count: n,
+                p50: r.tl.itl.p50[n] ?? NaN,
+                p99: r.tl.itl.p99[n] ?? NaN,
+              };
             })}
           />
           <ProvenanceBadge kind="simulated" />
@@ -275,12 +290,8 @@ export function RequestTimeline({ mode }: { mode: Mode }) {
   );
 }
 
-function pcts(values: readonly number[]) {
-  const sorted = [...values].sort((a, b) => a - b);
-  return { p50: percentile(sorted, 50), p99: percentile(sorted, 99) };
-}
-
-function Controls({
+/** Memoized: playback re-renders the figure every frame, not its controls. */
+const Controls = memo(function Controls({
   mode,
   options: o,
   set,
@@ -383,7 +394,7 @@ function Controls({
       />
     </div>
   );
-}
+});
 
 function Radio<T extends string>({
   label,
@@ -704,7 +715,7 @@ function stays(segments: readonly Segment[]) {
   return [...by.values()];
 }
 
-function Legend({ runs }: { runs: readonly Timeline[] }) {
+const Legend = memo(function Legend({ runs }: { runs: readonly Timeline[] }) {
   const has = (phase: Segment["phase"]) =>
     runs.some((tl) => tl.segments.some((s) => s.phase === phase));
   const stalls = runs.some((tl) => tl.steps.some((s) => s.stall));
@@ -749,4 +760,4 @@ function Legend({ runs }: { runs: readonly Timeline[] }) {
       )}
     </ul>
   );
-}
+});

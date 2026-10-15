@@ -116,7 +116,7 @@ function StepBars({
       >
         {bars.map((b, i) => (
           <g key={b.name}>
-            <text className="chart__tick" x={0} y={i * 28 + 17}>
+            <text className="chart__tick" x={2} y={i * 28 + 17}>
               {b.name}
             </text>
             <rect
