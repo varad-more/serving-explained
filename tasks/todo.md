@@ -1601,16 +1601,16 @@ continuously. The callout says so, and makes no engine-vs-engine claim.
    - Claim: `long-prefill-stalls`. Sources: agrawal2024 §3.2.
 5. **Token budget and chunked prefill.** Compare mode: chunking off vs. on.
    - The band splits into about 4 shorter ones, and p99 ITL drops.
-   - The long prompts' TTFT rises a little. The exact rise is shown via `<Num>`
-     (simulated).
+   - Once admitted, a long prompt takes longer to reach its first token, but
+     its total TTFT barely moves. Both are shown via `<Num>` (simulated).
    - Prose: a lower budget flattens the steps further; the reader can drag it.
    - If the reversal from decision 10 is kept, it is shown here at 2% long
      prompts.
-   - Claims: `chunking-lowers-p99-itl`, `chunking-raises-long-ttft`, and
-     `chunking-spreads-stalls` if kept (AUDIT.md m18).
+   - Claims: `chunking-lowers-p99-itl`, `chunking-slows-long-prefill`, and
+     `chunking-spreads-stalls` (AUDIT.md m18).
    - Sources: agrawal2023, agrawal2024 §4.1–4.3.
-6. **Takeaway: no free setting.** Figure `BudgetSweep`: budgets 512, 1024,
-   2048, 4096, and 8192 on `long-prompt-stall`.
+6. **Takeaway: no free setting.** Figure `BudgetSweep`: budgets 64, 128, 256,
+   512, 1024, 2048, 4096, and 8192 on `long-prompt-stall`.
    - Three small charts: throughput, p99 ITL, and mean TTFT of the long
      prompts. The current setting is marked.
    - Claims: `no-free-setting`, and `bigger-batches-cost-latency`, the
@@ -1669,7 +1669,7 @@ continuously. The callout says so, and makes no engine-vs-engine claim.
   - arrival rate: slider
   - output spread: slider over σ, 0–1.5
   - `max_num_seqs`: slider, 1–8
-  - `max_num_batched_tokens`: slider stops 256–8192
+  - `max_num_batched_tokens`: slider stops 64–8192, the sweep's budgets
   - chunked prefill: `Toggle`. When it is off, the budget control is locked at
     `max_model_len` with the note "raised to 8,192, as vLLM does when no budget
     is set".
@@ -1704,16 +1704,24 @@ SVG and the chart rules in the dataviz references.
   budget allow, as they do on this preset.
 - **`long-prefill-stalls`:** without chunking, p99 ITL is at least 20× p50 ITL.
 - **`chunking-lowers-p99-itl`:** the prompt's test.
-- **`chunking-raises-long-ttft`:** the prompt's test. If it fails, I stop and
-  report; I do not edit the test to pass.
-- **`no-free-setting`** (AUDIT.md m18): across budgets 512, 1024, 2048, 4096,
-  and 8192 on `long-prompt-stall`, the budget with the lowest p99 ITL is not the
-  one with the lowest mean TTFT. No budget wins both. If one does, I stop and
-  report.
+- **`chunking-slows-long-prefill`** (replaces `chunking-raises-long-ttft`):
+  with chunking, the long prompts' mean time from admission to first token
+  rises, and their mean TTFT changes by less than 5%. Neither run preempts.
+- **`no-free-setting`** (AUDIT.md m18, restated 2026-10-15) on
+  `long-prompt-stall`, budgets 64–8,192:
+  - p99 ITL rises at every step up (too large brings back stalls)
+  - at 64 every step is memory-bound, and 64 loses to 128 on throughput and
+    on the long prompts' mean TTFT (too small costs both)
+  - memory-bound time falls at every step down from 8,192 to 128
+  - the best throughput and the best long-prompt TTFT are at neither end
+  - on `batching-basics` (short prompts), budgets 512–8,192 give identical
+    results (it depends on the workload)
 - **`bigger-batches-cost-latency`:** the misconception claim, worded after the
   sim (decision 9).
-- **`spread-widens-gap`**, and **`chunking-spreads-stalls`** if it is kept
-  (decision 10).
+- **`spread-widens-gap`**, and **`chunking-spreads-stalls`** (decision 10,
+  restated 2026-10-15): at 2% long prompts, chunking raises the share of stall
+  steps and lowers max ITL. Stalls stay under 1% of inter-token gaps in both
+  runs.
 - **Meta-test:** claim ids match test ids.
 
 **`e2e/continuous-batching.spec.ts`** (Playwright):
@@ -1823,6 +1831,49 @@ Also found:
 - Measured callout: recomputed from the three bench-ieb files with the
   plan's method, vLLM at concurrency 64 is 1,279.5 output tok/s, not 1,279.6.
   The other plan values match.
+
+**The author's answers (2026-10-15).** Each replaces a claim that was wrong
+as worded; no test is loosened.
+
+1. `chunking-raises-long-ttft` becomes `chunking-slows-long-prefill`.
+   - Disproved by: the long prompts' mean TTFT is 23.98 s with chunking and
+     24.25 s without, so chunking does not raise it.
+   - The new claim: from admission to first token, chunking takes longer
+     (4.03 vs. 3.82 s), because the chunks share steps with decodes. Total
+     TTFT changes by less than 5% (−1.1%).
+2. `no-free-setting`: first find why 512 wins, then sweep 256, 128, and 64.
+   - Disproved by: budget 512 had the lowest p99 ITL (0.31 s) and the lowest
+     long-prompt TTFT (22.6 s), and the highest throughput (58.3 tok/s;
+     55.4 at 8,192).
+   - Why 512 wins over larger budgets: the engine is always busy, and the
+     total compute is 61.0 s at every budget. Large budgets leave decode-only
+     steps whose compute sits idle. Smaller budgets fill it with prefill
+     chunks. Memory-bound time falls from 24.6 s at 8,192 to 19.9 s at 512
+     and 14.0 s at 128, so the run ends sooner and queues are shorter.
+   - The sweep (tok/s, p99 ITL, long-prompt TTFT): 64: 57.8, 0.043 s,
+     23.8 s; 128: 62.5, 0.078 s, 20.3 s; 256: 60.4, 0.157 s, 21.4 s; 512:
+     58.3, 0.314 s, 22.6 s. At 64 every step is memory-bound, below the
+     A10G's crossover of about 76 tokens.
+   - So a budget below 512 gets worse: the trade-off branch applies. The
+     takeaway: too small a budget costs throughput and long-prompt TTFT, too
+     large brings back stalls, and the best sits between and depends on the
+     workload. On `batching-basics`, whose prompts are short, budgets 512 to
+     8,192 give identical results.
+   - agrawal2024 §4.3: small budgets cost GPU utilization and repeated KV
+     reads, and the right budget "depends on the desired TBT SLO,
+     parallelism configuration, and specific hardware properties."
+   - Deviation that follows: the budget slider and `BudgetSweep` now run
+     64–8,192 (the plan had 256–8,192 and 512–8,192), so readers can see
+     both sides.
+3. `chunking-spreads-stalls`: p99 is dropped from this claim.
+   - Disproved by: at 2% long prompts, stalls are 0.26% of inter-token gaps
+     without chunking and 0.90% with it, both under 1%. So p99 ITL (0.128 vs.
+     0.132 s) moves for other reasons.
+   - The new claim: a stall step is a step in which a long prompt does
+     prefill work, so every running request's next token waits for it.
+     Chunking raises stall steps from 0.23% to 0.79% of steps and cuts max
+     ITL from 4.09 to 1.22 s.
+4. Git: rebase normally and leave commit dates alone.
 
 ## Prompt 6: prefix caching chapter (PLAN, approved 2026-10-02)
 

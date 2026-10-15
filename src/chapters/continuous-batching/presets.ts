@@ -60,8 +60,10 @@ export const STALL = defaults("long-prompt-stall");
 /** Chunked prefill off: the budget is raised to max_model_len (decision 5). */
 export const STALL_OFF: RunOptions = { ...STALL, chunked: false };
 
-/** Step 6's sweep of max_num_batched_tokens. */
+/** `bigger-batches-cost-latency`: max_num_batched_tokens from 512 up. */
 export const BUDGETS = [512, 1024, 2048, 4096, 8192] as const;
+/** Step 6's sweep, down to budgets small enough to be memory-bound. */
+export const SWEEP_BUDGETS = [64, 128, 256, ...BUDGETS] as const;
 /** CheckYourself: output-length spread (lognormal σ). */
 export const SIGMAS = [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5] as const;
 /** A prompt this long or longer is one of `long-prompt-stall`'s long ones. */

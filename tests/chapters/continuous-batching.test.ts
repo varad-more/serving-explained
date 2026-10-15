@@ -11,7 +11,6 @@ import {
   BASICS_STATIC,
   BUDGETS,
   GPU_IDS,
-  LONG_PROMPT,
   MODEL_SLUGS,
   phaseRun,
   PREEMPT_POOL,
@@ -20,17 +19,21 @@ import {
   SIGMAS,
   STALL,
   STALL_OFF,
+  SWEEP_BUDGETS,
   type PresetKey,
   type RunOptions,
 } from "../../src/chapters/continuous-batching/presets.ts";
 import {
-  createSim,
-  metrics,
-  type SimConfig,
-  type SimEvent,
-} from "../../src/sim/index.ts";
-
-type Ev<T extends SimEvent["type"]> = Extract<SimEvent, { type: T }>;
+  lastArrival,
+  longAdmitToFirstToken,
+  longTtft,
+  maxItl,
+  meanQueue,
+  memoryBound,
+  stalls,
+  stepEnds,
+} from "../../src/chapters/continuous-batching/stats.ts";
+import { createSim, metrics, type SimConfig } from "../../src/sim/index.ts";
 
 function simulate(config: SimConfig) {
   const sim = createSim({ ...config, checkInvariants: true });
@@ -53,58 +56,6 @@ function run(
     runs.set(key, r);
   }
   return r;
-}
-
-const stepEnds = (events: readonly SimEvent[]) =>
-  events.filter((e): e is Ev<"StepEnd"> => e.type === "StepEnd");
-
-/** Time-averaged queue length over [a, b): StepEnd.waiting over each step. */
-function meanQueue(events: readonly SimEvent[], a: number, b: number) {
-  let area = 0;
-  for (const e of stepEnds(events)) {
-    const t0 = Math.max(e.t - e.duration, a);
-    const t1 = Math.min(e.t, b);
-    if (t1 > t0) area += e.waiting * (t1 - t0);
-  }
-  return area / (b - a);
-}
-
-const lastArrival = (config: SimConfig) =>
-  Math.max(...config.requests.map((r) => r.arrival));
-
-const mean = (xs: readonly number[]) =>
-  xs.reduce((s, x) => s + x, 0) / xs.length;
-
-/** Mean TTFT of the requests whose prompt is at least LONG_PROMPT tokens. */
-function longTtft(r: Run) {
-  const long = new Set(
-    r.config.requests
-      .filter((q) => q.prompt.length >= LONG_PROMPT)
-      .map((q) => q.id),
-  );
-  return mean(r.m.requests.filter((q) => long.has(q.id)).map((q) => q.ttft));
-}
-
-/** Inter-token gaps that end in a step where a long prompt did prefill work. */
-function stallShare(r: Run) {
-  const long = new Set(
-    r.config.requests
-      .filter((q) => q.prompt.length >= LONG_PROMPT)
-      .map((q) => q.id),
-  );
-  const stalled = new Set(
-    r.events
-      .filter((e) => e.type === "PrefillChunk" && long.has(e.req))
-      .map((e) => e.step),
-  );
-  let gaps = 0;
-  let stalls = 0;
-  for (const e of r.events) {
-    if (e.type !== "DecodeToken" || e.index === 0) continue;
-    gaps++;
-    if (stalled.has(e.step)) stalls++;
-  }
-  return stalls / gaps;
 }
 
 const strictly = (xs: readonly number[], dir: 1 | -1) =>
@@ -324,36 +275,73 @@ const CLAIMS: Record<string, () => void> = {
     );
   },
 
-  "chunking-raises-long-ttft": () => {
-    // Chunking raises the long prompts' mean TTFT a little.
-    expect(longTtft(run("long-prompt-stall", STALL))).toBeGreaterThan(
-      longTtft(run("long-prompt-stall", STALL_OFF)),
+  "chunking-slows-long-prefill": () => {
+    // Once admitted, a long prompt takes longer to reach its first token with
+    // chunking, because its chunks share steps with decodes. Its total TTFT,
+    // queueing included, changes by less than 5% on this workload.
+    const on = run("long-prompt-stall", STALL);
+    const off = run("long-prompt-stall", STALL_OFF);
+    expect(on.m.summary.preemptions).toBe(0);
+    expect(off.m.summary.preemptions).toBe(0);
+    expect(longAdmitToFirstToken(on)).toBeGreaterThan(
+      longAdmitToFirstToken(off),
     );
+    expect(Math.abs(longTtft(on) / longTtft(off) - 1)).toBeLessThan(0.05);
   },
 
   "chunking-spreads-stalls": () => {
-    // Decision 10: with long prompts at 2%, one big stall per long prompt is
-    // under 1% of gaps without chunking, so p99 misses it. Chunking turns it
-    // into several smaller stalls, over 1% of gaps, and p99 ITL rises.
+    // Decision 10, at 2% long prompts: chunking turns one big stall per long
+    // prompt into several smaller ones. The share of stall steps rises, and
+    // the worst stall (max ITL) falls. Stalls stay under 1% of inter-token
+    // gaps in both runs, too rare for p99 ITL to show.
     const rare = { longShare: RARE_LONG_SHARE };
     const on = run("long-prompt-stall", STALL, rare);
     const off = run("long-prompt-stall", STALL_OFF, rare);
-    expect(stallShare(off)).toBeLessThan(0.01);
-    expect(stallShare(on)).toBeGreaterThan(0.01);
-    expect(on.m.summary.itl.p99).toBeGreaterThan(off.m.summary.itl.p99);
+    expect(stalls(on).stepShare).toBeGreaterThan(stalls(off).stepShare);
+    expect(maxItl(on)).toBeLessThan(maxItl(off));
+    expect(stalls(on).gapShare).toBeLessThan(0.01);
+    expect(stalls(off).gapShare).toBeLessThan(0.01);
   },
 
   "no-free-setting": () => {
-    // Across the budgets, the one with the lowest p99 ITL is not the one with
-    // the lowest mean TTFT of the long prompts: no budget wins both.
-    const sweep = BUDGETS.map((budget) =>
+    // On long-prompt-stall, over budgets 64–8,192:
+    const sweep = SWEEP_BUDGETS.map((budget) =>
       run("long-prompt-stall", { ...STALL, budget }),
     );
-    const best = (f: (r: Run) => number) => {
+    const tput = (r: Run) => r.m.summary.outputTokensPerS;
+    // Too large brings back stalls: p99 ITL rises at every step up.
+    expect(
+      strictly(
+        sweep.map((r) => r.m.summary.itl.p99),
+        1,
+      ),
+    ).toBe(true);
+    // Too small costs throughput and the long prompts' TTFT: at 64 every
+    // step is memory-bound, so 64 loses to 128 on both.
+    const [smallest, next] = sweep;
+    if (!smallest || !next) throw new Error("sweep too short");
+    expect(memoryBound(smallest).stepShare).toBe(1);
+    expect(tput(smallest)).toBeLessThan(tput(next));
+    expect(longTtft(smallest)).toBeGreaterThan(longTtft(next));
+    // Above that, smaller budgets fill idle decode compute with prefill:
+    // memory-bound time falls at every step down to 128.
+    const above = sweep.slice(1).map((r) => memoryBound(r).seconds);
+    expect(strictly(above, 1)).toBe(true);
+    // The best throughput and long-prompt TTFT sit between the ends.
+    const argBest = (f: (r: Run) => number) => {
       const xs = sweep.map(f);
       return xs.indexOf(Math.min(...xs));
     };
-    expect(best((r) => r.m.summary.itl.p99)).not.toBe(best(longTtft));
+    for (const i of [argBest((r) => -tput(r)), argBest(longTtft)]) {
+      expect(i).toBeGreaterThan(0);
+      expect(i).toBeLessThan(sweep.length - 1);
+    }
+    // It depends on the workload: batching-basics has short prompts, so
+    // every budget from 512 up gives the same run.
+    const basicsRuns = BUDGETS.map(
+      (budget) => run("batching-basics", { ...BASICS, budget }).m.summary,
+    );
+    for (const s of basicsRuns) expect(s).toEqual(basicsRuns[0]);
   },
 
   "bigger-batches-cost-latency": () => {
