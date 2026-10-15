@@ -20,6 +20,13 @@ Mistakes, corrections, and surprises. Newest first.
 - **`git add -A` earlier stages everything for the next commit.** A commit
   meant for one file took all of them. Stage per commit, and check
   `git diff --cached --stat` first.
+- **"Front of the queue" means prepend.** vLLM prepends each preempted
+  request to the waiting queue, so the latest victim goes first. A test that
+  queued victims first-in, first-out failed against a correct engine.
+- **TTFT includes the queue.** The plan reasoned that chunking adds a long
+  prompt's decode work to its TTFT. On an overloaded preset, chunking also
+  shortens the queue, and the queue dominates. Reason about every part of a
+  metric before predicting its sign.
 
 ## 2026-10-09
 
