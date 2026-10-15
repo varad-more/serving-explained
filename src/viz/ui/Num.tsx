@@ -3,22 +3,26 @@ import { ProvenanceBadge } from "./ProvenanceBadge.tsx";
 /** Keeps a number and its unit on one line. */
 const NBSP = "\u00a0";
 
-interface Props {
+type Props = {
   value: number;
   /** Decimal places (default 0). */
   digits?: number;
   /** Appended after a space, or directly when it starts with "×" or "%". */
   unit?: string;
-  kind: "computed" | "simulated";
   /** Leave the badge off when one nearby already covers this number. */
   badge?: boolean;
-}
+} & (
+  | { kind: "computed" | "simulated" }
+  /** Read from a committed result file: the badge links to it. */
+  | { kind: "measured"; href: string }
+);
 
 /**
  * A number from data or the sim, in prose (CHAPTER_DOD item 3). It formats the
  * value and attaches its provenance, so prose cannot drift from data.
  */
-export function Num({ value, digits = 0, unit, kind, badge = true }: Props) {
+export function Num(props: Props) {
+  const { value, digits = 0, unit, badge = true } = props;
   const text = value.toLocaleString("en-US", {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
@@ -33,7 +37,11 @@ export function Num({ value, digits = 0, unit, kind, badge = true }: Props) {
       {badge && (
         <>
           {" "}
-          <ProvenanceBadge kind={kind} inline />
+          {props.kind === "measured" ? (
+            <ProvenanceBadge kind="measured" href={props.href} inline />
+          ) : (
+            <ProvenanceBadge kind={props.kind} inline />
+          )}
         </>
       )}
     </span>

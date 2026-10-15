@@ -4,4 +4,6 @@
 pnpm-lock.yaml
 # Generated: never edited by hand.
 src/data/*.json
+# Copies of a benchmark repo's files, byte for byte.
+scripts/vendor
 public/og

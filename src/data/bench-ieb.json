@@ -1,0 +1,181 @@
+{
+  "_provenance": {
+    "repo": "varad-more/inference-engine-benchmark-system",
+    "commit": "1c964318addd2c742b53b0f0cf4a2cad791cace9",
+    "blobs": {
+      "logs/phase2_resume_20260418T042547.log": "96844d976c6287f5e2f2356fca229a0f28430d12",
+      "results_concurrency64/llama-3-1-8b-instruct/throughput_ramp_extended_vllm_1776486559.json": "86cb7ada72b3c15c42e156e39a354b2cf8295b36",
+      "results_concurrency64/llama-3-1-8b-instruct/throughput_ramp_extended_sglang_1776488646.json": "1e25acf39f88cb144cbaa6c3321f61c07b4e1554"
+    },
+    "by": "pnpm gen:measured (scripts/gen-measured.ts)"
+  },
+  "gpu": "NVIDIA A10G, 23028 MiB",
+  "gpuLine": 7,
+  "model": "meta-llama/Llama-3.1-8B-Instruct",
+  "modelLine": 36,
+  "log": "logs/phase2_resume_20260418T042547.log",
+  "engines": [
+    {
+      "engine": "vLLM",
+      "image": "vllm/vllm-openai:v0.18.0-cu130",
+      "imageLine": 15,
+      "file": "results_concurrency64/llama-3-1-8b-instruct/throughput_ramp_extended_vllm_1776486559.json",
+      "savedLine": 56,
+      "levels": [
+        {
+          "concurrency": 1,
+          "requests": 150,
+          "outputTokens": 38400,
+          "p50TtftMs": 41.15106549994607,
+          "seconds": 1272.009,
+          "outputTokPerS": 30.18846564764872,
+          "logLines": [
+            48,
+            49
+          ]
+        },
+        {
+          "concurrency": 4,
+          "requests": 150,
+          "outputTokens": 38400,
+          "p50TtftMs": 99.61786250005389,
+          "seconds": 340.848,
+          "outputTokPerS": 112.66018870581608,
+          "logLines": [
+            49,
+            50
+          ]
+        },
+        {
+          "concurrency": 8,
+          "requests": 150,
+          "outputTokens": 38400,
+          "p50TtftMs": 91.15571749998708,
+          "seconds": 172.658,
+          "outputTokPerS": 222.40498557842673,
+          "logLines": [
+            50,
+            51
+          ]
+        },
+        {
+          "concurrency": 16,
+          "requests": 150,
+          "outputTokens": 38400,
+          "p50TtftMs": 93.6613590001798,
+          "seconds": 94.314,
+          "outputTokPerS": 407.15058209809786,
+          "logLines": [
+            51,
+            52
+          ]
+        },
+        {
+          "concurrency": 32,
+          "requests": 150,
+          "outputTokens": 38400,
+          "p50TtftMs": 124.2689830000927,
+          "seconds": 47.802,
+          "outputTokPerS": 803.3136688841471,
+          "logLines": [
+            52,
+            53
+          ]
+        },
+        {
+          "concurrency": 64,
+          "requests": 150,
+          "outputTokens": 38400,
+          "p50TtftMs": 162.82645599994794,
+          "seconds": 30.011,
+          "outputTokPerS": 1279.5308386924794,
+          "logLines": [
+            53,
+            56
+          ]
+        }
+      ]
+    },
+    {
+      "engine": "SGLang",
+      "image": "lmsysorg/sglang:v0.5.10.post1-cu130",
+      "imageLine": 16,
+      "file": "results_concurrency64/llama-3-1-8b-instruct/throughput_ramp_extended_sglang_1776488646.json",
+      "savedLine": 97,
+      "levels": [
+        {
+          "concurrency": 1,
+          "requests": 150,
+          "outputTokens": 38400,
+          "p50TtftMs": 69.86916800019571,
+          "seconds": 1272.003,
+          "outputTokPerS": 30.188608045735744,
+          "logLines": [
+            89,
+            90
+          ]
+        },
+        {
+          "concurrency": 4,
+          "requests": 150,
+          "outputTokens": 38400,
+          "p50TtftMs": 68.8362235000568,
+          "seconds": 338.552,
+          "outputTokPerS": 113.4242302511874,
+          "logLines": [
+            90,
+            91
+          ]
+        },
+        {
+          "concurrency": 8,
+          "requests": 150,
+          "outputTokens": 38400,
+          "p50TtftMs": 64.04377899980318,
+          "seconds": 171.04,
+          "outputTokPerS": 224.50888681010292,
+          "logLines": [
+            91,
+            92
+          ]
+        },
+        {
+          "concurrency": 16,
+          "requests": 150,
+          "outputTokens": 38400,
+          "p50TtftMs": 87.14902250039813,
+          "seconds": 93.897,
+          "outputTokPerS": 408.9587526758043,
+          "logLines": [
+            92,
+            93
+          ]
+        },
+        {
+          "concurrency": 32,
+          "requests": 150,
+          "outputTokens": 38400,
+          "p50TtftMs": 125.71881199937707,
+          "seconds": 48.259,
+          "outputTokPerS": 795.7065003419051,
+          "logLines": [
+            93,
+            94
+          ]
+        },
+        {
+          "concurrency": 64,
+          "requests": 150,
+          "outputTokens": 38400,
+          "p50TtftMs": 156.12180250036545,
+          "seconds": 30.21,
+          "outputTokPerS": 1271.1022840119165,
+          "logLines": [
+            94,
+            97
+          ]
+        }
+      ]
+    }
+  ]
+}
