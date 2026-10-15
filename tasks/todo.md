@@ -2272,28 +2272,76 @@ blocks), and `PartialBlocks` (SVG, 5 rows).
 
 ### DoD checklist (docs/CHAPTER_DOD.md)
 
-- [ ] 1 objective and CheckYourself
-- [ ] 2 sources
-- [ ] 3 provenance
-- [ ] 4 claims tested
-- [ ] 5 writing rules
-- [ ] 6 end sections
-- [ ] 7 keyboard and touch
-- [ ] 8 labels
-- [ ] 9 playback
-- [ ] 10 reduced motion
-- [ ] 11 sizes, themes, and browsers
-- [ ] 12 no layout shift
-- [ ] 13 no console errors
-- [ ] 14 axe
-- [ ] 15 interactions within 100 ms
-- [ ] 16 60 fps
-- [ ] 17 screenshots
-- [ ] 18 interaction tests
-- [ ] 19 checks pass
-- [ ] 20 fresh-eyes review
-- [ ] 21 capture
-- [ ] 22 route HTML
+Copied from docs/CHAPTER_DOD.md for chapter 4. Each item is ticked with how it
+was verified.
+
+**Content**
+- [ ] 1. Objective first, checked last: PRODUCT.md's objective opens the
+  chapter; CheckYourself needs the mechanism, not recall.
+- [ ] 2. Sources: every technical claim has a `SourceLink`; ids exist in
+  sources.json; our own reasoning says so.
+- [ ] 3. Provenance: every number from data or the sim renders through `<Num>`
+  with a badge; source numbers carry a `SourceLink`.
+- [ ] 4. Claims tested: one test per `<Claim id>` on the configs the chapter
+  imports; the meta-test passes.
+- [ ] 5. Writing rules: writing.test.ts passes; one idea per step, US
+  English, terms defined at first use (review).
+- [ ] 6. End sections: "What this leaves out", one line per simplification
+  with its source or SIM.md §9 entry; "Go deeper" links SOURCES.md ids only.
+
+**Widgets**
+- [ ] 7. Keyboard and touch: Tab reaches every control, arrows, Enter, or
+  Space operate it, focus is visible; hit areas at least 44 × 44 px at 375 and
+  768; nothing on hover alone.
+- [ ] 8. Labels: every control has a visible label; changing readouts are
+  polite live regions.
+- [ ] 9. Playback: every animated widget has a PlaybackBar and is driven by
+  the event log.
+- [ ] 10. Reduced motion: no transitions or autoplay; Step shows every state.
+- [ ] 11. Sizes, themes, browsers: 375, 768, 1440 px, light and dark, no
+  horizontal scroll or clipped labels, in Chromium, WebKit, and Firefox.
+- [ ] 12. No layout shift: CLS 0 in the interaction test.
+- [ ] 13. No console or page errors.
+- [ ] 14. axe: no violations.
+
+**Performance** (Chromium, with and without 4× CPU throttling, traces saved)
+- [ ] 15. Interactions respond within 100 ms (Event Timing max; report max
+  and p95).
+- [ ] 16. Animation holds 60 fps: rAF p95 at most 18 ms, no frame over 50 ms
+  (report p50, p95, max).
+
+**Tests and review**
+- [ ] 17. Screenshots: Chromium at 375, 768, and 1440 px, light and dark.
+- [ ] 18. Interaction: one Playwright test per widget in all three browsers,
+  asserting rendered text changes.
+- [ ] 19. Checks: `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm build`.
+- [ ] 20. Fresh-eyes review by a sub-agent; every point fixed or answered.
+
+**Launch assets**
+- [ ] 21. Capture: `pnpm capture prefix-caching`, 6–10 s, mp4 and a GIF under
+  3 MB.
+- [ ] 22. Route HTML: title, description, canonical, og and twitter tags, and
+  a 1200×630 image, checked by postbuild and the live smoke test.
+
+### Build log
+
+**STOP 1 (2026-10-15): two planned claims fail on the exact presets.**
+tests/chapters/prefix-caching.test.ts has one test per planned claim (21).
+19 pass. These fail, and no prose is written:
+
+- `repeated-prefill`: with caching off, the prefix is computed 37,800 times,
+  not 54 × 600 = 32,400. The caching-off run preempts 10 times; 9 victims
+  share the prefix and compute it again (9 × 600 = 5,400). Request 9, in step
+  1's figure, is one of them.
+- `sharing-saves-memory`: the peak of blocks per running request is 59.0 in
+  both runs. A request that runs alone holds its whole chain either way. Over
+  time the claim holds: 24.1 blocks per running request with caching on
+  against 46.6 off. Caching on also peaks at 8 running against 6, and its
+  time-averaged queue is 2.3 against 12.8.
+
+Also found (decision 4): with caching on, p50 ITL is 40.4 ms against 39.7 ms
+off (+1.8%), as decision 4 expected. p99 ITL falls, 124 ms against 441 ms,
+because the off run's longer prefills and preemptions stall decodes.
 
 ## Prompt 7: sandbox (PLAN, approved 2026-10-02)
 
