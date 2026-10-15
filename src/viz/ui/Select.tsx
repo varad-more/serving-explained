@@ -3,7 +3,8 @@ import { useId } from "react";
 interface Props<T extends string> {
   label: string;
   value: T;
-  options: readonly { value: T; label: string }[];
+  /** A disabled option's label should say why. */
+  options: readonly { value: T; label: string; disabled?: boolean }[];
   onChange: (value: T) => void;
   disabled?: boolean;
 }
@@ -32,7 +33,7 @@ export function Select<T extends string>({
         }}
       >
         {options.map((o) => (
-          <option key={o.value} value={o.value}>
+          <option key={o.value} value={o.value} disabled={o.disabled}>
             {o.label}
           </option>
         ))}

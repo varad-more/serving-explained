@@ -9,9 +9,11 @@ import { describe, expect, it } from "vitest";
 import {
   BASICS,
   BASICS_STATIC,
+  BUBBLE_WINDOW_S,
   BUDGETS,
   GPU_IDS,
   MODEL_SLUGS,
+  PHASE_DEFAULT,
   phaseRun,
   PREEMPT_POOL,
   RARE_LONG_SHARE,
@@ -24,12 +26,15 @@ import {
   type RunOptions,
 } from "../../src/chapters/continuous-batching/presets.ts";
 import {
+  bubbleShare,
+  crossover,
   lastArrival,
   longAdmitToFirstToken,
   longTtft,
   maxItl,
   meanQueue,
   memoryBound,
+  phaseSteps,
   stalls,
   stepEnds,
 } from "../../src/chapters/continuous-batching/stats.ts";
@@ -85,6 +90,14 @@ const CLAIMS: Record<string, () => void> = {
       expect(first?.tokens).toBe(1024);
       expect(first?.bound).toBe("compute");
     }
+    // The default pair's crossover: one token fewer, and prefill is
+    // memory-bound.
+    const { model, gpu } = PHASE_DEFAULT;
+    const k = crossover(model, gpu);
+    expect(phaseSteps(model, gpu, k)?.prefill.bound).toBe("compute");
+    expect(phaseSteps(model, gpu, k - 1)?.prefill.bound).toBe("memory");
+    for (const n of [k + 1, 2 * k, 512])
+      expect(phaseSteps(model, gpu, n)?.prefill.bound).toBe("compute");
   },
 
   "decode-memory-bound": () => {
@@ -124,25 +137,9 @@ const CLAIMS: Record<string, () => void> = {
   "static-has-bubbles": () => {
     // In the first 20 s, slots held by requests that have made every output
     // token are more than 25% of held slot-seconds.
-    const { events, config } = basicsStatic();
-    expect(events.some((e) => e.type === "Preempt")).toBe(false);
-    const out = new Map(config.requests.map((r) => [r.id, r.outputLen]));
-    const admit = new Map<number, number>();
-    const lastToken = new Map<number, number>();
-    let held = 0;
-    let idle = 0;
-    const T = 20;
-    const span = (a: number, b: number) => Math.max(0, Math.min(b, T) - a);
-    for (const e of events) {
-      if (e.type === "Admit") admit.set(e.req, e.t);
-      if (e.type === "DecodeToken" && e.index + 1 === out.get(e.req))
-        lastToken.set(e.req, e.t);
-      if (e.type === "Finish") {
-        held += span(admit.get(e.req) ?? 0, e.t);
-        idle += span(lastToken.get(e.req) ?? e.t, e.t);
-      }
-    }
-    expect(idle / held).toBeGreaterThan(0.25);
+    const r = basicsStatic();
+    expect(r.events.some((e) => e.type === "Preempt")).toBe(false);
+    expect(bubbleShare(r, BUBBLE_WINDOW_S)).toBeGreaterThan(0.25);
   },
 
   "static-queue-grows": () => {
@@ -321,12 +318,19 @@ const CLAIMS: Record<string, () => void> = {
     const [smallest, next] = sweep;
     if (!smallest || !next) throw new Error("sweep too short");
     expect(memoryBound(smallest).stepShare).toBe(1);
+    expect(crossover(PHASE_DEFAULT.model, PHASE_DEFAULT.gpu)).toBeGreaterThan(
+      SWEEP_BUDGETS[0],
+    );
     expect(tput(smallest)).toBeLessThan(tput(next));
     expect(longTtft(smallest)).toBeGreaterThan(longTtft(next));
     // Above that, smaller budgets fill idle decode compute with prefill:
     // memory-bound time falls at every step down to 128.
     const above = sweep.slice(1).map((r) => memoryBound(r).seconds);
     expect(strictly(above, 1)).toBe(true);
+    // Every budget does the same compute.
+    const compute = (r: Run) =>
+      stepEnds(r.events).reduce((s, e) => s + e.computeS, 0);
+    for (const r of sweep) expect(compute(r)).toBeCloseTo(compute(smallest), 9);
     // The best throughput and long-prompt TTFT sit between the ends.
     const argBest = (f: (r: Run) => number) => {
       const xs = sweep.map(f);

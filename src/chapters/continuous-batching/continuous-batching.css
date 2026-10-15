@@ -1,0 +1,370 @@
+/* Chapter 3 widgets. Phases differ in ink and pattern, never request hue
+   (DESIGN.md, "Request phases"). */
+
+.cb__controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0 var(--space-4);
+  margin-bottom: var(--space-2);
+}
+
+.cb__controls .control {
+  margin: var(--space-2) 0;
+}
+
+/* Wide enough for "8,192 tokens" and "2.4 per second": sliders never resize. */
+.cb__controls .slider__output {
+  min-width: 13ch;
+}
+
+.cb__note {
+  margin: 0;
+  font-size: var(--step--2);
+  color: var(--ink-2);
+}
+
+.cb__note[data-hidden="true"] {
+  visibility: hidden;
+}
+
+.radio {
+  border: none;
+  padding: 0;
+}
+
+.radio__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--target);
+  cursor: pointer;
+}
+
+.radio__option input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--ink);
+}
+
+.cb__run {
+  margin: var(--space-3) 0 var(--space-2);
+}
+
+.cb__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-3);
+}
+
+.cb__name {
+  margin: 0 0 var(--space-1);
+  font-size: var(--step-1);
+}
+
+.cb__readout {
+  max-width: 100%;
+}
+
+.cb__readout table {
+  border-collapse: collapse;
+  font-size: var(--step--2);
+}
+
+.cb__readout th,
+.cb__readout td {
+  padding: 2px var(--space-2) 2px 0;
+  text-align: right;
+}
+
+/* Headers wrap at 375 px; values never do. */
+.cb__readout td {
+  white-space: nowrap;
+}
+
+.cb__readout thead th {
+  font-weight: 400;
+  color: var(--ink-2);
+}
+
+.cb__readout tbody th {
+  text-align: left;
+  font-weight: 400;
+  color: var(--ink-2);
+}
+
+.cb__readout td {
+  font-weight: 700;
+}
+
+/* The lanes. */
+
+.cb-lanes,
+.cb-chart__svg,
+.phase__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.cb-seg--held {
+  stroke: var(--ink-2);
+  stroke-dasharray: 3 2;
+}
+
+.cb-seg__label rect {
+  fill: var(--surface);
+}
+
+.cb-seg__label text,
+.cb-queue text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--ink);
+}
+
+.cb-band rect {
+  fill: var(--surface-2);
+  stroke: var(--rule-strong);
+  stroke-dasharray: 4 3;
+}
+
+.cb-band text,
+.cb-preempt text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--ink);
+}
+
+.cb-preempt line {
+  stroke: var(--ink);
+  stroke-width: 3;
+}
+
+.cb-queue rect {
+  fill: none;
+  stroke: var(--ink-2);
+  stroke-dasharray: 3 2;
+}
+
+.cb-queue__more {
+  fill: var(--ink-2);
+}
+
+.cb-playhead {
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+/* Legends and swatches. */
+
+.cb-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: var(--space-2) 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--step--2);
+}
+
+.cb-legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.cb-swatch {
+  display: inline-block;
+  width: 16px;
+  height: 12px;
+  border: 1px solid var(--rule-strong);
+}
+
+.cb-swatch--queued {
+  background: none;
+  border: 1.5px dashed var(--ink-2);
+}
+
+.cb-swatch--prefill {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--ink) 0 3px,
+    var(--surface) 3px 4.5px
+  );
+}
+
+.cb-swatch--decode {
+  background: var(--ink-2);
+}
+
+.cb-swatch--bubble {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--block-waste) 0 1.5px,
+    var(--surface) 1.5px 5px
+  );
+}
+
+.cb-swatch--held {
+  background: none;
+  border: 1.5px dashed var(--ink-2);
+}
+
+.cb-swatch--band {
+  background: var(--surface-2);
+  border: 1.5px dashed var(--rule-strong);
+}
+
+.cb-swatch--preempt {
+  width: 4px;
+  background: var(--ink);
+}
+
+/* Charts. */
+
+.cb__charts {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.cb-chart {
+  margin: 0;
+}
+
+.cb-chart__title {
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.cb-chart__focus:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.cb-chart__readout {
+  min-height: 1.5em;
+  margin: var(--space-1) 0 0;
+  font-size: var(--step--1);
+}
+
+.cb-chart__row {
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--ink);
+}
+
+.cb-line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.cb-line[data-dashed="true"] {
+  stroke: var(--ink-2);
+  stroke-dasharray: 6 3;
+}
+
+.cb-line__label {
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--ink);
+}
+
+.cb-cursor {
+  stroke: var(--ink);
+  stroke-dasharray: 2 2;
+}
+
+.cb-bar {
+  fill: var(--ink-2);
+}
+
+.cb-bar--active {
+  fill: var(--highlight);
+  stroke: var(--ink);
+}
+
+.cb-hit {
+  fill: transparent;
+}
+
+.cb-rule line {
+  stroke: var(--ink);
+  stroke-dasharray: 4 3;
+}
+
+.cb-rule text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  fill: var(--ink);
+}
+
+/* Figure 3.1. */
+
+.phase {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.phase__step {
+  margin: 0;
+}
+
+.phase__title {
+  font-size: var(--step--1);
+}
+
+.phase__bar {
+  fill: var(--ink-2);
+}
+
+.phase__bar--bound {
+  fill: var(--ink);
+}
+
+.phase__cross {
+  margin: 0;
+}
+
+/* Figure 3.7. */
+
+.sweep {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-2) var(--space-4);
+}
+
+.sweep__line {
+  stroke: var(--ink-2);
+}
+
+.sweep__dot {
+  fill: var(--ink-2);
+}
+
+.sweep__dot[data-best="true"] {
+  fill: var(--ink);
+}
+
+.sweep-chart {
+  margin: 0;
+  width: min(100%, 260px);
+}
+
+.sweep-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sweep-chart__title {
+  min-height: 2.6em;
+  font-size: var(--step--1);
+  font-weight: 700;
+}

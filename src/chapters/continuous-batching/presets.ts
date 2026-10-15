@@ -73,6 +73,9 @@ export const LONG_PROMPT = (() => {
   return long?.dist.kind === "uniform" ? long.dist.min : Infinity;
 })();
 
+/** `static-has-bubbles` measures the first 20 s. */
+export const BUBBLE_WINDOW_S = 20;
+
 /** The preemption step (AUDIT.md m15): `batching-basics` on a smaller pool. */
 export const PREEMPT_POOL = { blocks: 80, blockSize: 16 } as const;
 /** Decision 10: long prompts at 2% of requests instead of 15%. */
@@ -156,16 +159,21 @@ export type PhaseRun =
 
 /**
  * Step 1's run: one request of PHASE_REQUEST on a model × GPU pair, with the
- * KV pool llmsize leaves after the weights (SIM.md §12.1).
+ * KV pool llmsize leaves after the weights (SIM.md §12.1). `prompt` changes
+ * the prompt length, to find where prefill turns compute-bound.
  */
-export function phaseRun(modelSlug: string, gpuId: string): PhaseRun {
+export function phaseRun(
+  modelSlug: string,
+  gpuId: string,
+  prompt: number = PHASE_REQUEST.prompt,
+): PhaseRun {
   const m = models.models.find((x) => x.slug === modelSlug);
   const g = gpus.gpus.find((x) => x.id === gpuId);
   if (!m || !g) throw new RangeError(`unknown pair ${modelSlug}, ${gpuId}`);
   const model = modelCost(m);
   const blockSize = 16;
   const numBlocks = blocksFromGpu(g, model, blockSize);
-  const len = PHASE_REQUEST.prompt + PHASE_REQUEST.output;
+  const len = prompt + PHASE_REQUEST.output;
   if (numBlocks * blockSize < len)
     return {
       fits: false,
@@ -180,7 +188,7 @@ export function phaseRun(modelSlug: string, gpuId: string): PhaseRun {
         {
           id: 0,
           arrival: 0,
-          prompt: Array.from({ length: PHASE_REQUEST.prompt }, (_, i) => i + 1),
+          prompt: Array.from({ length: prompt }, (_, i) => i + 1),
           outputLen: PHASE_REQUEST.output,
         },
       ],

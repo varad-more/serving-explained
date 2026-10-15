@@ -317,4 +317,134 @@ export const glossary: readonly GlossaryEntry[] = [
       "Keeping the KV blocks of a prompt's opening tokens, so a later request with the same opening reuses them.",
     source: { id: "vllm-apc-doc" },
   },
+  // Chapter 3: continuous batching.
+  {
+    id: "engine-step",
+    term: "Step (iteration)",
+    definition:
+      "One pass of the model over the requests it is running. In a step, each one computes some prompt tokens or makes one output token.",
+    source: { id: "yu2022", at: "§3" },
+  },
+  {
+    id: "batch",
+    term: "Batch",
+    definition: "The requests a server runs together in one step.",
+    source: { id: "yu2022", at: "§3" },
+  },
+  {
+    id: "compute-bound",
+    term: "Compute-bound",
+    definition:
+      "A step whose time is set by arithmetic: the math takes longer than reading the memory it needs.",
+    source: { id: "agrawal2024", at: "§3.1" },
+  },
+  {
+    id: "memory-bound",
+    term: "Memory-bound",
+    definition:
+      "A step whose time is set by reading memory, mostly the model's weights, while compute sits partly idle.",
+    source: { id: "agrawal2024", at: "§3.1" },
+  },
+  {
+    id: "roofline",
+    term: "Roofline",
+    definition:
+      "A simple model of step time: the longer of compute time (operations over peak speed) and memory time (bytes over bandwidth).",
+    source: { id: "llmsize-math", at: "Throughput" },
+  },
+  {
+    id: "request-level-scheduling",
+    term: "Request-level scheduling",
+    definition:
+      "Choosing work a whole batch at a time: the batch runs until every request in it is done.",
+    source: { id: "yu2022", at: "§3" },
+  },
+  {
+    id: "static-batching",
+    term: "Static batching",
+    definition:
+      "Batching with request-level scheduling. A finished request cannot leave early, and a new one waits for the next batch.",
+    source: { id: "yu2022", at: "§3" },
+  },
+  {
+    id: "iteration-level-scheduling",
+    term: "Iteration-level scheduling",
+    definition:
+      "Choosing which requests run at every step, so requests can join and leave between steps.",
+    source: { id: "yu2022", at: "§3" },
+  },
+  {
+    id: "continuous-batching",
+    term: "Continuous batching",
+    definition:
+      "Batching with iteration-level scheduling: finished requests leave and waiting ones join at every step.",
+    source: { id: "yu2022", at: "§3" },
+  },
+  {
+    id: "bubble",
+    term: "Bubble",
+    definition:
+      "Under static batching, a slot held by a request that has made all its tokens, doing no work until its batch ends.",
+    source: { id: "yu2022", at: "§3" },
+  },
+  {
+    id: "ttft",
+    term: "Time to first token (TTFT)",
+    definition:
+      "From a request's arrival to its first output token, time in the queue included.",
+    source: { id: "agrawal2024", at: "§2.4" },
+  },
+  {
+    id: "itl",
+    term: "Inter-token latency (ITL)",
+    definition:
+      "The gap between two output tokens of one request. Sarathi-Serve calls it time between tokens (TBT).",
+    source: { id: "agrawal2024", at: "§2.4" },
+  },
+  {
+    id: "percentile",
+    term: "p50, p99",
+    definition:
+      "The values that 50% and 99% of measurements are at or below. p50 is the median; p99 shows the slowest 1%.",
+  },
+  {
+    id: "max-num-seqs",
+    term: "max_num_seqs",
+    definition: "vLLM's setting for the most requests it runs at once.",
+    source: { id: "vllm-src", at: "config/scheduler.py" },
+  },
+  {
+    id: "token-budget",
+    term: "Token budget (max_num_batched_tokens)",
+    definition:
+      "The most tokens one step may process, prompt tokens and output tokens together.",
+    source: { id: "agrawal2024", at: "§4.1" },
+  },
+  {
+    id: "chunked-prefill",
+    term: "Chunked prefill",
+    definition:
+      "Splitting a long prompt's prefill over several steps, one chunk per step, so decodes keep running alongside.",
+    source: { id: "agrawal2023" },
+  },
+  {
+    id: "generation-stall",
+    term: "Generation stall",
+    definition:
+      "A pause in a request's output while the step it waits on computes another request's long prefill.",
+    source: { id: "agrawal2024", at: "§3.2" },
+  },
+  {
+    id: "stall-step",
+    term: "Stall step",
+    definition:
+      "In chapter 3, a step in which a long prompt does prefill work, so every running request's next token waits for it.",
+  },
+  {
+    id: "head-of-line-blocking",
+    term: "Head-of-line blocking",
+    definition:
+      "When the request at the front of the queue cannot start, the ones behind it wait too, even if they would fit.",
+    source: { id: "vllm-src", at: "v1/core/sched/scheduler.py L1114–1232" },
+  },
 ];

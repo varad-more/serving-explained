@@ -1,3 +1,222 @@
-# Continuous batching
+import { Link } from "../../router.ts";
+import { Callout } from "../../viz/ui/Callout.tsx";
+import { ChapterLayout, ChapterStep } from "../../viz/ui/ChapterLayout.tsx";
+import { CheckYourself } from "../../viz/ui/CheckYourself.tsx";
+import { Claim } from "../../viz/ui/Claim.tsx";
+import { GlossaryTerm } from "../../viz/ui/GlossaryTerm.tsx";
+import { Num } from "../../viz/ui/Num.tsx";
+import { SourceLink } from "../../viz/ui/SourceLink.tsx";
+import { F, figures } from "./figures.tsx";
+import { SpreadTry } from "./SpreadTry.tsx";
 
-This chapter is not written yet.
+export const SIM = "https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md";
+export const SIM9 = `${SIM}#9-simplifications-what-this-leaves-out`;
+export const IEB = "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9";
+
+<ChapterLayout
+  number={3}
+  title="Continuous batching"
+  objective={<p>Explain that static batching makes every request wait for the longest one in its batch. Iteration-level (continuous) scheduling lets requests join and leave at every step. Prefill and decode load the GPU differently, which is why engines cap the tokens in each step and can split long prompts.</p>}
+  figures={figures}
+>
+
+<ChapterStep figure="phases" id="two-phases">
+
+## Two kinds of step
+
+A server generates text in <GlossaryTerm id="engine-step">steps</GlossaryTerm>.
+In each step, every request it runs computes some prompt tokens or makes one output token (<SourceLink id="yu2022" at="§3" />).
+<Link to="/kv-cache/">Chapter 1</Link> named the two kinds of work: <GlossaryTerm id="prefill">prefill</GlossaryTerm> processes a prompt, and a <GlossaryTerm id="decode">decode step</GlossaryTerm> makes one new token.
+
+They load the GPU differently (<SourceLink id="agrawal2024" at="§1, §3.1" />).
+Our engine times each step with a <GlossaryTerm id="roofline">roofline</GlossaryTerm>: the longer of its compute time and its memory time (<a href={`${SIM}#5-cost-model-roofline-per-step`}>SIM.md §5</a>).
+Figure 3.1 runs one request on Llama-3.1-8B and an A10G: a <Num value={F.phase.prompt} kind="simulated" badge={false} />-token prompt, then a few output tokens.
+
+<Claim id="prefill-compute-bound">The prefill step is <GlossaryTerm id="compute-bound">compute-bound</GlossaryTerm> on every model and GPU pair that fits: here <Num value={F.phase.prefillCompute} digits={2} unit="s" kind="simulated" badge={false} /> of compute against <Num value={1000 * F.phase.prefillMemory} digits={1} unit="ms" kind="simulated" /> of memory reads. On this pair, compute overtakes memory from <Num value={F.phase.crossover} kind="simulated" /> prompt tokens in a step.</Claim>
+
+<Claim id="decode-memory-bound">A decode step is <GlossaryTerm id="memory-bound">memory-bound</GlossaryTerm> on every pair: <Num value={1000 * F.phase.decodeMemory} digits={1} unit="ms" kind="simulated" badge={false} /> to read the weights and the KV cache, against <Num value={1000 * F.phase.decodeCompute} digits={1} unit="ms" kind="simulated" /> of compute.</Claim>
+So a decode step leaves compute idle, and more requests can share it at little extra cost (<SourceLink id="agrawal2024" at="§3.1" />).
+That is why servers run many requests together in a <GlossaryTerm id="batch">batch</GlossaryTerm>.
+
+</ChapterStep>
+
+<ChapterStep figure="static" id="static">
+
+## Static batching waits for the longest request
+
+The simplest way to batch is <GlossaryTerm id="static-batching">static batching</GlossaryTerm>, also called <GlossaryTerm id="request-level-scheduling">request-level scheduling</GlossaryTerm> (<SourceLink id="yu2022" at="§3" />).
+The server fills its slots with one batch and runs it until every request in it is done.
+
+Figure 3.2 runs <Num value={F.basics.requests} kind="simulated" badge={false} /> requests, arriving at about <Num value={F.basics.rate} digits={1} unit="per second" kind="simulated" badge={false} />, on <Num value={F.basics.maxNumSeqs} kind="simulated" /> slots.
+Output lengths spread widely around a median of <Num value={F.basics.outputMedian} unit="tokens" kind="simulated" />.
+
+<Claim id="static-never-admits-mid-batch">No request joins a batch that is running. New arrivals wait in the queue until the whole batch ends.</Claim>
+A request that finishes early cannot leave either (<SourceLink id="yu2022" at="§3" />).
+Its slot sits idle, a <GlossaryTerm id="bubble">bubble</GlossaryTerm>, drawn hatched.
+
+<Claim id="static-has-bubbles">In the first <Num value={F.basics.window} unit="s" kind="simulated" badge={false} />, bubbles fill <Num value={F.basics.bubbles} digits={1} unit="%" kind="simulated" /> of the slot time that requests hold: more than a quarter.</Claim>
+
+<Claim id="static-queue-grows">So the queue grows. Measured at step ends, it averages <Num value={F.basics.queueFirstHalf} digits={1} kind="simulated" badge={false} /> requests over the first half of the arrivals and <Num value={F.basics.queueSecondHalf} digits={1} kind="simulated" /> over the second.</Claim>
+
+</ChapterStep>
+
+<ChapterStep figure="compare" id="continuous">
+
+## Continuous batching schedules every step
+
+Orca's answer is <GlossaryTerm id="iteration-level-scheduling">iteration-level scheduling</GlossaryTerm>: the scheduler picks the batch again at every step (<SourceLink id="yu2022" at="§3" />).
+A finished request leaves at once, and a waiting one takes its slot after the current step.
+This is <GlossaryTerm id="continuous-batching">continuous batching</GlossaryTerm>.
+vLLM works this way: each step, it schedules running requests first, then waiting ones (<SourceLink id="vllm-src" at="v1/core/sched/scheduler.py L563–684" />).
+
+<Claim id="continuous-admits-promptly">In Figure 3.3, whenever a request waits at the start of a step and a slot is free, that step admits a request.</Claim>
+
+Two numbers describe latency (<SourceLink id="agrawal2024" at="§2.4" />).
+<GlossaryTerm id="ttft">Time to first token (TTFT)</GlossaryTerm> runs from a request's arrival to its first output token.
+<GlossaryTerm id="itl">Inter-token latency (ITL)</GlossaryTerm> is the gap between its later tokens.
+The readouts give means and <GlossaryTerm id="percentile">percentiles</GlossaryTerm>: p50, the median, and p99, the slowest 1%.
+
+<Claim id="continuous-lower-ttft">Mean TTFT falls from <Num value={F.basics.ttftStatic.mean} digits={1} unit="s" kind="simulated" badge={false} /> under static batching to <Num value={1000 * F.basics.ttftContinuous.mean} unit="ms" kind="simulated" badge={false} /> under continuous. p99 TTFT falls from <Num value={F.basics.ttftStatic.p99} digits={1} unit="s" kind="simulated" badge={false} /> to <Num value={1000 * F.basics.ttftContinuous.p99} unit="ms" kind="simulated" />.</Claim>
+
+<Claim id="continuous-higher-throughput"><GlossaryTerm id="throughput">Throughput</GlossaryTerm> rises from <Num value={F.basics.tputStatic} digits={1} kind="simulated" badge={false} /> to <Num value={F.basics.tputContinuous} digits={1} kind="simulated" /> output tokens per second.</Claim>
+
+<Claim id="continuous-shorter-queue">Measured at step ends over the arrivals, static's queue averages <Num value={F.basics.queueStatic} digits={1} kind="simulated" badge={false} /> requests and continuous's <Num value={F.basics.queueContinuous} digits={1} kind="simulated" />.</Claim>
+
+</ChapterStep>
+
+<ChapterStep figure="preemption" id="preemption">
+
+## When memory runs out
+
+Continuous batching admits requests while memory allows.
+Figure 3.4 shrinks the KV memory to <Num value={F.preempt.blocks} kind="simulated" badge={false} /> blocks of 16 tokens, <Num value={F.preempt.tokens} kind="simulated" /> tokens in all.
+Running requests keep growing, so memory can run out mid-generation.
+
+Then the engine uses <GlossaryTerm id="preemption">preemption</GlossaryTerm> (<SourceLink id="vllm-src" at="v1/core/sched/scheduler.py L746–818, L1540–1583" />).
+It frees the blocks of the most recently admitted request and puts that request back at the front of the queue.
+
+<Claim id="preemption-recomputes">Here the engine preempts <Num value={F.preempt.count} kind="simulated" /> times. Each victim is the most recently admitted request, and goes to the front of the queue. Once admitted again, it computes its prompt and every token it had made before its next token.</Claim>
+vLLM V1 recomputes this way; it no longer swaps preempted requests to CPU memory (<SourceLink id="vllm-src" at="docs/usage/v1_guide.md L160–186" />).
+
+</ChapterStep>
+
+<ChapterStep figure="stall" id="stall">
+
+## A long prompt stalls everyone
+
+Figure 3.5 switches to a mix of prompts.
+Of <Num value={F.stall.requests} kind="simulated" badge={false} /> requests, <Num value={F.stall.long} kind="simulated" badge={false} /> have prompts of <Num value={F.stall.longFrom} kind="simulated" badge={false} /> to <Num value={F.stall.longTo} kind="simulated" /> tokens, and the rest are short.
+Here a step computes a whole prompt at once.
+
+Every request decoding in that step waits for it to end.
+Sarathi-Serve calls this a <GlossaryTerm id="generation-stall">generation stall</GlossaryTerm> (<SourceLink id="agrawal2024" at="§3.2" />).
+In the figure, a long step is a shaded column across every lane.
+
+<Claim id="long-prefill-stalls">p99 ITL is <Num value={F.stall.offP99} digits={2} unit="s" kind="simulated" badge={false} />, more than 20 times the p50 of <Num value={1000 * F.stall.offP50} unit="ms" kind="simulated" />. The longest gap is <Num value={F.stall.offMax} digits={2} unit="s" kind="simulated" />.</Claim>
+
+</ChapterStep>
+
+<ChapterStep figure="chunking" id="chunked-prefill">
+
+## Chunked prefill splits the long step
+
+A <GlossaryTerm id="token-budget">token budget</GlossaryTerm> caps the tokens one step may process (<SourceLink id="agrawal2024" at="§4.1" />).
+vLLM's setting is max_num_batched_tokens (<SourceLink id="vllm-src" at="config/scheduler.py L42–202" />).
+With <GlossaryTerm id="chunked-prefill">chunked prefill</GlossaryTerm>, a long prompt takes a chunk of the budget per step, and decodes run alongside (<SourceLink id="agrawal2023" />, <SourceLink id="agrawal2024" at="§4.1–4.2" />).
+
+Figure 3.6 compares chunking off and on.
+With chunking on, the budget is <Num value={F.stall.budget} kind="simulated" />, vLLM's default on GPUs under 70 GB (<SourceLink id="vllm-src" at="engine/arg_utils.py L2837–3113" />).
+With chunking off, it rises to max_model_len, <Num value={F.stall.maxModelLen} kind="simulated" />, as vLLM does when no budget is set.
+
+<Claim id="chunking-lowers-p99-itl">Chunking cuts p99 ITL from <Num value={F.stall.offP99} digits={2} unit="s" kind="simulated" badge={false} /> to <Num value={F.stall.onP99} digits={2} unit="s" kind="simulated" />.</Claim>
+
+<Claim id="chunking-slows-long-prefill">Once admitted, a long prompt now takes longer to reach its first token: <Num value={F.stall.a2fOn} digits={2} unit="s" kind="simulated" badge={false} /> on average, against <Num value={F.stall.a2fOff} digits={2} unit="s" kind="simulated" />. Its chunks share steps with decodes. Its whole TTFT, queueing included, changes by under 5%: <Num value={F.stall.ttftOn} digits={2} unit="s" kind="simulated" badge={false} /> against <Num value={F.stall.ttftOff} digits={2} unit="s" kind="simulated" />.</Claim>
+
+Rare long prompts tell a subtler story.
+Set the share of long prompts to <Num value={F.rare.share} unit="%" kind="simulated" />.
+Call a step a <GlossaryTerm id="stall-step">stall step</GlossaryTerm> when a long prompt does prefill work in it, so every running request's next token waits.
+
+<Claim id="chunking-spreads-stalls">Chunking turns each big stall into several smaller ones. Stall steps rise from <Num value={F.rare.stepShareOff} digits={2} unit="%" kind="simulated" badge={false} /> to <Num value={F.rare.stepShareOn} digits={2} unit="%" kind="simulated" /> of all steps. The worst gap falls from <Num value={F.rare.maxOff} digits={2} unit="s" kind="simulated" badge={false} /> to <Num value={F.rare.maxOn} digits={2} unit="s" kind="simulated" />. In both runs, under 1% of the gaps between tokens end in a stall step.</Claim>
+So p99 ITL misses them: <Num value={1000 * F.rare.p99Off} unit="ms" kind="simulated" badge={false} /> off and <Num value={1000 * F.rare.p99On} unit="ms" kind="simulated" /> on.
+Percentiles hide rare stalls, so check the longest gap too.
+
+</ChapterStep>
+
+<ChapterStep figure="sweep" id="no-free-setting">
+
+## No free setting
+
+How big should the budget be?
+Figure 3.7 runs the long-prompt mix with chunking on, at eight budgets.
+
+<Claim id="no-free-setting">Too large a budget brings back stalls: p99 ITL rises at every step up, to <Num value={F.sweep.largestP99} digits={2} unit="s" kind="simulated" /> at <Num value={F.sweep.largest} kind="simulated" badge={false} />. Too small a budget costs throughput and the long prompts' TTFT. At <Num value={F.sweep.smallest} kind="simulated" badge={false} /> tokens, under step 1's crossover, every step is memory-bound. It makes <Num value={F.sweep.smallestTput} digits={1} kind="simulated" badge={false} /> tokens per second, against <Num value={F.sweep.bestTput} digits={1} kind="simulated" /> at <Num value={F.sweep.best} kind="simulated" badge={false} />. The best throughput and long-prompt TTFT sit between the ends. Where they sit depends on the workload: with only short prompts, every budget from 512 up gives the same results.</Claim>
+
+Why do smaller budgets help, down to a point?
+<Claim id="no-free-setting">Every budget does the same compute here. Large budgets leave decode-only steps, which are memory-bound and leave compute idle. Smaller budgets fill that idle time with prefill chunks: memory-bound time falls from <Num value={F.sweep.memLargest} digits={1} unit="s" kind="simulated" badge={false} /> at 8,192 to <Num value={F.sweep.memBest} digits={1} unit="s" kind="simulated" /> at <Num value={F.sweep.best} kind="simulated" badge={false} />.</Claim>
+
+Real kernels add costs our engine leaves out (<SourceLink id="agrawal2024" at="§4.3" />).
+Small chunks use the GPU less well, attention reads earlier chunks' keys and values again, and each step has fixed overhead.
+Sarathi-Serve sets the budget by profiling, and the right value depends on the latency target, parallelism, and hardware (<SourceLink id="agrawal2024" at="§4.3" />).
+
+<Callout kind="misconception">
+
+"Bigger batches are always better."
+A bigger token budget puts more prefill into each step.
+<Claim id="bigger-batches-cost-latency">In this sim, raising the budget from <Num value={F.sweep.from} kind="simulated" badge={false} /> to <Num value={F.sweep.to} kind="simulated" badge={false} /> raises mean TTFT, p99 TTFT, and p99 ITL at every step up. Mean TTFT goes from <Num value={F.sweep.ttftFrom.mean} digits={1} unit="s" kind="simulated" badge={false} /> to <Num value={F.sweep.ttftTo.mean} digits={1} unit="s" kind="simulated" badge={false} />, and p99 ITL from <Num value={F.sweep.p99From} digits={2} unit="s" kind="simulated" badge={false} /> to <Num value={F.sweep.p99To} digits={2} unit="s" kind="simulated" />.</Claim>
+More requests in a batch do raise throughput on real engines, as the next callout shows.
+The cost lands on latency.
+
+</Callout>
+
+<Callout kind="reality-check">
+
+A real engine shows the same trade-off at scale.
+bench-ieb ran <a href={F.measured.modelLine}>{F.measured.model}</a> on one <a href={F.measured.gpuLine}>{F.measured.gpu}</a>, under vLLM and SGLang (<SourceLink id="bench-ieb" />).
+From 1 to 64 concurrent requests, output throughput rose <Num value={F.measured.vllmTputX} digits={0} unit="×" kind="measured" href={F.measured.vllm64.log} /> on vLLM and <Num value={F.measured.sglangTputX} digits={0} unit="×" kind="measured" href={F.measured.sglang64.log} /> on SGLang.
+Median TTFT rose <Num value={F.measured.vllmTtftX} digits={1} unit="×" kind="measured" href={F.measured.vllm64.file} /> on vLLM, from <Num value={F.measured.vllm1.p50TtftMs} digits={1} unit="ms" kind="measured" href={F.measured.vllm1.file} badge={false} /> to <Num value={F.measured.vllm64.p50TtftMs} digits={1} unit="ms" kind="measured" href={F.measured.vllm64.file} badge={false} />.
+On SGLang it rose <Num value={F.measured.sglangTtftX} digits={1} unit="×" kind="measured" href={F.measured.sglang64.file} />, from <Num value={F.measured.sglang1.p50TtftMs} digits={1} unit="ms" kind="measured" href={F.measured.sglang1.file} badge={false} /> to <Num value={F.measured.sglang64.p50TtftMs} digits={1} unit="ms" kind="measured" href={F.measured.sglang64.file} badge={false} />.
+
+Both engines batch continuously, so this shows bigger batches, not static against continuous.
+It compares neither engine with the other.
+The images were <a href={F.measured.vllm1.imageLine}>{F.measured.vllm1.image}</a> and <a href={F.measured.sglang1.imageLine}>{F.measured.sglang1.image}</a>: Docker tags, not digests.
+There was one run per engine, with <Num value={F.measured.vllm64.requests} kind="measured" href={F.measured.vllm64.file} /> requests per level, so the callout uses medians, not p99.
+The prompts were 4 short ones of 13 to 18 words, reused in turn (<a href={`${IEB}/benchmarks/runner.py#L433`}>runner.py L433</a>).
+Our reasoning: prefill was tiny, so TTFT here is mostly time in the queue.
+Throughput includes each level's drain, and output tokens count streamed chunks (<a href={`${IEB}/engines/base_client.py#L116-L132`}>base_client.py L116–132</a>).
+
+</Callout>
+
+</ChapterStep>
+
+<CheckYourself question={<>Predict first: widen the spread of output lengths from σ <Num value={F.check.from} digits={2} kind="simulated" badge={false} /> to <Num value={F.check.to} digits={2} kind="simulated" />. Does the gap between static's and continuous's mean TTFT grow or shrink?</>}>
+
+<Claim id="spread-widens-gap">It grows at every step up in σ: from <Num value={F.check.gapFrom} digits={1} unit="s" kind="simulated" badge={false} /> at σ 0 to <Num value={F.check.gapTo} digits={1} unit="s" kind="simulated" /> at σ 1.5.</Claim>
+A static batch lasts as long as its longest request (<SourceLink id="yu2022" at="§3" />).
+Our reasoning: a wider spread makes that request longer, so batches hold more bubbles and the queue waits longer.
+
+<SpreadTry />
+
+</CheckYourself>
+
+## What this leaves out
+
+- Real request-level systems return results only when the whole batch ends. Our static mode streams each token and stops computing finished requests, which flatters it (<SourceLink id="yu2022" at="§3" />, <a href={SIM9}>SIM.md §9.16, §9.20</a>).
+- A batching timeout: a static batch here forms from whoever is waiting (<a href={SIM9}>SIM.md §9.19</a>).
+- Fixed step overhead, and the lower GPU efficiency of small chunks. Our engine charges small budgets only through memory-bound steps (<SourceLink id="agrawal2024" at="§4.3" />, <a href={SIM9}>SIM.md §9.2</a>).
+- Measured step times: ours come from a roofline that assumes <Num value={F.mbu} digits={2} kind="computed" /> memory-bandwidth use (<SourceLink id="llmsize-math" at="Throughput" />). Our A10G decode step takes <Num value={1000 * F.phase.decodeMemory} digits={1} unit="ms" kind="simulated" />. bench-ieb measured vLLM at <Num value={F.measured.vllm1.outputTokPerS} digits={1} unit="tokens per second" kind="measured" href={F.measured.vllm1.log} /> for one request at a time, which is faster.
+- Output lengths fixed in advance; real requests stop at an end token or a length limit (<a href={SIM9}>SIM.md §9.6</a>).
+- Writing keys and values, sampling, and activation memory (<a href={SIM9}>SIM.md §9.17</a>).
+- vLLM's asynchronous scheduling, which plans one step ahead; ours plans each step after the last ends (<SourceLink id="vllm-src" at="v1/core/sched/async_scheduler.py" />, <a href={SIM9}>SIM.md §9.3</a>).
+- More than <Num value={F.basics.maxNumSeqs} kind="simulated" /> requests at once. vLLM's default <GlossaryTerm id="max-num-seqs">max_num_seqs</GlossaryTerm> is 256 on GPUs under 70 GB (<SourceLink id="vllm-src" at="engine/arg_utils.py L2837–3113" />).
+- Scheduling other than first come, first served, with <GlossaryTerm id="head-of-line-blocking">head-of-line blocking</GlossaryTerm> (<a href={SIM9}>SIM.md §9.10</a>).
+- More than one GPU: no pipeline-parallel bubbles (<SourceLink id="agrawal2024" at="§3.3" />) and no separate prefill machines (<a href={SIM9}>SIM.md §9.1</a>).
+
+## Go deeper
+
+- <SourceLink id="yu2022" at="§3" />: Orca, where iteration-level scheduling comes from.
+- <SourceLink id="agrawal2023" />: where chunked prefill was first proposed.
+- <SourceLink id="agrawal2024" at="§3–4" />: generation stalls, stall-free batching, and how to pick a token budget.
+- <SourceLink id="kwon2023" at="§4.5" />: how vLLM schedules and preempts requests.
+- <SourceLink id="vllm-src" at="v1/core/sched/scheduler.py" />: vLLM's scheduler today.
+
+</ChapterLayout>

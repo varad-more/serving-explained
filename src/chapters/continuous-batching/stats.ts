@@ -2,8 +2,13 @@
  * The numbers chapter 3's prose quotes, computed from a run's event log. The
  * prose and tests/chapters/continuous-batching.test.ts both use these.
  */
-import type { SimConfig, SimEvent, SimMetrics } from "../../sim/index.ts";
-import { LONG_PROMPT } from "./presets.ts";
+import {
+  createSim,
+  type SimConfig,
+  type SimEvent,
+  type SimMetrics,
+} from "../../sim/index.ts";
+import { LONG_PROMPT, PHASE_REQUEST, phaseRun } from "./presets.ts";
 
 type StepEnd = Extract<SimEvent, { type: "StepEnd" }>;
 export interface Run {
@@ -17,6 +22,29 @@ export const stepEnds = (events: readonly SimEvent[]) =>
 
 const mean = (xs: readonly number[]) =>
   xs.reduce((s, x) => s + x, 0) / xs.length;
+
+/**
+ * In [0, T), the share of held slot-seconds in which the holder had already
+ * made every output token: static batching's bubbles.
+ */
+export function bubbleShare(r: Run, T: number): number {
+  const out = new Map(r.config.requests.map((q) => [q.id, q.outputLen]));
+  const admit = new Map<number, number>();
+  const lastToken = new Map<number, number>();
+  let held = 0;
+  let idle = 0;
+  const span = (a: number, b: number) => Math.max(0, Math.min(b, T) - a);
+  for (const e of r.events) {
+    if (e.type === "Admit") admit.set(e.req, e.t);
+    if (e.type === "DecodeToken" && e.index + 1 === out.get(e.req))
+      lastToken.set(e.req, e.t);
+    if (e.type === "Finish") {
+      held += span(admit.get(e.req) ?? 0, e.t);
+      idle += span(lastToken.get(e.req) ?? e.t, e.t);
+    }
+  }
+  return idle / held;
+}
 
 /** Time-averaged queue length over [a, b): StepEnd.waiting over each step. */
 export function meanQueue(events: readonly SimEvent[], a: number, b: number) {
@@ -98,4 +126,33 @@ export function memoryBound(r: Run) {
     seconds: memory.reduce((s, e) => s + e.duration, 0),
     stepShare: memory.length / ends.length,
   };
+}
+
+/** Step 1's run on a pair: its prefill step and its first decode step. */
+export function phaseSteps(model: string, gpu: string, prompt?: number) {
+  const run = phaseRun(model, gpu, prompt);
+  if (!run.fits) return null;
+  const sim = createSim(run.config);
+  sim.run();
+  const [prefill, decode] = stepEnds(sim.events());
+  if (!prefill || !decode) throw new Error("step 1's run has no decode step");
+  return { prefill, decode };
+}
+
+/**
+ * The fewest prompt tokens whose prefill step is compute-bound: where compute
+ * time overtakes memory time on this pair. Binary search over one-request
+ * runs, up to step 1's 1,024 tokens.
+ */
+export function crossover(model: string, gpu: string): number {
+  const bound = (k: number) => phaseSteps(model, gpu, k)?.prefill.bound;
+  let lo = 1;
+  let hi: number = PHASE_REQUEST.prompt;
+  if (bound(hi) !== "compute") return NaN;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (bound(mid) === "compute") hi = mid;
+    else lo = mid + 1;
+  }
+  return lo;
 }
