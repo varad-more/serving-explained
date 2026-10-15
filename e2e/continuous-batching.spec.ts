@@ -218,6 +218,13 @@ test.describe("continuous-batching: screenshots @screenshot", () => {
         // Every timeline on the page, paused at t = 15 s.
         for (const fig of await page.locator(".figure:has(.cb-lanes)").all())
           await seek(fig, 15);
+        // The page is a fractional number of pixels tall, and a full-page
+        // capture rounds that differently between loads: 1 px taller or
+        // shorter on Linux. Pin it to a whole pixel first.
+        await page.evaluate(() => {
+          const h = document.documentElement.getBoundingClientRect().height;
+          document.documentElement.style.minHeight = `${String(Math.ceil(h))}px`;
+        });
         await expect(page).toHaveScreenshot(
           `continuous-batching-${String(width)}-${colorScheme}.png`,
           { fullPage: true, animations: "disabled", caret: "hide" },
