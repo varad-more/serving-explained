@@ -981,14 +981,18 @@ All of these are from kwon2023, checked in the PDF.
      its table row, and its physical block.
    - The figure pauses at a step where that request's blocks are scattered.
    - Claim: `table-scattered`. Sources: kwon2023 §4.1–4.2.
-5. **Side by side.** Compare mode, with one `PlaybackBar` over sim time.
+5. **Same workload, two allocators.** Compare mode, with one `PlaybackBar`
+   over sim time. (Split from "Side by side" by the author on 2026-10-15.)
    - Readouts on each side: running, waiting, KV used, waste percent.
    - **Reality-check callout:** the paper's Fig. 2 numbers, labeled as the
      paper's, and next to them a line saying ours are simulated on a toy preset.
+   - Claim: `paged-less-waste`. Sources: kwon2023 §1.
+6. **When blocks run out.** The same figure.
+   - Paged packs more requests in, so memory can run out: preemption.
    - **Misconception callout:** the four facts from "What the paper says."
-   - Claims: `paged-admits-more`, `paged-less-waste`, `visible-in-20s`.
-   - Sources: kwon2023 §1, §6.2, §7.1, §8, §9.
-6. **Block size.** A slider over 8, 16, 32, 64, and 128, with capacity fixed at
+   - Claims: `paged-admits-more`, `visible-in-20s`.
+   - Sources: vllm-src, kwon2023 §4.5, §6.2, §7.1, §8, §9.
+7. **Block size.** A slider over 8, 16, 32, 64, and 128, with capacity fixed at
    1,280 tokens. The grid redraws with the new block size.
    - Two small charts come from 5 preset runs: mean paged waste percent vs.
      block size, and mean table length per running request vs. block size. They
@@ -999,7 +1003,7 @@ All of these are from kwon2023, checked in the PDF.
      16–128 work well; on Alpaca, 16 and 32 (AUDIT.md m8). vLLM's default is
      16 (§7.2).
    - Claims: `block-size-raises-waste`, `block-size-shortens-tables`.
-7. **Teaser: shared blocks.** A tiny sim run: block size 4, two requests sharing
+8. **Teaser: shared blocks.** A tiny sim run: block size 4, two requests sharing
    an 8-token prefix, prefix caching on. Both tables point at the same physical
    blocks, each with reference count 2. Links to chapter 4.
    - Claim: `shared-refcount`. Sources: kwon2023 §4.4, vllm-apc-doc.
@@ -1008,6 +1012,12 @@ All of these are from kwon2023, checked in the PDF.
   says contiguous drops to 1 and paged does not change at all. The control is
   then unlocked to try it.
   - Claim: `max-model-len-hurts-contiguous-only`.
+- **Second CheckYourself** (added 2026-10-15, so the plan agrees with
+  PRODUCT.md's knob, block size): "Switch the block size from 16 to 128. At
+  most how many empty slots can one request hold? Does mean paged waste rise or
+  fall, and do tables grow or shrink?" The answer: at most 127 (B − 1); waste
+  rises and tables shrink, with the simulated values. A "Try it" select follows.
+  - Claim: `checkyourself-block-size`.
 - **What this leaves out:**
   - equal regions only: no buddy allocation and no per-request reservation, so
     the only gap is the tail (kwon2023 §3.1, §6.1; SIM.md §9.15)
@@ -1158,18 +1168,19 @@ was verified.
 
 **Content**
 - [x] 1. Objective first, checked last: PRODUCT.md's objective, word for word.
-  CheckYourself asks the reader to predict both allocators' running counts at
-  max_model_len 1024 before revealing; a "Try it" control sits inside the
-  answer.
+  Two CheckYourself questions, each answered before a reveal with a "Try it"
+  control inside: both allocators' running counts at max_model_len 1024, and
+  (added 2026-10-15, PRODUCT.md's knob) block size 16 → 128.
 - [x] 2. Sources: 40 SourceLinks, all ids in sources.json
   (tests/sources.test.ts); glossary source ids checked by writing.test.ts. Our
-  reasoning is marked in step 7 ("Our reasoning from kwon2023 §2.2").
+  reasoning is marked in step 8 ("Our reasoning from kwon2023 §2.2").
 - [x] 3. Provenance: every number from data or the sim renders through `<Num>`,
   with at least one badge per sentence; widget readouts carry their own badge.
   Paper and vLLM numbers carry SourceLinks. Review item 11 removed the last
   hand-typed numbers from captions and labels.
-- [x] 4. Claims: 13 `<Claim>` ids, 13 tests on the configs the chapter imports;
-  the meta-test passes. `only-tail-gap` was added after review item 12.
+- [x] 4. Claims: 14 `<Claim>` ids, 14 tests on the configs the chapter imports;
+  the meta-test passes. `only-tail-gap` was added after review item 12, and
+  `checkyourself-block-size` with the second question (2026-10-15).
   tests/viz/frames.test.ts (frames-match-snapshots) passes at every block size,
   on a preemption-heavy workload, and on the prefix-caching teaser.
 - [x] 5. Writing rules: writing.test.ts passes (its sentence splitter now also
@@ -1182,10 +1193,16 @@ was verified.
 - [x] 7. Keyboard and touch: in all three browsers the tests Tab (or Shift+Tab)
   to the block grid, token strip, sliders, selects, and Step, check the focus
   ring, and operate them with arrows, Enter, or Home. Hit areas are at least
-  44 × 44 px at 375 and 768. Grid cells and tokens also respond to tap.
+  44 × 44 px at 375 and 768. Grid cells respond to tap, so below 1024 px they
+  are at least 44 px: 6 columns of 49 px at 375, 14 of 46 px at 768 (e2e
+  measures every grid). Tokens are 14 px, so below 1024 px they ignore taps
+  and a 44 px "Token" slider moves the cursor (2026-10-15).
 - [x] 8. Labels: every control has a visible label. Readouts are polite live
   regions when paused (off while playing); the grid cursor, token strip,
-  shared-blocks readout, and Try it control announce too.
+  shared-blocks readout, and Try it controls announce too. The grid cursor
+  names the cell's request, its block-table entry (or region slots), and its
+  fill; an e2e test checks the exact text. Both figures say which keys move
+  their cursors (2026-10-15).
 - [x] 9. Playback: figures 2.1, 2.2, 2.4, 2.5 (one PlaybackBar over sim time)
   and 2.6 (by step). Frames come from the event log alone and match the
   engine's snapshot at every step (frames-match-snapshots).
@@ -1202,27 +1219,35 @@ was verified.
 
 **Performance** (`pnpm perf`, Chromium, one worker; traces in
 `test-results/paged-attention-perf-*/`)
-- [x] 15. Event Timing over control changes, each re-running both sims: max 24 ms
-  at 1×, 32 ms at 4×; p95 over entries of 16 ms or more: 24 and 32 ms.
+- [x] 15. Event Timing over control changes, each re-running both sims: max 32 ms
+  at 1×, 48 ms at 4×; p95 over entries of 16 ms or more: 32 and 40 ms.
+  Measured 2026-10-15 with the 44 px cells, at load average 5–10 from other
+  work on the machine (2026-10-09: 24 and 32 ms).
 - [x] 16. rAF over 5 s of compare playback at block size 8 (160 cells per grid):
   p50 16.7, p95 16.8, max 16.8 ms at 1×; p50 16.7, p95 16.8, max 33.4 ms at 4×.
+  The 44 px cells first dropped 4× to p50 50 ms, so the grid now repaints
+  only the cells that changed. An e2e test checks that this matches a full
+  repaint pixel for pixel, in all three browsers.
 
 **Tests and review**
 - [x] 17. Screenshots: 6 baselines per platform, paused at t = 12 s (darwin
   locally; Linux from the baselines workflow, run 38001280611, where the 12
   existing Linux baselines came back byte-identical). CI runs 38001451362
   (branch) and 38002027933 (main) passed with them.
-- [x] 18. Interaction: compare controls, grid keyboard, token strip, shared
-  blocks, mobile window, reduced motion, and the wide layout: 15 tests × 3
+- [x] 18. Interaction: compare controls, grid keyboard, cursor announcement,
+  incremental repaint, token strip (keys, and the slider at 375 px), shared
+  blocks, mobile window, reduced motion, and the wide layout: 18 tests × 3
   browsers, all passing.
-- [x] 19. Checks: `pnpm test` (225), `pnpm typecheck`, `pnpm lint`, and
+- [x] 19. Checks: `pnpm test` (226), `pnpm typecheck`, `pnpm lint`, and
   `pnpm build` pass.
 - [x] 20. Fresh-eyes review: 22 findings (2 major, 13 minor, 6 nit); 19 fixed,
   3 answered (below).
 
 **Launch assets**
-- [x] 21. Capture: `pnpm capture paged-attention`: 8.10 s, 1200×1288 H.264 mp4
-  (571 KB) and a 600 px, 12 fps GIF (1.02 MB), compare mode at 2× from t = 0.
+- [x] 21. Capture: `pnpm capture paged-attention`: 8.13 s, 1200×2184 H.264 mp4
+  (961 KB) and a 600 px, 12 fps GIF (1.84 MB), compare mode at 2× from t = 0.
+  Re-recorded 2026-10-15; it is taller because cells are at least 44 px at
+  600 px.
 - [x] 22. Route HTML: dist/paged-attention/index.html has its title,
   description, canonical, og and twitter tags, and a 1200×630 image
   (tests/postbuild.test.ts). Live: smoke plus both chapters' specs (114 tests,
@@ -1280,6 +1305,39 @@ was verified.
 - Compare mode shows the playhead to 2 decimals, so Step visibly moves it.
 - Shared e2e helpers moved to e2e/helpers.ts and e2e/perf.ts; chapter 1's
   specs use them, and still pass.
+
+### The author's answers (2026-10-15), and what changed
+
+1. **Step 5 is split** into "Same workload, two allocators" and "When blocks
+   run out". No claim, test, or preset changed.
+   - Step 5 holds `paged-less-waste` and the reality check.
+   - Step 6 holds `paged-admits-more`, the preemption paragraph,
+     `visible-in-20s`, and the misconception.
+   - `paged-admits-more` moved to step 6 because it says "never preempts"
+     and leads into preemption.
+2. **A second CheckYourself on block size** (PRODUCT.md's knob), with claim
+   `checkyourself-block-size` and a "Try it" select. The plan above lists it.
+3. **CLAUDE.md** has the rule on presentational changes under "Stop and
+   ask when".
+
+**Checks before re-tagging v0.5-ch2:**
+- **Numbers:** 77.6% (contiguous waste), 64–376, and 190 (request lengths)
+  all render through `<Num>` from live values, each sentence with a
+  simulated badge. None is typed into the page; a grep of src finds no copy.
+  - `F.contiguousWaste` comes from `compareFrames`.
+  - `F.shortest`, `F.longest`, and `F.meanLength` come from
+    `compareConfig("paged").requests`.
+- **Touch targets:** fewer columns below 1024 px, so every cell is at least
+  44 px. I chose this over snapping taps: the old pitch was 39 px at 375 and
+  32 px at 768, under 44 even with snapping.
+- **Cursor:** a polite live region announces the focused cell, and the
+  figure's visible key line names Tab, the arrows, Home, End, and Enter.
+  - Paged: "Block 37: r3's block table maps its logical block 2 here.
+    12 of 16 slots hold KV."
+  - Contiguous: "Slots 16–31: r6's region, its slots 16–31. …"
+- **Chapter 1:** `git diff v0.4-ch1 v0.5-ch2 -- tests/chapters/kv-cache.test.ts`
+  is empty. The e2e kv-cache specs changed only by moving inline checks into
+  e2e/helpers.ts with the same bodies; their assertions are unchanged.
 
 ## Prompt 5: continuous batching chapter (PLAN, approved 2026-10-02)
 

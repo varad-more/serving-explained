@@ -2,6 +2,25 @@
 
 Mistakes, corrections, and surprises. Newest first.
 
+## 2026-10-15
+
+- **Snapping taps does not make a small target big.** A tap can map to the
+  nearest cell, but each cell's hit area is still its pitch: 39 px at 375.
+  Only bigger cells, or fewer columns, reach 44 px.
+- **Bigger canvas cells cost frame time.** At 44 px, compare playback fell
+  to 50 ms frames at 4× throttling. Redrawing only the cells that changed
+  fixed it. A test checks the incremental paint against a full repaint,
+  pixel for pixel.
+- **Measure a regression against the old code under the same load.** The
+  machine was busy (load average 12), and both versions slowed. Running the
+  released code first showed the new code was 3× slower, not just noisy.
+- **A clicked button that disables itself drops focus in Firefox.** Tab then
+  starts after the button and never wraps back. Focus a target directly when
+  keyboard reach is not what the test is about.
+- **`git add -A` earlier stages everything for the next commit.** A commit
+  meant for one file took all of them. Stage per commit, and check
+  `git diff --cached --stat` first.
+
 ## 2026-10-09
 
 - **Don't kill processes in a command.** A command that included
