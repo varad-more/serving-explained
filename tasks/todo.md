@@ -1804,7 +1804,9 @@ was verified.
 
 **Tests and review**
 - [x] 17. Screenshots: Chromium at 375, 768, and 1440, light and dark,
-  paused at t = 15 s (darwin baselines; Linux from the baselines workflow).
+  paused at t = 15 s. Darwin baselines local; Linux from the baselines
+  workflow (run 38788855492), whose other 18 Linux files were byte-identical
+  to the committed ones.
 - [x] 18. Interaction: 15 Playwright tests × 3 browsers, 45 pass.
 - [x] 19. `pnpm test` (262), `pnpm typecheck`, `pnpm lint`, `pnpm build`.
 - [x] 20. Fresh-eyes review by a sub-agent: 33 points, answered below.
@@ -1893,9 +1895,10 @@ as worded; no test is loosened.
    mode. Fixed: readouts stop at the run's end; a test checks it.
 2. Major. The cause in `chunking-slows-long-prefill` was wrong: other
    prompts' prefill chunks share the long prompt's steps (5,144 tokens),
-   not decodes (348). **Needs the author:** the decided wording named
-   decodes. The branch has the corrected cause, asserted; see the question
-   in the report.
+   not decodes (348). The decided wording named decodes; the author chose
+   the corrected cause (2026-10-15). The test asserts other prompts'
+   prefill tokens exceed 10 times the decode tokens, and 10 times the
+   chunking-off run's.
 3. Major. "Slot" meant a KV token in chapter 2. Fixed: "batch slot", defined
    with max_num_seqs in step 2, with a glossary entry.
 4. Major. The misconception mixed batch size and token budget. Fixed: "a
