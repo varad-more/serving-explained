@@ -1,6 +1,7 @@
 /* Chapter 2 widgets. States differ in pattern or outline as well as color. */
 
-.paged__toy {
+.paged__toy,
+.paged__keys {
   margin: 0 0 var(--space-2);
   font-size: var(--step--1);
   color: var(--ink-2);

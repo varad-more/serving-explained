@@ -40,7 +40,8 @@ const contiguous = compareFrames("contiguous-max");
 const series = blockSizeSeries();
 const first = series[0];
 const lastB = series.at(-1);
-if (!first || !lastB) throw new Error("no block-size runs");
+const atDefault = series.find((d) => d.B === DEFAULTS.blockSize);
+if (!first || !lastB || !atDefault) throw new Error("no block-size runs");
 const table = tableFigure();
 const raised = { ...DEFAULTS, maxModelLen: RAISED_MAX_MODEL_LEN };
 const freeTokens = Math.floor(
@@ -109,6 +110,15 @@ export const F = {
   shared: {
     blockSize: SHARED_BLOCKS.kv.blockSize,
     prefix: sharedPrefix(),
+  },
+  /** The second CheckYourself: the default block size against the largest. */
+  check2: {
+    from: atDefault.B,
+    to: lastB.B,
+    wasteFrom: 100 * atDefault.waste,
+    wasteTo: 100 * lastB.waste,
+    tableFrom: atDefault.table,
+    tableTo: lastB.table,
   },
   check: {
     raised: RAISED_MAX_MODEL_LEN,

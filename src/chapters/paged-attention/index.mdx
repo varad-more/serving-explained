@@ -7,7 +7,7 @@ import { GlossaryTerm } from "../../viz/ui/GlossaryTerm.tsx";
 import { Num } from "../../viz/ui/Num.tsx";
 import { SourceLink } from "../../viz/ui/SourceLink.tsx";
 import { F, figures } from "./figures.tsx";
-import { MaxLenTry } from "./PagedFigure.tsx";
+import { BlockSizeTry, MaxLenTry } from "./PagedFigure.tsx";
 
 export const SIM9 = "https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md#9-simplifications-what-this-leaves-out";
 
@@ -92,18 +92,10 @@ Move along the tokens to see where each one lives.
 
 <ChapterStep figure="compare" id="side-by-side">
 
-## The same requests, side by side
+## Same workload, two allocators
 
 Figure 2.4 runs the same requests on both allocators, in lockstep by simulated time.
 The spread control sets how much output lengths vary around their median of <Num value={F.outputMedian} kind="simulated" /> tokens.
-<Claim id="paged-admits-more">Paged reaches the cap of <Num value={F.pagedPeak} kind="simulated" badge={false} /> running requests. Contiguous runs at most <Num value={F.contiguousPeak} kind="simulated" />, and never preempts, because each reservation already covers the maximum.</Claim>
-
-Packing requests in means memory can run out mid-generation.
-Then the engine uses <GlossaryTerm id="preemption">preemption</GlossaryTerm>: it frees the most recently admitted request's blocks (<SourceLink id="vllm-src" at="v1/core/sched/scheduler.py L746–818" />).
-That request computes its tokens again later (<SourceLink id="vllm-src" at="v1/core/sched/scheduler.py L1540–1562" />, <SourceLink id="kwon2023" at="§4.5" />).
-The paged readout shows the count whenever it is not zero.
-
-<Claim id="visible-in-20s">Within <Num value={F.window} unit="s" kind="simulated" badge={false} />, paged runs <Num value={F.pagedPeak20} kind="simulated" /> at once. Contiguous's queue grows from <Num value={F.waitingAt10} kind="simulated" badge={false} /> waiting at <Num value={F.window / 2} unit="s" kind="simulated" badge={false} /> to <Num value={F.waitingAt20} kind="simulated" /> at <Num value={F.window} unit="s" kind="simulated" badge={false} />. Over the whole run, paged makes <Num value={F.preemptions} kind="simulated" /> {F.preemptions === 1 ? "preemption" : "preemptions"}.</Claim>
 
 <Claim id="paged-less-waste">Over the first <Num value={F.window} unit="s" kind="simulated" badge={false} />, paged wastes <Num value={F.pagedWaste} digits={1} unit="%" kind="simulated" badge={false} /> of the pool on average, against <Num value={F.contiguousWaste} digits={1} unit="%" kind="simulated" /> for contiguous.</Claim>
 
@@ -114,6 +106,21 @@ In its experiments, token states filled only 20.4% to 38.2% of KV memory in its 
 Our numbers are simulated on a toy preset, so they show the mechanism, not real performance.
 
 </Callout>
+
+</ChapterStep>
+
+<ChapterStep figure="compare" id="preemption">
+
+## When blocks run out
+
+<Claim id="paged-admits-more">Paged reaches the cap of <Num value={F.pagedPeak} kind="simulated" badge={false} /> running requests. Contiguous runs at most <Num value={F.contiguousPeak} kind="simulated" />, and never preempts, because each reservation already covers the maximum.</Claim>
+
+Packing requests in means memory can run out mid-generation.
+Then the engine uses <GlossaryTerm id="preemption">preemption</GlossaryTerm>: it frees the most recently admitted request's blocks (<SourceLink id="vllm-src" at="v1/core/sched/scheduler.py L746–818" />).
+That request computes its tokens again later (<SourceLink id="vllm-src" at="v1/core/sched/scheduler.py L1540–1562" />, <SourceLink id="kwon2023" at="§4.5" />).
+The paged readout shows the count whenever it is not zero.
+
+<Claim id="visible-in-20s">Within <Num value={F.window} unit="s" kind="simulated" badge={false} />, paged runs <Num value={F.pagedPeak20} kind="simulated" /> at once. Contiguous's queue grows from <Num value={F.waitingAt10} kind="simulated" badge={false} /> waiting at <Num value={F.window / 2} unit="s" kind="simulated" badge={false} /> to <Num value={F.waitingAt20} kind="simulated" /> at <Num value={F.window} unit="s" kind="simulated" badge={false} />. Over the whole run, paged makes <Num value={F.preemptions} kind="simulated" /> {F.preemptions === 1 ? "preemption" : "preemptions"}.</Claim>
 
 <Callout kind="misconception">
 
@@ -170,6 +177,14 @@ A block goes back to the free queue only when its count drops to 0 (<SourceLink 
 <Claim id="max-model-len-hurts-contiguous-only">Contiguous drops to <Num value={F.check.contiguousPeak} kind="simulated" badge={false} /> request at a time: one region of <Num value={F.check.raised} kind="simulated" badge={false} /> slots fits in <Num value={F.capacity} kind="simulated" badge={false} />, leaving a gap of <Num value={F.check.gap} kind="simulated" />. Paged does not change at all, event for event. It reserves nothing ahead, and no request here is longer than <Num value={F.longest} kind="simulated" /> tokens, so every setting accepts them all.</Claim>
 
 <MaxLenTry />
+
+</CheckYourself>
+
+<CheckYourself question={<>Predict first: switch the block size from <Num value={F.check2.from} kind="simulated" badge={false} /> to <Num value={F.check2.to} kind="simulated" />. At most how many empty slots can one request hold? Does mean paged waste rise or fall, and do block tables grow or shrink?</>}>
+
+<Claim id="checkyourself-block-size">At most <Num value={F.check2.to - 1} kind="simulated" badge={false} />, one fewer than a block: only a request's newest block can be partly empty. Mean waste over the first <Num value={F.window} unit="s" kind="simulated" badge={false} /> rises from <Num value={F.check2.wasteFrom} digits={1} unit="%" kind="simulated" badge={false} /> to <Num value={F.check2.wasteTo} digits={1} unit="%" kind="simulated" /> of the pool. Tables shrink from <Num value={F.check2.tableFrom} digits={1} kind="simulated" badge={false} /> to <Num value={F.check2.tableTo} digits={1} kind="simulated" /> blocks per request.</Claim>
+
+<BlockSizeTry />
 
 </CheckYourself>
 

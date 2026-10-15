@@ -5,6 +5,14 @@
  * paged-attention-perf.spec.ts.
  */
 import { expect, test } from "@playwright/test";
+import { cellText } from "../src/chapters/paged-attention/BlockGrid.tsx";
+import { cellsOf } from "../src/chapters/paged-attention/cells.ts";
+import { frameAt } from "../src/chapters/paged-attention/frames.ts";
+import {
+  CAPACITY,
+  compareFrames,
+  DEFAULTS,
+} from "../src/chapters/paged-attention/presets.ts";
 import { tableFigure } from "../src/chapters/paged-attention/TokenStrip.tsx";
 import {
   axeViolations,
@@ -53,10 +61,15 @@ test.describe("paged-attention: widgets", () => {
     const grid = fig.getByRole("group", { name: /^Contiguous memory grid/ });
     await tabTo(page, grid, browserName);
     await expectFocusRing(page);
+    await expect(fig.locator(".paged__keys")).toHaveText(
+      /arrows move the cell cursor, Home and End jump to the ends, and Enter selects/,
+    );
     await page.keyboard.press("ArrowRight");
     await expect(
       fig.locator(".block-grid .visually-hidden").first(),
-    ).toHaveText(/^Slots 16–31: in r\d+'s region, \d+ of 16 hold KV\.$/);
+    ).toHaveText(
+      /^Slots 16–31: r\d+'s region, its slots 16–31\. \d+ of 16 hold KV\.$/,
+    );
     await page.keyboard.press("Enter");
     const picked = await fig.getByLabel("Show a request's blocks").inputValue();
     expect(picked).not.toBe("");
@@ -64,6 +77,38 @@ test.describe("paged-attention: widgets", () => {
       fig.getByRole("group", { name: `r${picked}'s blocks` }),
     ).toContainText(`Contiguous: r${picked} reserves slots 0–511`);
     expect(errors).toEqual([]);
+  });
+
+  test("block grid: the cursor announces its cell's request, table entry, and fill", async ({
+    page,
+    browserName,
+  }) => {
+    await open(page);
+    const fig = figure(page, "2.4");
+    const t = await seek(fig, 12);
+    const spec = {
+      allocator: "paged" as const,
+      blockSize: DEFAULTS.blockSize,
+      capacity: CAPACITY,
+      maxModelLen: DEFAULTS.maxModelLen,
+    };
+    const cells = cellsOf(frameAt(compareFrames("paged"), t), spec);
+    const held = cells.findIndex((c) => c.kind === "held");
+    expect(held).toBeGreaterThanOrEqual(0);
+    await tabTo(
+      page,
+      fig.getByRole("group", { name: /^Paged memory grid/ }),
+      browserName,
+    );
+    await page.keyboard.press("Home");
+    for (let i = 0; i < held; i++) await page.keyboard.press("ArrowRight");
+    const text = cellText(cells[held], held, spec);
+    expect(text).toMatch(
+      /^Block \d+: r\d+'s block table maps its logical block \d+ here\. \d+ of 16 slots hold KV\.$/,
+    );
+    const live = fig.locator(".block-grid .visually-hidden").nth(1);
+    await expect(live).toHaveAttribute("aria-live", "polite");
+    await expect(live).toHaveText(text);
   });
 
   test("token strip: arrows move through tokens and the table", async ({
@@ -92,6 +137,52 @@ test.describe("paged-attention: widgets", () => {
     );
     expect(await shifts(page)).toEqual([]);
     expect(errors).toEqual([]);
+  });
+
+  test("block grid: repainting only changed cells matches a full repaint", async ({
+    page,
+  }) => {
+    await open(page);
+    const fig = figure(page, "2.4");
+    await fig.getByLabel("Speed").selectOption("4");
+    await fig.getByRole("button", { name: "Play" }).click();
+    await page.waitForTimeout(1500);
+    await fig.getByRole("button", { name: "Pause" }).click();
+    // Move the cursor ring, then leave, so its cells repaint too.
+    // Keyboard reach is tested above; here focus only has to land.
+    await fig.getByRole("group", { name: /^Paged memory grid/ }).focus();
+    for (let i = 0; i < 5; i++) await page.keyboard.press("ArrowDown");
+    await fig.getByLabel("Speed").focus();
+    // Blurred: the cursor's live text is empty, and that render repainted.
+    await expect(fig.locator(".block-grid .visually-hidden").nth(1)).toHaveText(
+      "",
+    );
+    const pixels = () =>
+      fig
+        .locator(".block-grid__canvas")
+        .evaluateAll((els) =>
+          els.map((e) => (e as HTMLCanvasElement).toDataURL()),
+        );
+    const incremental = await pixels();
+    // Theme system → light → dark → system: the last change repaints all.
+    for (let i = 0; i < 3; i++) await page.locator(".theme-toggle").click();
+    // The theme change repaints on the next render; wait for it.
+    await expect.poll(pixels).toEqual(incremental);
+  });
+
+  test("token strip at 375 px: a 44 px slider moves the cursor", async ({
+    page,
+  }) => {
+    await open(page, 375);
+    const { holder } = tableFigure();
+    const fig = figure(page, "2.3");
+    const token = fig.getByLabel("Token", { exact: true });
+    await token.focus();
+    await page.keyboard.press("End");
+    const last = holder.computed - 1;
+    await expect(fig.locator(".strip__readout")).toContainText(
+      `Token ${String(last)}: logical block ${String(Math.floor(last / 16))}`,
+    );
   });
 
   test("shared blocks: Step keeps the prefix blocks at ref count 2", async ({
@@ -149,7 +240,8 @@ test.describe("paged-attention: widgets", () => {
       [2, "2.1"],
       [4, "2.3"],
       [5, "2.4"],
-      [7, "2.6"],
+      [6, "2.4"],
+      [8, "2.6"],
     ] as const) {
       await page
         .locator(`.step[data-step="${String(step)}"]`)
@@ -178,6 +270,17 @@ test.describe("paged-attention: sizes", () => {
     }) => {
       await open(page, width);
       expect(await smallTargets(page)).toEqual([]);
+      // A tap selects a grid cell, so each cell is a target too. With the
+      // widest gap (4 px), this is a lower bound on the cell size.
+      const cells = await page.$$eval(".block-grid__canvas", (els) =>
+        els.map((e) => {
+          const cols = Number((e as HTMLElement).dataset.cols);
+          const { width: w, height: h } = e.getBoundingClientRect();
+          return { cell: (w - 4 * (cols - 1)) / cols, w, h };
+        }),
+      );
+      expect(cells.length).toBeGreaterThan(0);
+      for (const c of cells) expect(c.cell).toBeGreaterThanOrEqual(44);
     });
   }
 });

@@ -2,6 +2,8 @@ import { useId, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { Figure } from "../../viz/ui/Figure.tsx";
 import { ProvenanceBadge } from "../../viz/ui/ProvenanceBadge.tsx";
 import { RequestMark } from "../../viz/ui/RequestMark.tsx";
+import { Slider } from "../../viz/ui/Slider.tsx";
+import { useMediaQuery } from "../../viz/useMediaQuery.ts";
 import type { Frame, Holder } from "./frames.ts";
 import { CAPACITY, compareFrames, DEFAULTS, TABLE_FIGURE } from "./presets.ts";
 
@@ -32,6 +34,9 @@ export function tableFigure() {
 export function TokenStrip() {
   const { frame, holder } = tableFigure();
   const [cursor, setCursor] = useState(0);
+  // Tokens are 14 px: too small to tap (CHAPTER_DOD item 7). Below 1024 px a
+  // slider moves the cursor instead, and tokens ignore taps.
+  const desktop = useMediaQuery("(min-width: 1024px)");
   const tokensId = useId();
   const readoutId = useId();
   const n = holder.computed;
@@ -124,10 +129,10 @@ export function TokenStrip() {
                         width={CELL}
                         height={CELL}
                         onPointerEnter={() => {
-                          if (filled) move(token);
+                          if (desktop && filled) move(token);
                         }}
                         onClick={() => {
-                          if (filled) move(token);
+                          if (desktop && filled) move(token);
                         }}
                       />
                     );
@@ -135,6 +140,19 @@ export function TokenStrip() {
                 </g>
               ))}
             </svg>
+            <p className="strip__key">
+              Keys: left and right arrows move one token, up and down one block,
+              Home and End to the ends.
+            </p>
+            {!desktop && (
+              <Slider
+                label="Token"
+                value={cursor}
+                min={0}
+                max={n - 1}
+                onChange={move}
+              />
+            )}
           </div>
 
           <div className="strip__panel">

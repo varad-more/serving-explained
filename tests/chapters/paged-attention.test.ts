@@ -212,6 +212,25 @@ const CLAIMS: Record<string, () => void> = {
     );
   },
 
+  "checkyourself-block-size": () => {
+    // At the largest block size, no request holds more than B − 1 empty
+    // slots; mean waste is higher and tables are shorter than at the default.
+    const B = BLOCK_SIZES[BLOCK_SIZES.length - 1] ?? 0;
+    const big = { ...DEFAULTS, blockSize: B };
+    for (const { snap } of stepped(compareConfig("paged", big))) {
+      for (const r of snap.requests) {
+        const n = r.blockTable?.length ?? 0;
+        if (n > 0) expect(n * B - r.computedTokens).toBeLessThanOrEqual(B - 1);
+      }
+    }
+    const atDefault = run("paged").frames;
+    const atBig = run("paged", big).frames;
+    expect(meanWaste(atBig)).toBeGreaterThan(meanWaste(atDefault));
+    expect(meanOver(atBig, meanTableLength, WINDOW_S)).toBeLessThan(
+      meanOver(atDefault, meanTableLength, WINDOW_S),
+    );
+  },
+
   "shared-refcount": () => {
     // While both requests run, their tables share the prefix's two blocks,
     // each with reference count 2.

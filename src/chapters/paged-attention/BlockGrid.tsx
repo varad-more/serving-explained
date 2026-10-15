@@ -7,6 +7,7 @@ import {
   type MouseEvent,
 } from "react";
 import { MIN_MARK, paintRequestMark } from "../../viz/ui/markSpec.ts";
+import { useMediaQuery } from "../../viz/useMediaQuery.ts";
 import { useThemeKey } from "../../viz/useThemeKey.ts";
 import { useWidth } from "../../viz/useWidth.ts";
 import { cellsOf, describe, type Cell, type GridSpec } from "./cells.ts";
@@ -19,6 +20,12 @@ const COLS_NARROW = 8;
 const NARROW_BELOW = 480;
 const WINDOW = 48;
 const MAX_CELL = 28;
+/**
+ * Below 1024 px, DESIGN.md's mobile layout (checked at 375 and 768 px), a
+ * tap selects a cell, so every cell is a touch target: at least 44 px
+ * (CHAPTER_DOD item 7). The grid shows as many columns as fit at that size.
+ */
+const TOUCH_CELL = 44;
 
 interface Props {
   frame: Frame | null;
@@ -79,8 +86,9 @@ export function cellText(
   if (cell.kind === "gap")
     return `${name}: gap, free space too small for a region.`;
   if (spec.allocator === "paged")
-    return `${name}: r${String(cell.req)}, logical block ${String(cell.logical)}, ${String(cell.fill)} of ${String(B)} slots hold KV.`;
-  return `${name}: in r${String(cell.req)}'s region, ${String(cell.fill)} of ${String(B)} hold KV.`;
+    return `${name}: r${String(cell.req)}'s block table maps its logical block ${String(cell.logical)} here. ${String(cell.fill)} of ${String(B)} slots hold KV.`;
+  const from = cell.logical * B;
+  return `${name}: r${String(cell.req)}'s region, its slots ${String(from)}–${String(from + B - 1)}. ${String(cell.fill)} of ${String(B)} hold KV.`;
 }
 
 /**
@@ -92,6 +100,9 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
   const [wrapRef, width] = useWidth<HTMLDivElement>(600);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sprites = useRef(new Map<string, HTMLCanvasElement>());
+  const colorsRef = useRef<Colors | null>(null);
+  /** What each visible cell last showed, so a frame repaints only changes. */
+  const painted = useRef({ layout: "", cells: [] as string[] });
   const themeKey = useThemeKey();
   const [cursorState, setCursor] = useState(0);
   const [focused, setFocused] = useState(false);
@@ -101,14 +112,21 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
   const B = spec.blockSize;
   const cells = cellsOf(frame, spec);
   const n = cells.length;
+  const desktop = useMediaQuery("(min-width: 1024px)");
   const narrow = width < NARROW_BELOW;
-  const cols = narrow ? COLS_NARROW : COLS_WIDE;
   const gap = narrow ? 2 : 4;
-  const cell = Math.min(
-    MAX_CELL + (narrow ? 16 : 0),
-    Math.floor((width - gap * (cols - 1)) / cols),
-  );
-  const visible = narrow ? Math.min(WINDOW, n) : n;
+  const cols = desktop
+    ? narrow
+      ? COLS_NARROW
+      : COLS_WIDE
+    : Math.max(
+        1,
+        Math.min(COLS_WIDE, Math.floor((width + gap) / (TOUCH_CELL + gap))),
+      );
+  const fit = Math.floor((width - gap * (cols - 1)) / cols);
+  const cell = desktop ? Math.min(MAX_CELL + (narrow ? 16 : 0), fit) : fit;
+  // Whole rows of cells, at most WINDOW of them.
+  const visible = narrow ? Math.min(Math.floor(WINDOW / cols) * cols, n) : n;
   const start = narrow ? Math.min(windowStart, n - visible) : 0;
   // A new block size can shrink the grid under the cursor.
   const cursor = Math.min(cursorState, n - 1);
@@ -118,6 +136,7 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
 
   useLayoutEffect(() => {
     sprites.current.clear();
+    colorsRef.current = null;
   }, [themeKey, cell]);
 
   useLayoutEffect(() => {
@@ -125,11 +144,21 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx || cell <= 0) return;
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = Math.round(gridW * dpr);
-    canvas.height = Math.round(gridH * dpr);
+    // Resizing reallocates the canvas, so only do it when the size changes.
+    const w = Math.round(gridW * dpr);
+    const h = Math.round(gridH * dpr);
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const colors = readColors(canvas);
-    ctx.clearRect(0, 0, gridW, gridH);
+    colorsRef.current ??= readColors(canvas);
+    const colors = colorsRef.current;
+    const layout = [w, h, cell, cols, gap, start, visible, themeKey].join(":");
+    const full = painted.current.layout !== layout;
+    if (full) ctx.clearRect(0, 0, gridW, gridH);
+    const before = full ? [] : painted.current.cells;
+    const shown: string[] = [];
 
     const sprite = (
       slot: number,
@@ -167,22 +196,32 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
       return s;
     };
 
-    const hatch = (x: number, y: number, w: number, h: number) => {
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(x, y, w, h);
-      ctx.clip();
-      ctx.fillStyle = colors.surface;
-      ctx.fillRect(x, y, w, h);
-      ctx.strokeStyle = colors.waste;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      for (let d = -h; d < w; d += 5) {
-        ctx.moveTo(x + d, y + h);
-        ctx.lineTo(x + d + h, y);
+    // The waste hatch, drawn once per cell size and then copied.
+    const hatch = (x: number, y: number) => {
+      const size = cell;
+      const key = `hatch:${String(size)}`;
+      let s = sprites.current.get(key);
+      if (!s) {
+        s = document.createElement("canvas");
+        s.width = Math.round(size * dpr);
+        s.height = Math.round(size * dpr);
+        const sc = s.getContext("2d");
+        if (sc) {
+          sc.scale(dpr, dpr);
+          sc.fillStyle = colors.surface;
+          sc.fillRect(0, 0, size, size);
+          sc.strokeStyle = colors.waste;
+          sc.lineWidth = 1.5;
+          sc.beginPath();
+          for (let d = -size; d < size; d += 5) {
+            sc.moveTo(d, size);
+            sc.lineTo(d + size, 0);
+          }
+          sc.stroke();
+        }
+        sprites.current.set(key, s);
       }
-      ctx.stroke();
-      ctx.restore();
+      ctx.drawImage(s, x, y, size, size);
     };
 
     let gapLabelled = false;
@@ -191,13 +230,26 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
       const c = cells[i];
       const x = (k % cols) * (cell + gap);
       const y = Math.floor(k / cols) * (cell + gap);
+      const labelGap = c?.kind === "gap" && !gapLabelled;
+      gapLabelled = c?.kind === "gap";
+      const sig = [
+        c?.kind === "held"
+          ? `${String(c.slot)}.${String(c.req)}.${String(c.fill)}`
+          : (c?.kind ?? "free"),
+        labelGap,
+        c?.kind === "held" && c.req === selected,
+        focused && i === cursor,
+      ].join(":");
+      shown.push(sig);
+      if (before[k] === sig) continue;
+      // The cursor ring reaches into the gap around a cell; clear that too.
+      ctx.clearRect(x - gap, y - gap, cell + 2 * gap, cell + 2 * gap);
       if (!c || c.kind === "free") {
         ctx.fillStyle = colors.free;
         ctx.fillRect(x, y, cell, cell);
         ctx.strokeStyle = colors.freeEdge;
         ctx.lineWidth = 1;
         ctx.strokeRect(x + 0.5, y + 0.5, cell - 1, cell - 1);
-        gapLabelled = false;
       } else if (c.kind === "gap") {
         ctx.fillStyle = colors.surface;
         ctx.fillRect(x, y, cell, cell);
@@ -206,22 +258,20 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
         ctx.setLineDash([2, 3]);
         ctx.strokeRect(x + 1, y + 1, cell - 2, cell - 2);
         ctx.setLineDash([]);
-        if (!gapLabelled) {
+        if (labelGap) {
           ctx.fillStyle = colors.ink2;
           ctx.font = `11px ${colors.font}`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText("gap", x + cell / 2, y + cell / 2);
-          gapLabelled = true;
         }
       } else {
-        gapLabelled = false;
         if (c.fill === B) {
           ctx.drawImage(sprite(c.slot, c.req, cell, true), x, y, cell, cell);
         } else {
           // Empty slots in the gray hatch; the KV that is there rises from
           // the bottom; a corner mark and the slot's border keep identity.
-          hatch(x, y, cell, cell);
+          hatch(x, y);
           if (c.fill > 0) {
             const s = sprite(c.slot, c.req, cell, true);
             const share = c.fill / B;
@@ -256,14 +306,19 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
         ctx.lineWidth = 3;
         ctx.strokeRect(x + 1.5, y + 1.5, cell - 3, cell - 3);
       }
-      if (focused && i === cursor) {
-        ctx.strokeStyle = colors.focus;
-        ctx.lineWidth = 2;
-        ctx.setLineDash([4, 2]);
-        ctx.strokeRect(x - 1, y - 1, cell + 2, cell + 2);
-        ctx.setLineDash([]);
-      }
     }
+    // Last, so a neighbor's repaint never clears part of the ring.
+    if (focused && cursor >= start && cursor < start + visible) {
+      const k = cursor - start;
+      const x = (k % cols) * (cell + gap);
+      const y = Math.floor(k / cols) * (cell + gap);
+      ctx.strokeStyle = colors.focus;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 2]);
+      ctx.strokeRect(x - 1, y - 1, cell + 2, cell + 2);
+      ctx.setLineDash([]);
+    }
+    painted.current = { layout, cells: shown };
   }, [
     cells,
     cell,
@@ -351,6 +406,7 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
           style={{ width: gridW, height: gridH }}
           role="img"
           aria-label={describe(frame, spec)}
+          data-cols={cols}
           onClick={onClick}
         />
       </div>

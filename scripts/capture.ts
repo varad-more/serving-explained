@@ -76,7 +76,7 @@ const SCENES: Record<string, Scene> = {
   "paged-attention": {
     figure: "2.4",
     css: `
-      .site-header, .skip, .paged__controls, .paged__legend,
+      .site-header, .skip, .paged__controls, .paged__legend, .paged__keys,
       .paged__select { display: none !important; }
     `,
     setup: async (fig) => {

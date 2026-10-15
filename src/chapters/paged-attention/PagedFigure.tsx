@@ -203,6 +203,10 @@ export function PagedFigure({ mode }: { mode: Mode }) {
         ))}
 
         <Legend contiguous={shown.includes("contiguous-max")} />
+        <p className="paged__keys">
+          Keys: Tab to a grid, then arrows move the cell cursor, Home and End
+          jump to the ends, and Enter selects the cell&apos;s request.
+        </p>
 
         <PlaybackBar
           time={ph.time}
@@ -610,6 +614,33 @@ export function MaxLenTry() {
       />
       <p className="num" aria-live="polite">
         Most requests at once: contiguous {contiguous}, paged {paged}.{" "}
+        <ProvenanceBadge kind="simulated" />
+      </p>
+    </div>
+  );
+}
+
+/** The second CheckYourself's control: block size, with its mean waste and table length. */
+export function BlockSizeTry() {
+  const [blockSize, setBlockSize] = useState<number>(DEFAULTS.blockSize);
+  const d = blockSizeSeries().find((x) => x.B === blockSize);
+  return (
+    <div className="try">
+      <Select
+        label="Try it: block size"
+        value={String(blockSize)}
+        options={BLOCK_SIZES.map((b) => ({
+          value: String(b),
+          label: `${String(b)} tokens`,
+        }))}
+        onChange={(v) => {
+          setBlockSize(Number(v));
+        }}
+      />
+      <p className="num" aria-live="polite">
+        First {WINDOW_S} s: mean paged waste{" "}
+        {(100 * (d?.waste ?? 0)).toFixed(1)}%, mean table length{" "}
+        {(d?.table ?? 0).toFixed(1)} blocks.{" "}
         <ProvenanceBadge kind="simulated" />
       </p>
     </div>
