@@ -1351,7 +1351,8 @@ was verified.
   - ITL percentiles pooled over every inter-token gap
 - [x] DESIGN.md changes: slots are assigned at admission, and request phases
       are encoded with ink and pattern (both approved 2026-10-02).
-- [ ] The chapter (Build 4).
+- [x] The chapter (Build 4). All 22 DoD items below are ticked. Live on
+      2026-10-15, tagged v0.6-ch3.
 
 ### What the sources say
 
@@ -1955,6 +1956,19 @@ as worded; no test is loosened.
 - The phase claims and two others were narrowed to say exactly what their
   tests check; tests gained assertions, none lost one.
 - DESIGN.md gained the "held" encoding.
+
+### Landing (2026-10-15)
+
+- Rebased onto main 9cf86c5 (the re-dated chapter 2); dates left alone, as
+  the author asked.
+- Branch CI first failed on 1 px full-page height differences between Linux
+  runs. Fixes: fixed SVG heights, then the screenshot test pins the page to
+  a whole pixel (tasks/lessons.md). Baselines run 38823045279; branch CI
+  38823044900 green on e6a0d4a.
+- main fast-forwarded to e6a0d4a; CI and deploy run 38824231368 succeeded.
+- Live: `SMOKE_BASE_URL=https://varadmore.me/serving-explained/` smoke plus
+  the kv-cache, paged-attention, and continuous-batching specs, 186 tests in
+  three browsers, pass. og/continuous-batching.png returns 200.
 
 
 ## Prompt 6: prefix caching chapter (PLAN, approved 2026-10-02)
