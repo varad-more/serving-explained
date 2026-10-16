@@ -299,8 +299,11 @@ export const glossary: readonly GlossaryEntry[] = [
     id: "preemption",
     term: "Preemption",
     definition:
-      "When memory runs out, the engine frees a running request's blocks. vLLM V1 computes its tokens again later, reusing any of its blocks still in the prefix cache.",
-    source: { id: "vllm-src", at: "v1/core/sched/scheduler.py L1540–1562" },
+      "When memory runs out, the engine frees a running request's blocks. vLLM V1 computes its tokens again later, reusing its leading blocks still in the prefix cache.",
+    source: {
+      id: "vllm-src",
+      at: "v1/core/sched/scheduler.py L930–938, L1540–1583",
+    },
   },
   {
     id: "kernel",

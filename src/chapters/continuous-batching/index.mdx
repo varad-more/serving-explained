@@ -102,7 +102,7 @@ It frees the blocks of the most recently admitted request and puts that request 
 <Claim id="preemption-recomputes">Here the engine preempts <Num value={F.preempt.count} kind="simulated" /> times. Each victim is the most recently admitted request, and goes to the front of the queue. Once admitted again, it computes its prompt and every token it had made before its next token.</Claim>
 vLLM V1 also recomputes rather than swapping to CPU memory (<SourceLink id="vllm-src" at="docs/usage/v1_guide.md L160–186" />).
 <Claim id="caching-off-here">This chapter's runs have prefix caching off.</Claim>
-vLLM turns it on by default (<SourceLink id="vllm-src" at="engine/arg_utils.py L2934, L2964–2965" />), so a re-admitted request can reuse its own cached blocks (<SourceLink id="vllm-src" at="v1/core/sched/scheduler.py L1540–1583, v1/core/block_pool.py L777–808" />).
+vLLM turns it on by default for generative models (<SourceLink id="vllm-src" at="engine/arg_utils.py L2934, L2964–2965; config/model.py L2228–2230" />), so a re-admitted request can reuse its own cached blocks (<SourceLink id="vllm-src" at="v1/core/sched/scheduler.py L930–938, L1540–1583; v1/core/block_pool.py L777–808" />).
 Chapter 4 shows this.
 
 </ChapterStep>
@@ -228,7 +228,7 @@ With the median fixed, the mean output also grows, from <Num value={F.check.mean
 - Fixed overhead per step: ours is 0 (<a href={SIM9}>SIM.md §9.2</a>).
 - Measured step times: ours come from a roofline that assumes <Num value={F.mfu} digits={2} kind="computed" /> compute use and <Num value={F.mbu} digits={2} kind="computed" /> memory-bandwidth use (<SourceLink id="llmsize-math" at="Throughput" />). One request alone decodes <Num value={F.phase.decodeRate} digits={1} kind="simulated" /> tokens per second in our engine. bench-ieb measured vLLM at <Num value={F.measured.vllm1.outputTokPerS} digits={1} kind="measured" href={F.measured.vllm1.log} />, which is faster.
 - Real KV memory: Figure 3.4's pool is a toy (<a href={SIM9}>SIM.md §9.14</a>).
-- Prefix caching: off in every run here; vLLM turns it on by default (<SourceLink id="vllm-src" at="engine/arg_utils.py L2964–2965" />). Chapter 4 adds it.
+- Prefix caching: off in every run here; vLLM turns it on by default for generative models (<SourceLink id="vllm-src" at="engine/arg_utils.py L2964–2965; config/model.py L2228–2230" />). Chapter 4 adds it.
 - Output lengths fixed in advance; real requests stop at an end token or a length limit (<a href={SIM9}>SIM.md §9.6</a>).
 - Writing keys and values, sampling, and activation memory (<a href={SIM9}>SIM.md §9.17</a>).
 - vLLM's asynchronous scheduling, which plans one step ahead; ours plans each step after the last ends (<SourceLink id="vllm-src" at="v1/core/sched/async_scheduler.py" />, <a href={SIM9}>SIM.md §9.3</a>).
