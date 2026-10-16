@@ -2753,6 +2753,23 @@ the chapters, so they stay.
 - Links escape only `%&=#+` and whitespace, so they stay readable.
 - BlockGrid (chapter 2) gained run and bin drawing above 2,000 blocks.
 
+### Landing (2026-10-15)
+
+- Baselines run 38849111030: 12 new sandbox Linux files; the other 30,
+  chapter 2's included, came back byte-identical. Branch CI green on
+  10403da (run 38849362725).
+- main fast-forwarded to 10403da; CI and deploy run 38850817535 succeeded.
+- Live: smoke, all four chapter specs, and the sandbox spec, 322 tests in
+  three browsers, pass.
+- Live share links, each "reproduced exactly" for A and B in all three
+  browsers, with no notices:
+  1. chatbot, static vs. continuous: h 127aeadc, hb 0d8d398f.
+  2. long-prompt-stall, chunked prefill off vs. on: h 013597eb, hb 1fc5d416.
+  3. Qwen3-32B on h100-sxm-80, bf16 vs. fp8 KV: h 11f6c736, hb 11615908.
+- Perf (Chromium, local): 5,000 requests at 1×, max input delay 2.7 ms and
+  max frame 16.8 ms; 4×, 8.1 ms and 49.9 ms (reported). A/B, 5 s playback:
+  309 frames, max 16.8 ms; a control change: max 16.8 ms.
+
 ## Prompt 8: launch audit
 
 - [x] Audit 1, before the build: `docs/AUDIT.md`. Most of the audit needs a
