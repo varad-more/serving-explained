@@ -186,30 +186,6 @@
   fill: var(--ink-2);
 }
 
-.summary--slot-1 {
-  fill: var(--req-1);
-}
-.summary--slot-2 {
-  fill: var(--req-2);
-}
-.summary--slot-3 {
-  fill: var(--req-3);
-}
-.summary--slot-4 {
-  fill: var(--req-4);
-}
-.summary--slot-5 {
-  fill: var(--req-5);
-}
-.summary--slot-6 {
-  fill: var(--req-6);
-}
-.summary--slot-7 {
-  fill: var(--req-7);
-}
-.summary--slot-8 {
-  fill: var(--req-8);
-}
 
 .summary__window {
   fill: none;

@@ -23,7 +23,22 @@ function covers(rects: { x: number; w: number }[], n: number) {
   expect(x).toBe(n);
 }
 
+const held = (slot: number): Cell => ({
+  kind: "held",
+  req: slot,
+  slot,
+  fill: 4,
+  logical: 0,
+});
+
 describe("the summary strip", () => {
+  it("never tells requests apart by color alone (AUDIT.md C2-2)", () => {
+    const cells = Array.from({ length: 64 }, (_, i) => held((i % 8) + 1));
+    expect(new Set(summaryRects(cells).map((r) => r.cls))).toEqual(
+      new Set(["summary--held"]),
+    );
+  });
+
   it("draws one rect per block in a small pool", () => {
     const cells = Array.from({ length: 2000 }, (_, i) =>
       i % 2 ? used(i) : free,

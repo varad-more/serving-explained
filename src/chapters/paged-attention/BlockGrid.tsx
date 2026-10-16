@@ -589,10 +589,15 @@ export function BlockGrid({
 /** CLAUDE.md's SVG budget: a larger pool's strip is drawn in runs or bins. */
 const MAX_RECTS = 2000;
 
+/**
+ * The strip is too thin for a glyph, so it never shows which request holds
+ * a block: color alone would carry it (CLAUDE.md; AUDIT.md C2-2). The grid
+ * above it does.
+ */
 const summaryClass = (c: Cell) =>
   c.kind === "held"
     ? c.fill > 0
-      ? `summary--held summary--slot-${String(c.slot)}`
+      ? "summary--held"
       : "summary--waste"
     : c.kind === "gap"
       ? "summary--gap"
