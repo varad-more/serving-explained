@@ -100,7 +100,10 @@ Then the engine uses <GlossaryTerm id="preemption">preemption</GlossaryTerm> (<S
 It frees the blocks of the most recently admitted request and puts that request back at the front of the queue.
 
 <Claim id="preemption-recomputes">Here the engine preempts <Num value={F.preempt.count} kind="simulated" /> times. Each victim is the most recently admitted request, and goes to the front of the queue. Once admitted again, it computes its prompt and every token it had made before its next token.</Claim>
-vLLM V1 recomputes this way; it no longer swaps preempted requests to CPU memory (<SourceLink id="vllm-src" at="docs/usage/v1_guide.md L160–186" />).
+vLLM V1 also recomputes rather than swapping to CPU memory (<SourceLink id="vllm-src" at="docs/usage/v1_guide.md L160–186" />).
+<Claim id="caching-off-here">This chapter's runs have prefix caching off.</Claim>
+vLLM turns it on by default (<SourceLink id="vllm-src" at="engine/arg_utils.py L2934, L2964–2965" />), so a re-admitted request can reuse its own cached blocks (<SourceLink id="vllm-src" at="v1/core/sched/scheduler.py L1540–1583, v1/core/block_pool.py L777–808" />).
+Chapter 4 shows this.
 
 </ChapterStep>
 
@@ -178,13 +181,14 @@ Sarathi-Serve sets the budget by profiling, and the right value depends on the l
 "Bigger batches are always better."
 A batch grows in two ways: more requests at once, or more tokens in each step.
 <Claim id="bigger-batches-cost-latency">In this sim, raising the token budget from <Num value={F.sweep.from} kind="simulated" badge={false} /> to <Num value={F.sweep.to} kind="simulated" /> raises mean TTFT, p99 TTFT, and p99 ITL at every step up. Over all requests, mean TTFT goes from <Num value={F.sweep.ttftFrom.mean} digits={1} unit="s" kind="simulated" badge={false} /> to <Num value={F.sweep.ttftTo.mean} digits={1} unit="s" kind="simulated" />. p99 ITL goes from <Num value={F.sweep.p99From} digits={2} unit="s" kind="simulated" badge={false} /> to <Num value={F.sweep.p99To} digits={2} unit="s" kind="simulated" />.</Claim>
-On a real engine, running more requests at once raises throughput, and median TTFT rises with it, as the next callout shows.
+On a real engine, going from 1 to 64 requests at once raised throughput and median TTFT, as the next callout shows.
 
 </Callout>
 
 <Callout kind="reality-check">
 
-A real engine shows a related trade-off: as more requests run at once, throughput and median TTFT both rise.
+A real engine shows a related trade-off: from 1 to 64 requests at once, throughput and median TTFT both rose.
+Median TTFT did not rise at every level between.
 The author's benchmark repo, bench-ieb, ran <a href={F.measured.modelLine}>{F.measured.model}</a> on one A10G (<a href={F.measured.gpuLine}>{F.measured.gpu}</a>) under vLLM and SGLang (<SourceLink id="bench-ieb" />).
 On vLLM, from 1 to 64 concurrent requests, output throughput rose from <Num value={F.measured.vllm1.outputTokPerS} digits={1} kind="measured" href={F.measured.vllm1.log} /> to <Num value={F.measured.vllm64.outputTokPerS} digits={1} kind="measured" href={F.measured.vllm64.log} /> tokens per second, <Num value={F.measured.vllmTputX} digits={0} unit="×" kind="measured" href={F.measured.vllm64.log} badge={false} />.
 Median TTFT rose from <Num value={F.measured.vllm1.p50TtftMs} digits={1} unit="ms" kind="measured" href={F.measured.vllm1.file} /> to <Num value={F.measured.vllm64.p50TtftMs} digits={1} unit="ms" kind="measured" href={F.measured.vllm64.file} />, <Num value={F.measured.vllmTtftX} digits={1} unit="×" kind="measured" href={F.measured.vllm64.file} badge={false} />.
@@ -224,6 +228,7 @@ With the median fixed, the mean output also grows, from <Num value={F.check.mean
 - Fixed overhead per step: ours is 0 (<a href={SIM9}>SIM.md §9.2</a>).
 - Measured step times: ours come from a roofline that assumes <Num value={F.mfu} digits={2} kind="computed" /> compute use and <Num value={F.mbu} digits={2} kind="computed" /> memory-bandwidth use (<SourceLink id="llmsize-math" at="Throughput" />). One request alone decodes <Num value={F.phase.decodeRate} digits={1} kind="simulated" /> tokens per second in our engine. bench-ieb measured vLLM at <Num value={F.measured.vllm1.outputTokPerS} digits={1} kind="measured" href={F.measured.vllm1.log} />, which is faster.
 - Real KV memory: Figure 3.4's pool is a toy (<a href={SIM9}>SIM.md §9.14</a>).
+- Prefix caching: off in every run here; vLLM turns it on by default (<SourceLink id="vllm-src" at="engine/arg_utils.py L2964–2965" />). Chapter 4 adds it.
 - Output lengths fixed in advance; real requests stop at an end token or a length limit (<a href={SIM9}>SIM.md §9.6</a>).
 - Writing keys and values, sampling, and activation memory (<a href={SIM9}>SIM.md §9.17</a>).
 - vLLM's asynchronous scheduling, which plans one step ahead; ours plans each step after the last ends (<SourceLink id="vllm-src" at="v1/core/sched/async_scheduler.py" />, <a href={SIM9}>SIM.md §9.3</a>).

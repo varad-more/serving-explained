@@ -69,7 +69,7 @@ Its baselines also lost space between regions to the memory allocator, called <G
 Paged allocation splits the pool into fixed-size <GlossaryTerm id="block">blocks</GlossaryTerm>, like <GlossaryTerm id="page">pages</GlossaryTerm> in an operating system (<SourceLink id="kwon2023" at="§4.1–4.2" />).
 The <GlossaryTerm id="block-size">block size</GlossaryTerm>, B, is how many tokens a block holds: here <Num value={F.blockSize} kind="simulated" />.
 A request takes blocks for its prompt when it starts, then one more each time its newest block fills (<SourceLink id="kwon2023" at="§4.3" />).
-The paper calls the whole design <GlossaryTerm id="pagedattention">PagedAttention</GlossaryTerm>: a block manager hands out blocks, and an attention kernel reads them wherever they sit (<SourceLink id="kwon2023" at="§4.1–4.2" />).
+The paper's attention algorithm, <GlossaryTerm id="pagedattention">PagedAttention</GlossaryTerm>, reads these blocks wherever they sit, and vLLM's block manager hands them out (<SourceLink id="kwon2023" at="§4.1–4.2" />).
 
 <Claim id="paged-on-demand">In Figure 2.2, at every step, every block a request holds is full except its newest.</Claim>
 <Claim id="paged-waste-bound">So a request never holds more than B − 1 empty slots, here <Num value={F.blockSize - 1} kind="simulated" />. That bound holds at every block size in this chapter.</Claim>

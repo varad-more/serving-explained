@@ -197,7 +197,7 @@ export const glossary: readonly GlossaryEntry[] = [
     id: "pagedattention",
     term: "PagedAttention",
     definition:
-      "The vLLM paper's design: a block manager hands out fixed-size KV blocks, and an attention kernel reads them wherever they sit.",
+      "The vLLM paper's attention algorithm: it reads keys and values from fixed-size blocks wherever they sit. vLLM's block manager hands the blocks out.",
     source: { id: "kwon2023", at: "§4.1–4.2" },
   },
   {
@@ -299,7 +299,7 @@ export const glossary: readonly GlossaryEntry[] = [
     id: "preemption",
     term: "Preemption",
     definition:
-      "When memory runs out, the engine frees a running request's blocks. vLLM V1 computes its tokens again later.",
+      "When memory runs out, the engine frees a running request's blocks. vLLM V1 computes its tokens again later, reusing any of its blocks still in the prefix cache.",
     source: { id: "vllm-src", at: "v1/core/sched/scheduler.py L1540–1562" },
   },
   {
@@ -529,7 +529,7 @@ export const glossary: readonly GlossaryEntry[] = [
     term: "Admission",
     definition:
       "The step at which the scheduler moves a waiting request into the running batch and gives it blocks.",
-    source: { id: "vllm-src", at: "v1/core/sched/scheduler.py L563–684" },
+    source: { id: "vllm-src", at: "v1/core/sched/scheduler.py L873–1294" },
   },
   {
     id: "radix-tree",

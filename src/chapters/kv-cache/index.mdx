@@ -162,7 +162,7 @@ Check both in Figure 1.5.
 - Requests never share a prompt prefix. Chapter 4 adds sharing (<SourceLink id="vllm-apc-doc" />).
 - One GPU, with no tensor parallelism, which splits a model across GPUs ([SIM.md §9.1](https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md#9-simplifications-what-this-leaves-out)).
 - Usable memory rests on an assumed driver reserve (<SourceLink id="llmsize-math" at="Usable VRAM" />).
-- Models that store less KV per token: MLA and sliding-window attention (<SourceLink id="llmsize-math" at="KV per token" />), and hybrids with SSM layers (<SourceLink id="llmsize-math" at="SSM state" />).
+- Models that store less KV: MLA stores less per token, and sliding-window attention keeps fewer tokens (<SourceLink id="llmsize-math" at="KV per token" />). So do hybrids with SSM layers (<SourceLink id="llmsize-math" at="SSM state" />).
 - fp8 applies to the KV cache only, and its small per-tensor scale factors are ignored (<SourceLink id="llmsize-math" at="KV dtype" />). The weights stay in bf16 here.
 - Output quality: the widget counts bytes, so it says nothing about how an fp8 cache affects a model's answers.
 - The no-cache count in Figure 1.1 is our reasoning from <SourceLink id="kwon2023" at="§2.2" />, in token positions, not time.

@@ -83,6 +83,25 @@ const basics = () => run("batching-basics", BASICS);
 const basicsStatic = () => run("batching-basics", BASICS_STATIC);
 
 const CLAIMS: Record<string, () => void> = {
+  "caching-off-here": () => {
+    // Every run goes through runConfig or phaseRun: both presets under each
+    // figure's options, the preemption pool, and every step 1 pair.
+    const configs = [
+      runConfig("batching-basics", BASICS),
+      runConfig("batching-basics", BASICS_STATIC),
+      runConfig("batching-basics", BASICS, { numBlocks: PREEMPT_POOL.blocks }),
+      runConfig("long-prompt-stall", STALL),
+      runConfig("long-prompt-stall", STALL_OFF),
+      ...MODEL_SLUGS.flatMap((m) =>
+        GPU_IDS.flatMap((g) => {
+          const p = phaseRun(m, g);
+          return p.fits ? [p.config] : [];
+        }),
+      ),
+    ];
+    expect(configs.length).toBeGreaterThan(10);
+    for (const c of configs) expect(c.kv.prefixCaching).toBe(false);
+  },
   "prefill-compute-bound": () => {
     // For every pair that fits, the step that runs the 1,024-token prompt is
     // compute-bound.
