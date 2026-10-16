@@ -283,6 +283,12 @@ export const glossary: readonly GlossaryEntry[] = [
       "In this chapter's contiguous grid, free space too small for a region. With equal regions, it is the leftover at the end.",
   },
   {
+    id: "kv-wasted",
+    term: "KV wasted",
+    definition:
+      "In the sandbox, KV slots reserved but holding no token, plus gaps too small to use. It is shown as a share of the pool.",
+  },
+  {
     id: "reference-count",
     term: "Reference count",
     definition:

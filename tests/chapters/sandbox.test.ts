@@ -24,6 +24,10 @@ function run(c: SandboxConfig) {
   return {
     s: m.summary,
     maxRunning: Math.max(...ends.map((e) => e.running)),
+    // Time-weighted: each step counts for as long as it took.
+    meanRunning:
+      ends.reduce((a, e) => a + e.running * e.duration, 0) /
+      ends.reduce((a, e) => a + e.duration, 0),
     firstWaiting: ends[0]?.waiting ?? 0,
     prefill: events.reduce(
       (a, e) => a + (e.type === "PrefillChunk" ? e.tokens : 0),
@@ -37,6 +41,7 @@ const CLAIMS: Record<PresetName, () => void> = {
   chatbot: () => {
     const c = preset("chatbot");
     const on = run(c);
+    expect([c.m, c.g]).toEqual(["llama-3.1-8b", "a10g-24"]);
     expect(c.sp).toEqual({ groups: 1, length: 128, fraction: 1 });
     expect(on.s.ttft.mean).toBeLessThan(run({ ...c, pc: false }).s.ttft.mean);
     expect(run({ ...c, sc: "static" }).s.ttft.mean).toBeGreaterThan(
@@ -60,8 +65,7 @@ const CLAIMS: Record<PresetName, () => void> = {
   },
   "agent-loop": () => {
     const c = preset("agent-loop");
-    expect(c.sp.groups).toBe(4);
-    expect(c.sp.length).toBe(2048);
+    expect(c.sp).toEqual({ groups: 4, length: 2048, fraction: 0.9 });
     const on = run(c);
     expect(on.s.prefixHitRate).toBeGreaterThanOrEqual(0.9);
     expect(on.s.ttft.mean).toBeLessThan(1);
@@ -70,9 +74,10 @@ const CLAIMS: Record<PresetName, () => void> = {
   "paged-vs-contiguous": () => {
     const c = preset("paged-vs-contiguous");
     expect(c.cap === "gpu" ? 0 : c.cap * c.bs).toBe(1280);
-    expect(run(c).maxRunning).toBeGreaterThan(
-      run({ ...c, al: "contiguous-max" }).maxRunning,
-    );
+    const paged = run(c);
+    const contiguous = run({ ...c, al: "contiguous-max" });
+    expect(paged.maxRunning).toBeGreaterThan(contiguous.maxRunning);
+    expect(paged.meanRunning).toBeGreaterThan(contiguous.meanRunning);
   },
   "batching-basics": () => {
     const c = preset("batching-basics");
@@ -88,7 +93,7 @@ const CLAIMS: Record<PresetName, () => void> = {
   },
   "shared-system-prompt": () => {
     const c = preset("shared-system-prompt");
-    expect(c.sp.length).toBe(600);
+    expect(c.sp).toEqual({ groups: 1, length: 600, fraction: 0.9 });
     const on = run(c);
     const off = run({ ...c, pc: false });
     expect(off.s.ttft.mean).toBeGreaterThan(8 * on.s.ttft.mean);

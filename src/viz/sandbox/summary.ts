@@ -9,6 +9,8 @@ export interface Metric {
   label: string;
   value: number | null;
   format: (x: number) => string;
+  /** A share of the pool: differences are in percentage points. */
+  share?: boolean;
 }
 
 const secs = (x: number) =>
@@ -59,14 +61,33 @@ export function summarize(done: Done, series: Series): Metric[] {
     { key: "ttft-p99", label: "p99 TTFT", value: s.ttft.p99, format: secs },
     { key: "itl-p50", label: "p50 ITL", value: s.itl.p50, format: secs },
     { key: "itl-p99", label: "p99 ITL", value: s.itl.p99, format: secs },
-    { key: "kv-mean", label: "KV in use, mean", value: used.mean, format: pct },
-    { key: "kv-peak", label: "KV in use, peak", value: used.peak, format: pct },
-    { key: "waste", label: "KV wasted, mean", value: waste.mean, format: pct },
+    {
+      key: "kv-mean",
+      label: "KV in use, mean",
+      value: used.mean,
+      format: pct,
+      share: true,
+    },
+    {
+      key: "kv-peak",
+      label: "KV in use, peak",
+      value: used.peak,
+      format: pct,
+      share: true,
+    },
+    {
+      key: "waste",
+      label: "KV wasted, mean",
+      value: waste.mean,
+      format: pct,
+      share: true,
+    },
     {
       key: "hit-rate",
       label: "Prefix hit rate",
       value: s.prefixHitRate,
       format: pct,
+      share: true,
     },
     {
       key: "preemptions",
@@ -122,6 +143,17 @@ export function diff(
     )
       return { ...row, delta: "–", deltaPct: "", arrow: "" };
     const d = y.value - x.value;
+    // A share's change is in percentage points: "+5.0 pp", not "+5.0%".
+    if (x.share) {
+      if (Math.abs(d) < 0.001)
+        return { ...row, delta: "same", deltaPct: "", arrow: "" };
+      return {
+        ...row,
+        delta: `${d > 0 ? "+" : "−"}${(100 * Math.abs(d)).toFixed(1)} pp`,
+        deltaPct: "",
+        arrow: d > 0 ? "▲" : "▼",
+      };
+    }
     const rel =
       x.value === 0 ? (d === 0 ? 0 : Infinity) : d / Math.abs(x.value);
     if (Math.abs(rel) < 0.01)
@@ -137,18 +169,23 @@ export function diff(
   });
 }
 
-/** The summary's rows before a run is done: labels only. */
-export const LABELS: readonly { key: string; label: string }[] = [
-  { key: "throughput", label: "Output tokens per second" },
-  { key: "ttft-mean", label: "Mean TTFT" },
-  { key: "ttft-p50", label: "p50 TTFT" },
-  { key: "ttft-p99", label: "p99 TTFT" },
-  { key: "itl-p50", label: "p50 ITL" },
-  { key: "itl-p99", label: "p99 ITL" },
-  { key: "kv-mean", label: "KV in use, mean" },
-  { key: "kv-peak", label: "KV in use, peak" },
-  { key: "waste", label: "KV wasted, mean" },
-  { key: "hit-rate", label: "Prefix hit rate" },
-  { key: "preemptions", label: "Preemptions" },
-  { key: "evictions", label: "Evictions" },
-];
+/** The summary's rows, in order, with each label's glossary entry. */
+export const LABELS: readonly { key: string; label: string; term?: string }[] =
+  [
+    {
+      key: "throughput",
+      label: "Output tokens per second",
+      term: "throughput",
+    },
+    { key: "ttft-mean", label: "Mean TTFT", term: "ttft" },
+    { key: "ttft-p50", label: "p50 TTFT", term: "percentile" },
+    { key: "ttft-p99", label: "p99 TTFT", term: "percentile" },
+    { key: "itl-p50", label: "p50 ITL", term: "itl" },
+    { key: "itl-p99", label: "p99 ITL", term: "percentile" },
+    { key: "kv-mean", label: "KV in use, mean", term: "kv-cache" },
+    { key: "kv-peak", label: "KV in use, peak" },
+    { key: "waste", label: "KV wasted, mean", term: "kv-wasted" },
+    { key: "hit-rate", label: "Prefix hit rate", term: "hit-rate" },
+    { key: "preemptions", label: "Preemptions", term: "preemption" },
+    { key: "evictions", label: "Evictions", term: "eviction" },
+  ];

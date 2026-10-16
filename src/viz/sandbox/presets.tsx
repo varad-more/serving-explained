@@ -11,11 +11,11 @@ import { ProvenanceBadge } from "../ui/ProvenanceBadge.tsx";
 export const DESCRIPTIONS: Record<PresetName, string> = {
   chatbot:
     "Chat traffic on Llama-3.1-8B and an A10G, every request starting with one 128-token system prompt. Prefix caching lowers mean TTFT, and static batching makes it more than ten times worse.",
-  rag: "Long retrieved documents, 60% of them starting with one of 8 shared 1,024-token documents. Prefix caching cuts mean TTFT by more than half.",
+  rag: "Long prompts, each with a 60% chance of starting with one of 8 shared 1,024-token documents. Prefix caching cuts mean TTFT by more than half.",
   "batch-summarize":
     "64 long documents arrive at once, so most wait in the queue at the start, and some are preempted when memory runs short.",
   "agent-loop":
-    "Agent calls that repeat one of 4 long 2,048-token prefixes. With prefix caching on, at least nine in ten prompt tokens hit the cache, and mean TTFT drops from over a minute to under a second.",
+    "Agent calls, each with a 90% chance of starting with one of 4 shared 2,048-token prefixes. With prefix caching on, at least nine in ten prompt tokens hit the cache. Mean TTFT drops from over a minute to under a second.",
   "paged-vs-contiguous":
     "Short requests on a toy pool of 1,280 tokens. Paged allocation runs more requests at once than contiguous-max, which reserves the maximum for each.",
   "batching-basics":

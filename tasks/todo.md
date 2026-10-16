@@ -2672,6 +2672,87 @@ covers it, a "What is this?" link to the chapter's anchor.
   2. `long-prompt-stall`, chunked prefill off vs. on
   3. Qwen3-32B on h100-sxm-80 with KV capacity from GPU memory, bf16 vs. fp8 KV
 
+### Build log
+
+- [x] Step 1 (262f26e): the parameter table drives parsing, clamping,
+  encoding, and notices; url.test checks it against SIM.md §12.1.
+- [x] Step 2 (821fa92): the worker, its message protocol, cancel by
+  `terminate()`, and frames rebuilt by replaying events from keyframes.
+- [x] Steps 3 and 4 (de6fc79, 62c493f, ed9f711): controls, views, the A/B
+  diff, share links with hash checks, and the nine preset claims.
+- [x] Fresh-eyes review fixes (below), with new unit and e2e tests.
+- [x] Big pools: BlockGrid's summary strip drew one SVG rect per block
+  (378,492 on Qwen2.5-7B, M4 Max, fp8, block size 8, gf 0.99). Playback ran
+  at 150 ms per frame. Over 2,000 blocks it now draws runs, then bins
+  (`tests/viz/summaryStrip.test.ts`); playback holds 16.7 ms. Chapter pools
+  are under 2,000 blocks, so their figures are unchanged.
+
+### Fresh-eyes review: findings and answers
+
+Major:
+1. Fixed: an A/B link whose B is all defaults now carries `b.s`; url.test
+   covers B = V1_DEFAULTS.
+2. Fixed: the hash check applies only while the settings match the opened
+   link; after an edit the banner says the hashes no longer apply (e2e).
+3. Fixed: the preset select shows "(custom)" and no description unless the
+   settings equal the preset's (`matchesPreset`, e2e).
+4. Fixed: rag says "each with a 60% chance"; the test asserts the fraction.
+5. Fixed: the grid draws by state when any holder is in slot 9 or above;
+   worker.test checks 80 frames and that the case occurs.
+6. Fixed: number fields keep a draft; values apply only in range, and clamp
+   on blur or Enter (e2e types 8192, then 10 → 64).
+7. Fixed: a null config halts the worker, and keyed state hides old results.
+8. Fixed: simulated badges on the status, progress, grid, lanes, charts,
+   events, and summary; computed on the KV pool and max context.
+
+Minor:
+9. Fixed: the "Cannot run" prefix, computed badge, and llmsize link show only
+   for guardrails, and the llmsize sentence only for GPU-derived pools.
+10. Fixed: run state is keyed by config, so stale results never show.
+11. Fixed: agent-loop split; writing.test now checks the descriptions.
+12. Fixed: "at least max_model_len: here max(bt, ml)", citing arg_utils.py
+    L3079–3087.
+13. Fixed: the bt help names 8,192 and 16,384 and says the sandbox keeps
+    2,048; the cap help links llmsize and SIM.md §9.14.
+14. Fixed: SIM.md §7 and §12.1 links on arrivals, the shared prefix,
+    prefix caching, and max_model_len; max context carries a computed badge.
+15. Fixed: "Prompt length after the shared prefix".
+16. Fixed: defaults in words ("lognormal, median 200, σ 0.8, 16–2,048").
+17. Fixed: group rows use aria-labelledby; sub-fields are named in full.
+18. Fixed: share metrics change in "pp"; summary.test covers the rules.
+19. Fixed: a legend with swatches and separate badges; memory outside the
+    budget is a flat tint, not the waste hatch.
+20. Fixed: the lede separates simulated and computed numbers and links §9.
+21. Fixed: "Whole run" and "at the playhead" captions; "Events in the 0.25 s
+    before the playhead", with "The latest 120 of N".
+22. Fixed: summary labels link the glossary; "KV wasted" added to it.
+23. Fixed: per-field clip and σ notices, "and N more", duplicate keys, `hb`
+    without B, and `b.zz` no longer turning A/B on.
+24. Fixed: the switch is disabled under contiguous-max.
+25. Fixed: a cancelled or failed run says it was not checked.
+26. Fixed: memoized cells, summary, and placeholders; the summary strip
+    fix above was the main cost.
+27. Fixed: control groups start closed below 1,024 px.
+28. Fixed: Step moves to the next step end of either run.
+29. Fixed: tests assert model and GPU, each preset's prefix groups and
+    fraction, and paged-vs-contiguous's mean running too.
+
+Nits: 31–36 and 38 fixed. 30: "70 GB" is the author's wording, and
+L2866–2895 covers all three branches. 37: preset slugs match the CLI and
+the chapters, so they stay.
+
+### Deviations from the plan (reported)
+
+- A custom memory bar replaces chapter 1's `MemoryBudget`.
+- Worker batches merge per animation frame; the 4 ms split rule was not
+  needed (5,000 requests: max input delay 2.7 ms at 1×).
+- A/B runs sit side by side from 1,280 px, not 1,024 px.
+- The preset select sits at the top of the controls, not in Workload.
+- The events list shows the 0.25 s before the playhead, latest 120 rows.
+- The self-contained-link test runs in vitest, not Playwright.
+- Links escape only `%&=#+` and whitespace, so they stay readable.
+- BlockGrid (chapter 2) gained run and bin drawing above 2,000 blocks.
+
 ## Prompt 8: launch audit
 
 - [x] Audit 1, before the build: `docs/AUDIT.md`. Most of the audit needs a

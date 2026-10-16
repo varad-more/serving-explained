@@ -18,6 +18,8 @@ export type Status = "waiting" | "running" | "done" | "error" | "cancelled";
 export type Frame = Extract<FromWorker, { type: "frame" }>;
 
 export interface RunState {
+  /** The config this state belongs to (JSON). */
+  key: string;
   status: Status;
   progress: { simTime: number; finished: number; total: number } | null;
   /** Per-step rows so far. */
@@ -82,6 +84,8 @@ class Growing {
   }
 }
 
+const EMPTY = empty();
+
 /** Starts the module worker; tests and the page share this one place. */
 export function startWorker(): Worker {
   return new Worker(new URL("./sim.worker.ts", import.meta.url), {
@@ -91,6 +95,7 @@ export function startWorker(): Worker {
 
 export function useRun(config: SandboxConfig | null) {
   const [state, setState] = useState<RunState>({
+    key: "",
     status: "waiting",
     progress: null,
     series: empty(),
@@ -115,26 +120,28 @@ export function useRun(config: SandboxConfig | null) {
   });
   const key = config ? JSON.stringify(config) : "";
 
-  const stop = useCallback((status: Status | null) => {
+  /** Ends the worker: no message from it is handled after this. */
+  const halt = useCallback(() => {
     worker.current?.terminate();
     worker.current = null;
     cancelAnimationFrame(raf.current);
     pending.current = [];
     frameAsk.current = { busy: false, want: null };
-    if (status)
-      setState((s) => (s.status === "running" ? { ...s, status } : s));
   }, []);
 
   useEffect(() => {
+    // A new config makes the old results stale at once: stop the old worker.
+    // The state is keyed, so the old results stop showing too.
+    halt();
     if (!config) return;
     const timer = setTimeout(() => {
-      stop(null);
       const w = startWorker();
       worker.current = w;
       setFrame(null);
       setEvents(null);
       rows.current = new Growing();
       setState({
+        key,
         status: "running",
         progress: null,
         series: empty(),
@@ -192,13 +199,13 @@ export function useRun(config: SandboxConfig | null) {
     };
     // `key` stands for the config's contents.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, stop]);
+  }, [key, halt]);
 
   useEffect(
     () => () => {
-      stop(null);
+      halt();
     },
-    [stop],
+    [halt],
   );
 
   const requestFrame = useCallback((t: number) => {
@@ -217,8 +224,28 @@ export function useRun(config: SandboxConfig | null) {
   }, []);
 
   const cancel = useCallback(() => {
-    stop("cancelled");
-  }, [stop]);
+    halt();
+    setState((s) =>
+      s.status === "running" ? { ...s, status: "cancelled" } : s,
+    );
+  }, [halt]);
 
+  // Results show only for the current config: during the debounce, or with
+  // no config at all, the run reads as waiting.
+  if (state.key !== key || !config)
+    return {
+      key,
+      status: "waiting" as Status,
+      progress: null,
+      series: EMPTY,
+      done: null,
+      error: null,
+      startedAt: 0,
+      frame: null,
+      events: null,
+      requestFrame,
+      requestEvents,
+      cancel,
+    };
   return { ...state, frame, events, requestFrame, requestEvents, cancel };
 }

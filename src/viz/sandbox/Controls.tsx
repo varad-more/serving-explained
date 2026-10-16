@@ -1,16 +1,19 @@
-import { useId, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import gpus from "../../data/gpus.json" with { type: "json" };
 import models from "../../data/models.json" with { type: "json" };
 import { href } from "../../router.ts";
 import type { BaseLengthDist, LengthDist } from "../../sim/index.ts";
-import { modelName } from "./build.ts";
+import { ProvenanceBadge } from "../ui/ProvenanceBadge.tsx";
 import { SourceLink } from "../ui/SourceLink.tsx";
+import { useMediaQuery } from "../useMediaQuery.ts";
+import { LLMSIZE_URL, modelName } from "./build.ts";
 import { PresetDescription } from "./presets.tsx";
 import {
   BLOCK_SIZES,
   clampConfig,
   GPU_IDS,
   LIMITS,
+  matchesPreset,
   maxContext,
   MODEL_SLUGS,
   PARAMS,
@@ -28,9 +31,19 @@ const gpuName = (id: string) =>
 const modelLabel = (slug: string) =>
   modelName(models.models.find((m) => m.slug === slug)?.id ?? slug);
 
+const SIM =
+  "https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md";
+const SIM7 = `${SIM}#7-workloads-presets-cli`;
+const SIM9 = `${SIM}#9-simplifications-what-this-leaves-out`;
+const SIM12 = `${SIM}#121-limits`;
+const n = (x: number) => x.toLocaleString("en-US");
+
 /** Where a chapter explains a control. */
 const LEARN: Partial<Record<Key, string>> = {
   g: "/kv-cache/#memory-budget",
+  gf: "/kv-cache/#memory-budget",
+  cap: "/kv-cache/#memory-budget",
+  ml: "/continuous-batching/#stall",
   m: "/kv-cache/#how-big",
   kd: "/kv-cache/#memory-budget",
   al: "/paged-attention/#contiguous",
@@ -44,16 +57,65 @@ const LEARN: Partial<Record<Key, string>> = {
   r: "/continuous-batching/#static",
 };
 
-const shown = (key: Key) =>
-  PARAMS[key].encode(V1_DEFAULTS[key] as never) === "gpu"
-    ? "from GPU memory"
-    : key === "pc" || key === "cp"
-      ? V1_DEFAULTS[key]
-        ? "on"
-        : "off"
-      : PARAMS[key].encode(V1_DEFAULTS[key] as never);
+/** A length distribution in words. */
+function describe(d: LengthDist): string {
+  if (d.kind === "mixture")
+    return `a mixture of ${String(d.parts.length)} parts`;
+  if (d.kind === "fixed") return `${n(d.value)} tokens`;
+  if (d.kind === "uniform") return `uniform, ${n(d.min)}–${n(d.max)}`;
+  return `lognormal, median ${n(d.median)}, σ ${String(d.sigma)}, ${n(d.min)}–${n(d.max)}`;
+}
 
-/** One control: label, input, its default, a reset, and a chapter link. */
+/** A key's default in plain words, not its link encoding. */
+function shown(k: Key): string {
+  const d = V1_DEFAULTS;
+  switch (k) {
+    case "g":
+      return gpuName(d.g);
+    case "m":
+      return modelLabel(d.m);
+    case "cap":
+      return d.cap === "gpu" ? "from GPU memory" : `${n(d.cap)} blocks`;
+    case "pc":
+      return d.pc ? "on" : "off";
+    case "cp":
+      return d.cp ? "on" : "off";
+    case "r":
+      return d.r === "burst" ? "all at once" : `${String(d.r)} per second`;
+    case "pl":
+      return describe(d.pl);
+    case "ol":
+      return describe(d.ol);
+    case "sp":
+      return `${String(d.sp.groups)} ${d.sp.groups === 1 ? "prefix" : "prefixes"} of ${n(d.sp.length)} tokens, p ${String(d.sp.fraction)}`;
+    case "bs":
+      return `${String(d.bs)} tokens`;
+    case "al":
+      return d.al === "paged" ? "paged" : "contiguous";
+    case "kd":
+      return d.kd;
+    case "sc":
+      return d.sc;
+    case "s":
+      return String(d.s);
+    case "gf":
+      return String(d.gf);
+    case "n":
+      return n(d.n);
+    case "ns":
+      return n(d.ns);
+    case "bt":
+      return n(d.bt);
+    case "ml":
+      return n(d.ml);
+  }
+}
+
+/**
+ * One control: label, input, its default, a reset, and a chapter link. A
+ * `group` row holds several inputs, named by its label through
+ * aria-labelledby; a plain row's label points at its one input.
+ */
 function Row({
   k,
   label,
@@ -61,25 +123,34 @@ function Row({
   set,
   children,
   help,
+  group = false,
 }: {
   k: Key;
   label: string;
   config: SandboxConfig;
   set: Set;
-  children: (id: string) => ReactNode;
+  children: (id: string, labelId: string) => ReactNode;
   help?: ReactNode;
+  group?: boolean;
 }) {
   const id = useId();
+  const labelId = useId();
   const isDefault =
     PARAMS[k].encode(config[k] as never) ===
     PARAMS[k].encode(V1_DEFAULTS[k] as never);
   const learn = LEARN[k];
   return (
     <div className="sb-row">
-      <label className="control__label" htmlFor={id}>
-        {label}
-      </label>
-      <div className="sb-row__input">{children(id)}</div>
+      {group ? (
+        <span className="control__label" id={labelId}>
+          {label}
+        </span>
+      ) : (
+        <label className="control__label" htmlFor={id} id={labelId}>
+          {label}
+        </label>
+      )}
+      <div className="sb-row__input">{children(id, labelId)}</div>
       <p className="sb-row__meta">
         <span>default {shown(k)}</span>
         <button
@@ -95,7 +166,7 @@ function Row({
         </button>
         {learn && (
           <a className="sb-learn" href={href(learn)}>
-            What is this?
+            What is this?<span className="visually-hidden"> ({label})</span>
           </a>
         )}
       </p>
@@ -104,6 +175,11 @@ function Row({
   );
 }
 
+/**
+ * A number field that keeps what is typed. A value in range applies as it is
+ * typed; anything else waits for blur or Enter, then is clamped. Clamping
+ * each keystroke would turn "8192" into "64192".
+ */
 function NumberInput({
   id,
   value,
@@ -111,7 +187,7 @@ function NumberInput({
   max,
   step = 1,
   onChange,
-  disabled,
+  label,
 }: {
   id?: string;
   value: number;
@@ -119,22 +195,39 @@ function NumberInput({
   max: number;
   step?: number;
   onChange: (v: number) => void;
-  disabled?: boolean;
+  /** The field's name, when no <label> names it in full. */
+  label?: string;
 }) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const commit = (text: string) => {
+    const v = Number(text);
+    if (text.trim() !== "" && Number.isFinite(v))
+      onChange(Math.min(max, Math.max(min, v)));
+    setDraft(null);
+  };
   return (
     <input
       id={id}
       className="sb-number"
       type="number"
       inputMode="decimal"
-      value={value}
+      aria-label={label}
+      value={draft ?? value}
       min={min}
       max={max}
       step={step}
-      disabled={disabled}
       onChange={(e) => {
-        const v = Number(e.target.value);
-        if (e.target.value !== "" && Number.isFinite(v)) onChange(v);
+        const text = e.target.value;
+        const v = Number(text);
+        setDraft(text);
+        if (text.trim() !== "" && Number.isFinite(v) && v >= min && v <= max)
+          onChange(v);
+      }}
+      onBlur={(e) => {
+        commit(e.target.value);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") commit(e.currentTarget.value);
       }}
     />
   );
@@ -175,12 +268,14 @@ function Switch({
   checked,
   onChange,
   label,
+  disabled,
 }: {
   id?: string;
   checked: boolean;
   onChange: (v: boolean) => void;
   /** When the switch has no <label for>, its own visible text. */
   label?: string;
+  disabled?: boolean;
 }) {
   return (
     <button
@@ -189,6 +284,7 @@ function Switch({
       role="switch"
       aria-checked={checked}
       className="toggle__switch"
+      disabled={disabled}
       onClick={() => {
         onChange(!checked);
       }}
@@ -206,12 +302,15 @@ function Switch({
 
 /** A length distribution: its kind and parameters; a mixture is ≤ 4 rows. */
 function DistEditor({
-  id,
+  labelId,
+  name,
   value,
   ml,
   onChange,
 }: {
-  id: string;
+  labelId: string;
+  /** The row's label, to name each field in full. */
+  name: string;
   value: LengthDist;
   ml: number;
   onChange: (d: LengthDist) => void;
@@ -251,6 +350,7 @@ function DistEditor({
         <label className="sb-dist__field">
           tokens
           <NumberInput
+            label={`${label}: tokens`}
             value={b.value}
             min={1}
             max={ml}
@@ -265,6 +365,7 @@ function DistEditor({
           <label className="sb-dist__field">
             min
             <NumberInput
+              label={`${label}: min`}
               value={b.min}
               min={1}
               max={ml}
@@ -276,6 +377,7 @@ function DistEditor({
           <label className="sb-dist__field">
             max
             <NumberInput
+              label={`${label}: max`}
               value={b.max}
               min={1}
               max={ml}
@@ -291,6 +393,7 @@ function DistEditor({
           <label className="sb-dist__field">
             median
             <NumberInput
+              label={`${label}: median`}
               value={b.median}
               min={1}
               max={ml}
@@ -302,6 +405,7 @@ function DistEditor({
           <label className="sb-dist__field">
             σ
             <NumberInput
+              label={`${label}: σ`}
               value={b.sigma}
               min={0}
               max={LIMITS.sigma.max}
@@ -314,6 +418,7 @@ function DistEditor({
           <label className="sb-dist__field">
             min
             <NumberInput
+              label={`${label}: min`}
               value={b.min}
               min={1}
               max={ml}
@@ -325,6 +430,7 @@ function DistEditor({
           <label className="sb-dist__field">
             max
             <NumberInput
+              label={`${label}: max`}
               value={b.max}
               min={1}
               max={ml}
@@ -346,13 +452,14 @@ function DistEditor({
     );
   };
   return (
-    <div id={id} className="sb-mixture" role="group">
+    <div className="sb-mixture" role="group" aria-labelledby={labelId}>
       {parts.map((p, i) => (
         <div key={i} className="sb-mixture__row">
           {parts.length > 1 && (
             <label className="sb-dist__field">
               weight
               <NumberInput
+                label={`${name}, part ${String(i + 1)}: weight`}
                 value={p.weight}
                 min={0.01}
                 max={1}
@@ -372,12 +479,13 @@ function DistEditor({
             (dist) => {
               setParts(parts.map((q, j) => (j === i ? { ...q, dist } : q)));
             },
-            `part ${String(i + 1)}`,
+            parts.length > 1 ? `${name}, part ${String(i + 1)}` : name,
           )}
           {parts.length > 1 && (
             <button
               type="button"
               className="sb-reset"
+              aria-label={`${name}: remove part ${String(i + 1)}`}
               onClick={() => {
                 setParts(parts.filter((_, j) => j !== i));
               }}
@@ -391,6 +499,7 @@ function DistEditor({
         <button
           type="button"
           className="sb-reset"
+          aria-label={`${name}: add a mixture part`}
           onClick={() => {
             setParts([
               ...parts.map((q) => ({ ...q, weight: q.weight })),
@@ -424,6 +533,10 @@ export function Controls({
   };
   const presetId = useId();
   const top = maxContext(c.m);
+  // On phones the groups start closed, so the results are not far below.
+  const desktop = useMediaQuery("(min-width: 1024px)");
+  // A preset's tested description shows only while the settings are its own.
+  const preset = matchesPreset(c) ? c.p : null;
   return (
     <div
       className="sb-controls"
@@ -437,7 +550,7 @@ export function Controls({
         <select
           id={presetId}
           className="sb-select"
-          value={c.p ?? ""}
+          value={preset ?? ""}
           onChange={(e) => {
             const p = e.target.value;
             if (p) onChange(presetSandbox(p as (typeof PRESET_NAMES)[number]));
@@ -450,10 +563,10 @@ export function Controls({
             </option>
           ))}
         </select>
-        {c.p && <PresetDescription name={c.p} />}
+        {preset && <PresetDescription name={preset} />}
       </div>
 
-      <details className="sb-group" open>
+      <details className="sb-group" open={desktop}>
         <summary>Hardware and model</summary>
         <Row k="g" label="GPU" config={c} set={set}>
           {(id) => (
@@ -529,9 +642,16 @@ export function Controls({
           config={c}
           set={set}
           help={
-            c.cap === "gpu"
-              ? "From GPU memory after the weights. Like chapter 1, this leaves out activations and runtime overhead, so it overstates vLLM's pool."
-              : "A fixed pool, in blocks."
+            c.cap === "gpu" ? (
+              <>
+                From GPU memory after the weights, by{" "}
+                <a href={LLMSIZE_URL}>llmsize&apos;s memory math</a>. Like
+                chapter 1, it leaves out activations and runtime overhead, so it
+                overstates vLLM&apos;s pool (<a href={SIM9}>SIM.md §9.14</a>).
+              </>
+            ) : (
+              "A fixed pool, in blocks, set by hand."
+            )
           }
         >
           {(id) => (
@@ -551,6 +671,7 @@ export function Controls({
                 <label className="sb-dist__field">
                   blocks
                   <NumberInput
+                    label="KV capacity: blocks"
                     value={c.cap}
                     min={LIMITS.cap.min}
                     max={LIMITS.cap.max}
@@ -565,7 +686,7 @@ export function Controls({
         </Row>
       </details>
 
-      <details className="sb-group" open>
+      <details className="sb-group" open={desktop}>
         <summary>Memory</summary>
         <Row k="al" label="Allocator" config={c} set={set}>
           {(id) => (
@@ -606,14 +727,18 @@ export function Controls({
           config={c}
           set={set}
           help={
-            c.al === "contiguous-max"
-              ? "Off: it needs the paged allocator."
-              : undefined
+            c.al === "contiguous-max" ? (
+              <>
+                Off: prefix caching needs the paged allocator (
+                <a href={SIM12}>SIM.md §12.1</a>).
+              </>
+            ) : undefined
           }
         >
           {(id) => (
             <Switch
               id={id}
+              disabled={c.al === "contiguous-max"}
               checked={c.pc}
               onChange={(pc) => {
                 set({ pc });
@@ -623,7 +748,7 @@ export function Controls({
         </Row>
       </details>
 
-      <details className="sb-group" open>
+      <details className="sb-group" open={desktop}>
         <summary>Scheduler</summary>
         <Row k="sc" label="Scheduler" config={c} set={set}>
           {(id) => (
@@ -647,10 +772,10 @@ export function Controls({
           set={set}
           help={
             <>
-              vLLM&apos;s default is 256 on GPUs under 70 GB, and 1,024 on
-              larger GPUs other than A100s (
+              vllm serve uses 256 on GPUs under 70 GB, and 1,024 on larger GPUs
+              other than A100s (
               <SourceLink id="vllm-src" at="engine/arg_utils.py L2866–2895" />
-              ).
+              ). The sandbox keeps 256 on every GPU.
             </>
           }
         >
@@ -674,13 +799,19 @@ export function Controls({
           help={
             c.cp ? (
               <>
-                vLLM&apos;s default for vllm serve is 2,048 on GPUs under 70 GB
-                (
+                vllm serve uses 2,048 on GPUs under 70 GB (
                 <SourceLink id="vllm-src" at="engine/arg_utils.py L2866–2895" />
-                ).
+                ). It uses 8,192 at 70 GB or more, except on A100s, and 16,384
+                at 160 GB or more. The sandbox keeps 2,048 on every GPU.
               </>
             ) : (
-              `Chunked prefill is off, so the budget is raised to max_model_len (${top < c.ml ? String(top) : String(c.ml)}), as vLLM does when no budget is set.`
+              <>
+                Chunked prefill is off, so the budget is at least max_model_len:
+                here {n(Math.max(c.bt, c.ml))}. vLLM does this only when no
+                budget is set (
+                <SourceLink id="vllm-src" at="engine/arg_utils.py L3079–3087" />
+                ).
+              </>
             )
           }
         >
@@ -709,7 +840,7 @@ export function Controls({
         </Row>
       </details>
 
-      <details className="sb-group" open>
+      <details className="sb-group" open={desktop}>
         <summary>Workload</summary>
         <Row k="n" label="Requests" config={c} set={set}>
           {(id) => (
@@ -729,17 +860,23 @@ export function Controls({
           label="Arrival rate"
           config={c}
           set={set}
+          group
           help={
-            c.r === "burst"
-              ? "All requests arrive at once."
-              : "Poisson arrivals, per second."
+            c.r === "burst" ? (
+              "All requests arrive at once."
+            ) : (
+              <>
+                Requests per second, with random (Poisson) gaps between them (
+                <a href={SIM7}>SIM.md §7</a>).
+              </>
+            )
           }
         >
-          {(id) => (
-            <span className="sb-inline">
+          {(_, labelId) => (
+            <span className="sb-inline" role="group" aria-labelledby={labelId}>
               {c.r !== "burst" && (
                 <NumberInput
-                  id={id}
+                  label="Arrival rate, per second"
                   value={c.r}
                   min={LIMITS.r.min}
                   max={LIMITS.r.max}
@@ -759,10 +896,17 @@ export function Controls({
             </span>
           )}
         </Row>
-        <Row k="pl" label="Prompt length" config={c} set={set}>
-          {(id) => (
+        <Row
+          k="pl"
+          label="Prompt length after the shared prefix"
+          config={c}
+          set={set}
+          group
+        >
+          {(_, labelId) => (
             <DistEditor
-              id={id}
+              labelId={labelId}
+              name="Prompt length"
               value={c.pl}
               ml={c.ml}
               onChange={(pl) => {
@@ -771,10 +915,11 @@ export function Controls({
             />
           )}
         </Row>
-        <Row k="ol" label="Output length" config={c} set={set}>
-          {(id) => (
+        <Row k="ol" label="Output length" config={c} set={set} group>
+          {(_, labelId) => (
             <DistEditor
-              id={id}
+              labelId={labelId}
+              name="Output length"
               value={c.ol}
               ml={c.ml}
               onChange={(ol) => {
@@ -788,13 +933,20 @@ export function Controls({
           label="Shared prefix"
           config={c}
           set={set}
-          help="k prefixes of L tokens; each request starts with one with probability p."
+          group
+          help={
+            <>
+              Each request starts with one of k prefixes of L tokens, with
+              chance p (<a href={SIM7}>SIM.md §7</a>).
+            </>
+          }
         >
-          {(id) => (
-            <span className="sb-inline" id={id}>
+          {(_, labelId) => (
+            <span className="sb-inline" role="group" aria-labelledby={labelId}>
               <label className="sb-dist__field">
                 k
                 <NumberInput
+                  label="Shared prefix: k, how many prefixes"
                   value={c.sp.groups}
                   min={0}
                   max={LIMITS.spGroups.max}
@@ -806,6 +958,7 @@ export function Controls({
               <label className="sb-dist__field">
                 L
                 <NumberInput
+                  label="Shared prefix: L, tokens in each"
                   value={c.sp.length}
                   min={0}
                   max={c.ml - 1}
@@ -817,6 +970,7 @@ export function Controls({
               <label className="sb-dist__field">
                 p
                 <NumberInput
+                  label="Shared prefix: p, the chance a request has one"
                   value={c.sp.fraction}
                   min={0}
                   max={1}
@@ -834,7 +988,14 @@ export function Controls({
           label="max_model_len"
           config={c}
           set={set}
-          help={`Up to ${top.toLocaleString("en-US")} for this model. Lengths are clipped to it.`}
+          help={
+            <>
+              Up to {n(top)} tokens for this model{" "}
+              <ProvenanceBadge kind="computed" />. Each request&apos;s prefix,
+              prompt, and output must fit in it; the prompt is cut first (
+              <a href={SIM7}>SIM.md §7</a>).
+            </>
+          }
         >
           {(id) => (
             <NumberInput

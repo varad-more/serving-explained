@@ -13,6 +13,7 @@ import type {
 } from "../../chapters/continuous-batching/timeline.ts";
 import { BlockGrid } from "../../chapters/paged-attention/BlockGrid.tsx";
 import type { Cell } from "../../chapters/paged-attention/cells.ts";
+import { GlossaryTerm } from "../ui/GlossaryTerm.tsx";
 import { ProvenanceBadge } from "../ui/ProvenanceBadge.tsx";
 import { useMediaQuery } from "../useMediaQuery.ts";
 import { buildConfig, LLMSIZE_URL } from "./build.ts";
@@ -22,17 +23,22 @@ import {
   ITL_EDGES,
   TTFT_EDGES,
   type Done,
+  type FromWorker,
   type Series,
 } from "./protocol.ts";
 import { LABELS, summarize } from "./summary.ts";
 import type { useRun } from "./useRun.ts";
 
 type Run = ReturnType<typeof useRun>;
+type Frame = Extract<FromWorker, { type: "frame" }>;
 
 const GIB = 2 ** 30;
 const gib = (b: number) => `${(b / GIB).toFixed(1)} GiB`;
 const n = (x: number) => x.toLocaleString("en-US");
 const PHASES = ["prefill", "decode", "bubble", "held"] as const;
+/** The events list shows the latest rows of the window. */
+const EVENT_ROWS = 120;
+export const EVENT_WINDOW_S = 0.25;
 
 /** The worker's columns as chapter 3's lanes. */
 function lanesOf(done: Done) {
@@ -75,6 +81,56 @@ function downsample(series: Series, most: number) {
   return out;
 }
 
+// Most of a large pool is free: those cells share one object, so a frame
+// allocates only for the blocks in use.
+const FREE: Cell = { kind: "free" };
+const GAP: Cell = { kind: "gap" };
+
+/**
+ * The worker's frame as grid cells. DESIGN.md's request hues cover slots
+ * 1–8: when more run, or any holder sits in a slot above 8, blocks are
+ * drawn by state, not by request.
+ */
+export function cellsOf(frame: Frame): Cell[] {
+  const c = frame.cells;
+  const aggregate =
+    frame.running > MAX_LANES || frame.holders.some((h) => h.slot > MAX_LANES);
+  const users = new Map<number, { reqs: number[]; logical: number[] }>();
+  for (const h of frame.holders)
+    h.blocks.forEach((b, i) => {
+      const u = users.get(b) ?? { reqs: [], logical: [] };
+      u.reqs.push(h.req);
+      u.logical.push(i);
+      users.set(b, u);
+    });
+  return Array.from(c.kind, (kind, b): Cell => {
+    const req = c.req[b] ?? -1;
+    const fill = c.fill[b] ?? 0;
+    const logical = c.logical[b] ?? 0;
+    switch (kind) {
+      case 1:
+        return aggregate
+          ? { kind: "used", req, fill, logical }
+          : { kind: "held", req, slot: c.slot[b] || 1, fill, logical };
+      case 2: {
+        const u = users.get(b) ?? { reqs: [req], logical: [logical] };
+        return { kind: "shared", reqs: u.reqs, logical: u.logical };
+      }
+      case 3:
+        return { kind: "cached", rank: c.count[b] ?? 0 };
+      case 4:
+        return GAP;
+      default:
+        return FREE;
+    }
+  });
+}
+
+/** A summary label, linked to its glossary entry where there is one. */
+function Label({ label, term }: { label: string; term?: string }) {
+  return term ? <GlossaryTerm id={term}>{label}</GlossaryTerm> : <>{label}</>;
+}
+
 /** One run's views: status, memory, summary, grid, lanes, charts, events. */
 export function RunView({
   name,
@@ -98,6 +154,19 @@ export function RunView({
     [run.done],
   );
   const queue = useMemo(() => downsample(run.series, 1500), [run.series]);
+  // Built once per frame or pool, not per playhead render.
+  const cells = useMemo(
+    () =>
+      run.frame
+        ? cellsOf(run.frame)
+        : new Array<Cell>(built.ok ? built.numBlocks : 0).fill(FREE),
+    [run.frame, built],
+  );
+  const metrics = useMemo(
+    () => (run.done ? summarize(run.done, run.series) : null),
+    [run.done, run.series],
+  );
+  const marked = useMemo(() => new Set(run.frame?.evicted ?? []), [run.frame]);
   const [now, setNow] = useState(() => performance.now());
   useEffect(() => {
     if (run.status !== "running") return;
@@ -109,25 +178,33 @@ export function RunView({
     };
   }, [run.status, run.startedAt]);
 
-  if (!built.ok || run.status === "error") {
-    const message = built.ok ? (run.error?.message ?? "") : built.message;
+  if (!built.ok)
     return (
       <section className="sb-run" aria-label={name} data-status="error">
         <h2 className="sb-run__name">{name}</h2>
         <div className="sb-error" role="alert">
           <p>
-            <strong>Cannot run even one request.</strong> {message}{" "}
-            <ProvenanceBadge kind="computed" />
+            <strong>Cannot run even one request.</strong> {built.message}{" "}
+            {config.cap === "gpu" && <ProvenanceBadge kind="computed" />}
           </p>
-          <p>
-            The numbers come from{" "}
-            <a href={LLMSIZE_URL}>llmsize&apos;s memory math</a>; check a model
-            and GPU there.
-          </p>
+          {config.cap === "gpu" && (
+            <p>
+              The memory numbers come from{" "}
+              <a href={LLMSIZE_URL}>llmsize&apos;s memory math</a>.
+            </p>
+          )}
         </div>
       </section>
     );
-  }
+  if (run.status === "error")
+    return (
+      <section className="sb-run" aria-label={name} data-status="error">
+        <h2 className="sb-run__name">{name}</h2>
+        <div className="sb-error" role="alert">
+          <p>{run.error?.message}</p>
+        </div>
+      </section>
+    );
 
   const showProgress = run.status === "running" && now - run.startedAt > 300;
   const capacity = built.capacity;
@@ -135,17 +212,18 @@ export function RunView({
   const done = run.done;
   // Every section is laid out from the start at its final size, so results
   // arriving move nothing (CHAPTER_DOD item 12).
-  const cells = frame
-    ? cellsOf(frame)
-    : Array.from({ length: built.numBlocks }, (): Cell => ({ kind: "free" }));
   const kvNow = frame ? frame.kv.tokens : 0;
-  const metrics = done ? summarize(done, run.series) : null;
   const kvBytes = (tokens: number) =>
     capacity > 0 ? (built.bytes.kv * tokens) / capacity : 0;
   const total = built.bytes.usable;
   const w = (b: number) => `${String((100 * b) / total)}%`;
   const ttftCounts = done?.ttft.counts ?? TTFT_EDGES.slice(1).map(() => 0);
   const itlCounts = done?.itl.counts ?? ITL_EDGES.slice(1).map(() => 0);
+  const byState =
+    frame !== null &&
+    (frame.running > MAX_LANES ||
+      frame.holders.some((h) => h.slot > MAX_LANES));
+  const events = run.events ? eventRows(run.events.columns) : null;
   return (
     <section className="sb-run" aria-label={name} data-status={run.status}>
       <h2 className="sb-run__name">{name}</h2>
@@ -160,7 +238,7 @@ export function RunView({
             <span className="num">
               {n(run.progress?.finished ?? 0)} of {n(run.progress?.total ?? 0)}{" "}
               requests done, {(run.progress?.simTime ?? 0).toFixed(1)} s
-              simulated
+              simulated <ProvenanceBadge kind="simulated" />
             </span>
             <button type="button" className="button" onClick={run.cancel}>
               Cancel
@@ -175,20 +253,21 @@ export function RunView({
         {done && (
           <p className="sb-note num">
             {n(done.requests)} requests in {done.duration.toFixed(1)} s of
-            simulated time, {n(done.steps)} steps.
+            simulated time, {n(done.steps)} steps.{" "}
+            <ProvenanceBadge kind="simulated" />
           </p>
         )}
       </div>
 
       <figure className="sb-memory">
         <figcaption className="sb-sub">
-          GPU memory: weights, KV pool, and what vLLM holds back{" "}
-          <ProvenanceBadge kind="computed" />
+          GPU memory: the weights, the KV pool, and what vLLM leaves unused (1 −
+          GPU memory fraction)
         </figcaption>
         <div
           className="sb-bar"
           role="img"
-          aria-label={`Weights ${gib(built.bytes.weights)}, KV pool ${gib(built.bytes.kv)} (${n(capacity)} tokens), held back ${gib(total - built.bytes.budget)}, of ${gib(total)}. KV in use now: ${gib(kvBytes(kvNow))}.`}
+          aria-label={`Weights ${gib(built.bytes.weights)}, KV pool ${gib(built.bytes.kv)} (${n(capacity)} tokens), left unused ${gib(total - built.bytes.budget)}, of ${gib(total)}. KV in use now: ${gib(kvBytes(kvNow))}.`}
         >
           <span
             className="sb-bar__weights"
@@ -204,11 +283,26 @@ export function RunView({
           </span>
           <span className="sb-bar__rest" />
         </div>
-        <p className="sb-legend num">
-          Weights {gib(built.bytes.weights)} · KV pool {gib(built.bytes.kv)} (
-          {n(capacity)} tokens) · KV in use now {gib(kvBytes(kvNow))}{" "}
-          <ProvenanceBadge kind="simulated" />
-        </p>
+        <ul className="sb-legend num">
+          <li>
+            <span className="sb-swatch sb-swatch--weights" aria-hidden="true" />
+            Weights {gib(built.bytes.weights)}
+          </li>
+          <li>
+            <span className="sb-swatch sb-swatch--kv" aria-hidden="true" />
+            KV pool {gib(built.bytes.kv)} ({n(capacity)} tokens){" "}
+            <ProvenanceBadge kind="computed" />
+          </li>
+          <li>
+            <span className="sb-swatch sb-swatch--used" aria-hidden="true" />
+            KV in use at the playhead {gib(kvBytes(kvNow))}{" "}
+            <ProvenanceBadge kind="simulated" />
+          </li>
+          <li>
+            <span className="sb-swatch sb-swatch--rest" aria-hidden="true" />
+            Left unused or outside the budget
+          </li>
+        </ul>
         {config.cap !== "gpu" && (
           <p className="sb-note">
             A fixed pool of {n(built.numBlocks)} blocks, set by hand, so the bar
@@ -221,25 +315,33 @@ export function RunView({
         className="sb-summary"
         aria-live={run.status === "done" ? "polite" : "off"}
       >
+        <p className="sb-sub">
+          Whole run <ProvenanceBadge kind="simulated" />
+        </p>
         <dl className="num">
-          {(metrics ?? LABELS.map((m) => ({ ...m, value: null }))).map((m) => (
-            <div key={m.key}>
-              <dt>{m.label}</dt>
-              <dd>
-                {m.value === null || !("format" in m) ? "–" : m.format(m.value)}
-              </dd>
-            </div>
-          ))}
+          {LABELS.map((l, i) => {
+            const m = metrics?.[i];
+            return (
+              <div key={l.key}>
+                <dt>
+                  <Label label={l.label} term={l.term} />
+                </dt>
+                <dd>
+                  {m?.value === null || m === undefined
+                    ? "–"
+                    : m.format(m.value)}
+                </dd>
+              </div>
+            );
+          })}
         </dl>
-        <ProvenanceBadge kind="simulated" />
       </div>
 
       <div className="sb-grid" data-frame-t={frame?.t}>
         <p className="sb-sub">
-          KV blocks at {time.toFixed(2)} s
-          {frame && frame.running > MAX_LANES
-            ? `, by state: ${String(frame.running)} running`
-            : ""}
+          KV blocks at the playhead, {time.toFixed(2)} s
+          {byState ? ", drawn by state, not by request" : ""}{" "}
+          <ProvenanceBadge kind="simulated" />
         </p>
         <BlockGrid
           frame={null}
@@ -254,18 +356,20 @@ export function RunView({
           onSelect={onSelect}
           cells={cells}
           summary={`${name} at ${time.toFixed(2)} s: ${String(frame?.running ?? 0)} running, ${String(frame?.waiting ?? 0)} waiting.`}
-          marked={new Set(frame?.evicted ?? [])}
+          marked={marked}
           showLogical
           maxCells={desktop ? 256 : 48}
         />
       </div>
 
       <div className="sb-lanes">
-        {config.ns > MAX_LANES && (
-          <p className="sb-sub">
-            Showing {MAX_LANES} of {n(config.ns)} batch slots.
-          </p>
-        )}
+        <p className="sb-sub">
+          Batch slots over time
+          {config.ns > MAX_LANES
+            ? `: showing ${String(MAX_LANES)} of ${n(config.ns)}`
+            : ""}{" "}
+          <ProvenanceBadge kind="simulated" />
+        </p>
         <Lanes
           tl={lanes ?? EMPTY_LANES}
           cap={config.ns}
@@ -277,6 +381,10 @@ export function RunView({
       </div>
 
       <div className="sb-charts">
+        <p className="sb-sub">
+          The queue up to the playhead; TTFT and ITL over the whole run{" "}
+          <ProvenanceBadge kind="simulated" />
+        </p>
         <QueueChart
           title="Requests waiting at each step's end"
           series={[{ name, points: queue }]}
@@ -317,16 +425,27 @@ export function RunView({
 
       <div className="sb-events" data-t1={run.events?.t1}>
         <h3 className="sb-sub">
-          Events up to the playhead
+          Events in the {EVENT_WINDOW_S} s before the playhead
           {run.events
             ? ` (${run.events.t0.toFixed(2)}–${run.events.t1.toFixed(2)} s)`
-            : ""}
+            : ""}{" "}
+          <ProvenanceBadge kind="simulated" />
         </h3>
-        <ol className="sb-events__list num" aria-live="off">
-          {run.events &&
-            eventRows(run.events.columns).map((row) => (
-              <li key={row.key}>{row.text}</li>
-            ))}
+        <p
+          className="sb-note"
+          data-hidden={!events || events.total <= EVENT_ROWS}
+        >
+          The latest {EVENT_ROWS} of {n(events?.total ?? 0)}
+          {run.events?.columns.truncated ? " (the window holds more)" : ""}.
+        </p>
+        <ol
+          className="sb-events__list num"
+          tabIndex={0}
+          aria-label={`${name}: events before the playhead`}
+        >
+          {events?.rows.map((row) => (
+            <li key={row.key}>{row.text}</li>
+          ))}
         </ol>
       </div>
     </section>
@@ -335,43 +454,9 @@ export function RunView({
 
 const EMPTY_LANES = { segments: [], steps: [], queued: [] };
 
-function cellsOf(frame: NonNullable<Run["frame"]>): Cell[] {
-  const c = frame.cells;
-  const aggregate = frame.running > MAX_LANES;
-  const users = new Map<number, { reqs: number[]; logical: number[] }>();
-  for (const h of frame.holders)
-    h.blocks.forEach((b, i) => {
-      const u = users.get(b) ?? { reqs: [], logical: [] };
-      u.reqs.push(h.req);
-      u.logical.push(i);
-      users.set(b, u);
-    });
-  return Array.from(c.kind, (kind, b): Cell => {
-    const req = c.req[b] ?? -1;
-    const fill = c.fill[b] ?? 0;
-    const logical = c.logical[b] ?? 0;
-    switch (kind) {
-      case 1:
-        return aggregate
-          ? { kind: "used", req, fill, logical }
-          : { kind: "held", req, slot: c.slot[b] || 1, fill, logical };
-      case 2: {
-        const u = users.get(b) ?? { reqs: [req], logical: [logical] };
-        return { kind: "shared", reqs: u.reqs, logical: u.logical };
-      }
-      case 3:
-        return { kind: "cached", rank: c.count[b] ?? 0 };
-      case 4:
-        return { kind: "gap" };
-      default:
-        return { kind: "free" };
-    }
-  });
-}
-
 function eventRows(cols: NonNullable<Run["events"]>["columns"]) {
   const rows: { key: number; text: string }[] = [];
-  const shown = Math.min(cols.t.length, 120);
+  const shown = Math.min(cols.t.length, EVENT_ROWS);
   for (let k = 0; k < shown; k++) {
     const i = cols.t.length - 1 - k;
     const type = EVENT_TYPES[cols.type[i] ?? 0] ?? "";
@@ -388,13 +473,15 @@ function eventRows(cols: NonNullable<Run["events"]>["columns"]) {
               ? `${String(v)} tokens hit`
               : type === "Admit"
                 ? `${String(v)} cached tokens`
-                : Number.isFinite(v)
-                  ? String(v)
-                  : "";
+                : type === "Allocate"
+                  ? `${String(v)} blocks`
+                  : type === "Evict" || type === "CacheInsert"
+                    ? `block ${String(v)}`
+                    : "";
     rows.push({
       key: i,
       text: `${(cols.t[i] ?? 0).toFixed(3)} s · step ${String(cols.step[i] ?? 0)} · ${type}${req >= 0 ? ` · r${String(req)}` : ""}${what ? ` · ${what}` : ""}`,
     });
   }
-  return rows;
+  return { rows, total: cols.t.length };
 }

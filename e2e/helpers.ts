@@ -10,7 +10,10 @@ export const KITCHEN = "http://localhost:4174/serving-explained/kitchen-sink/";
 export function watchErrors(page: Page): string[] {
   const errors: string[] = [];
   page.on("console", (m) => {
-    if (m.type() === "error") errors.push(`console: ${m.text()}`);
+    // Firefox's automation layer (juggler) logs its own aborted worker loads
+    // when a test navigates away mid-run; those are not the page's errors.
+    if (m.type() === "error" && !m.text().includes("chrome://juggler/"))
+      errors.push(`console: ${m.text()}`);
   });
   page.on("pageerror", (e) => errors.push(`page: ${e.message}`));
   page.on("response", (r) => {

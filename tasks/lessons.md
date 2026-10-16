@@ -4,6 +4,18 @@ Mistakes, corrections, and surprises. Newest first.
 
 ## 2026-10-15
 
+- **A reused component carries its scale assumptions.** BlockGrid's summary
+  strip drew one SVG rect per block, fine for chapter pools. The sandbox's
+  378,492-block pool made playback 150 ms per frame. Rule: when reusing a
+  widget, check its element count against CLAUDE.md's SVG budget at the new
+  maximum size. Profile before optimizing: the suspected `cellsOf` was not it.
+- **`getByLabel` matches substrings.** "events before the playhead" matched
+  `getByLabel("Playhead")`. Use `getByRole` with the name for unique controls.
+- **WebKit reports a worker load cut off by navigation as a page error.**
+  Tests that navigate quickly must wait for the worker to report first.
+- **Clamping on every keystroke rewrites what is typed.** "8192" became 64192.
+  Keep a draft; apply only in-range values, and clamp on blur or Enter.
+
 - **Test every stop a reader can reach, not only the ones the plan sweeps.**
   A slider stop past the preset's max_model_len threw inside a render and
   unmounted the whole page; the claim tests never moved that slider.

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import gpus from "../../data/gpus.json" with { type: "json" };
 import models from "../../data/models.json" with { type: "json" };
 import { ENGINE_VERSION } from "../../sim/index.ts";
@@ -13,7 +13,7 @@ import {
   type SandboxConfig,
 } from "./params.ts";
 import { RunView } from "./RunView.tsx";
-import { diff, LABELS } from "./summary.ts";
+import { diff, LABELS, summarize } from "./summary.ts";
 import { useRun } from "./useRun.ts";
 // The chapter widgets the views reuse bring their chapters' styles.
 import "../../chapters/paged-attention/paged-attention.css";
@@ -21,6 +21,26 @@ import "../../chapters/continuous-batching/continuous-batching.css";
 import "./sandbox.css";
 
 const short = (hash: string | undefined) => hash?.slice(0, 8) ?? null;
+const SIM9 =
+  "https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md#9-simplifications-what-this-leaves-out";
+/** At most this many notices are listed; the rest are counted. */
+const MAX_NOTICES = 12;
+
+/** The settings alone, without hashes: what a link's hash vouches for. */
+const settingsOf = (a: SandboxConfig, b: SandboxConfig | null) =>
+  encodeLink({ a, b, h: null, hb: null });
+
+/** The first step end after `t`, or Infinity. */
+function nextStepEnd(ends: Float64Array, t: number): number {
+  let lo = 0;
+  let hi = ends.length;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if ((ends[mid] ?? 0) <= t + 1e-9) lo = mid + 1;
+    else hi = mid;
+  }
+  return ends[lo] ?? Infinity;
+}
 
 /** The link to this page for `link`, on whatever origin and base it is served. */
 function linkUrl(link: Link): string {
@@ -30,12 +50,16 @@ function linkUrl(link: Link): string {
 /** The sandbox page (tasks/todo.md, Prompt 7). */
 export function Sandbox() {
   const [opened] = useState(() => parseLink(window.location.search.slice(1)));
+  const [openedSettings] = useState(() => settingsOf(opened.a, opened.b));
   const [a, setA] = useState<SandboxConfig>(opened.a);
   const [b, setB] = useState<SandboxConfig | null>(opened.b);
   const [tab, setTab] = useState<"a" | "b">("a");
   const [selected, setSelected] = useState<number | null>(null);
-  const [copied, setCopied] = useState<string | null>(null);
-  const [copiedNote, setCopiedNote] = useState("");
+  /** The link the clipboard holds, or that the fallback field shows. */
+  const [copied, setCopied] = useState<{ url: string; ok: boolean } | null>(
+    null,
+  );
+  const tabsId = useId();
   const runA = useRun(a);
   const runB = useRun(b);
   const ab = b !== null;
@@ -92,6 +116,18 @@ export function Sandbox() {
     verify(opened.h, runA, ab ? "Run A" : "The run"),
     ab ? verify(opened.hb, runB, "Run B") : null,
   ].filter((x): x is string => x !== null);
+  // A hash vouches only for the settings it came with.
+  const unchanged = settingsOf(a, b) === openedSettings;
+  const stopped = [runA, ...(ab ? [runB] : [])].some(
+    (r) => r.status === "error" || r.status === "cancelled",
+  );
+  const verdict = !unchanged
+    ? "The settings changed since the link was opened, so its hashes no longer apply."
+    : checks.length > 0
+      ? checks.join(" ")
+      : stopped
+        ? "The run did not finish, so it was not checked against the link's hash."
+        : "Checking the run against the hash in the link…";
 
   const table = useMemo(
     () =>
@@ -111,35 +147,52 @@ export function Sandbox() {
     hb: ab ? short(runB.done?.hash) : null,
   };
 
+  const url = linkUrl(link);
+  // A note or field about an older link goes once the settings change.
+  const copiedNow = copied?.url === url ? copied : null;
   const copy = async () => {
-    const url = linkUrl(link);
     try {
       await navigator.clipboard.writeText(url);
-      setCopied(null);
-      setCopiedNote("Link copied.");
+      setCopied({ url, ok: true });
     } catch {
-      setCopied(url);
+      setCopied({ url, ok: false });
     }
   };
+  const asShown = (run: typeof runA) =>
+    run.done
+      ? {
+          ...run.done.summary,
+          // The page's summary rows, KV shares included.
+          shown: Object.fromEntries(
+            summarize(run.done, run.series).map((m) => [m.key, m.value]),
+          ),
+        }
+      : null;
   const download = () => {
     const data = {
       provenance: "simulated",
       engineVersion: ENGINE_VERSION,
-      link: linkUrl(link),
+      link: url,
       config: { a, b },
-      metrics: { a: runA.done?.summary ?? null, b: runB.done?.summary ?? null },
-      hashes: { a: runA.done?.hash ?? null, b: runB.done?.hash ?? null },
+      metrics: { a: asShown(runA), b: ab ? asShown(runB) : null },
+      hashes: {
+        a: runA.done?.hash ?? null,
+        b: ab ? (runB.done?.hash ?? null) : null,
+      },
       _provenance: { models: models._provenance, gpus: gpus._provenance },
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], {
       type: "application/json",
     });
-    const url = URL.createObjectURL(blob);
+    const file = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
-    anchor.href = url;
+    anchor.href = file;
     anchor.download = "serving-explained-sandbox.json";
     anchor.click();
-    URL.revokeObjectURL(url);
+    // Some browsers read the URL after click() returns.
+    setTimeout(() => {
+      URL.revokeObjectURL(file);
+    }, 1000);
   };
 
   const editing = tab === "b" && b ? b : a;
@@ -153,8 +206,10 @@ export function Sandbox() {
       <h1>Sandbox</h1>
       <p className="sandbox__lede">
         Combine all four mechanisms on one workload. Predict which matters most,
-        then run it. Every number here is simulated by the toy engine on this
-        page, not measured. <ProvenanceBadge kind="simulated" />
+        then run it. Run results come from the toy engine on this page, not from
+        a GPU <ProvenanceBadge kind="simulated" />. Memory sizes come from
+        llmsize&apos;s data <ProvenanceBadge kind="computed" />.{" "}
+        <a href={SIM9}>SIM.md §9</a> lists what the engine leaves out.
       </p>
       {opened.notices.length > 0 && (
         <div className="sb-notices" role="status">
@@ -162,17 +217,18 @@ export function Sandbox() {
             <strong>Some settings in the link were not used:</strong>
           </p>
           <ul>
-            {opened.notices.slice(0, 12).map((x, i) => (
+            {opened.notices.slice(0, MAX_NOTICES).map((x, i) => (
               <li key={i}>{x}</li>
             ))}
+            {opened.notices.length > MAX_NOTICES && (
+              <li>and {opened.notices.length - MAX_NOTICES} more.</li>
+            )}
           </ul>
         </div>
       )}
-      {opened.h && (
+      {(opened.h ?? opened.hb) && (
         <p className="sb-verify" role="status">
-          {checks.length > 0
-            ? checks.join(" ")
-            : "Checking the run against the hash in the link…"}
+          {verdict}
         </p>
       )}
 
@@ -182,7 +238,6 @@ export function Sandbox() {
             <button
               type="button"
               className="button"
-              aria-pressed={ab}
               onClick={() => {
                 if (ab) {
                   setB(null);
@@ -201,13 +256,23 @@ export function Sandbox() {
                   className="sb-tabs"
                   role="tablist"
                   aria-label="Configuration"
+                  onKeyDown={(e) => {
+                    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+                    e.preventDefault();
+                    const next = tab === "a" ? "b" : "a";
+                    setTab(next);
+                    document.getElementById(`${tabsId}-${next}`)?.focus();
+                  }}
                 >
                   {(["a", "b"] as const).map((t) => (
                     <button
                       key={t}
+                      id={`${tabsId}-${t}`}
                       type="button"
                       role="tab"
                       aria-selected={tab === t}
+                      aria-controls={`${tabsId}-panel`}
+                      tabIndex={tab === t ? 0 : -1}
                       className="sb-tab"
                       onClick={() => {
                         setTab(t);
@@ -229,11 +294,17 @@ export function Sandbox() {
               </>
             )}
           </div>
-          <Controls
-            config={editing}
-            onChange={setEditing}
-            name={ab ? tab.toUpperCase() : "A"}
-          />
+          <div
+            id={`${tabsId}-panel`}
+            role={ab ? "tabpanel" : undefined}
+            aria-labelledby={ab ? `${tabsId}-${tab}` : undefined}
+          >
+            <Controls
+              config={editing}
+              onChange={setEditing}
+              name={ab ? tab.toUpperCase() : "A"}
+            />
+          </div>
         </aside>
 
         <div className="sandbox__views">
@@ -241,7 +312,7 @@ export function Sandbox() {
             <button
               type="button"
               className="button"
-              data-link={linkUrl(link)}
+              data-link={url}
               onClick={() => void copy()}
             >
               Copy link
@@ -250,14 +321,14 @@ export function Sandbox() {
               Download JSON
             </button>
             <span className="sb-note" role="status">
-              {copiedNote}
+              {copiedNow?.ok ? "Link copied." : ""}
             </span>
-            {copied && (
+            {copiedNow && !copiedNow.ok && (
               <label className="sb-copy">
                 Copy this link:
                 <input
                   readOnly
-                  value={copied}
+                  value={copiedNow.url}
                   ref={(el) => {
                     el?.select();
                   }}
@@ -276,8 +347,13 @@ export function Sandbox() {
               ph.setPlaying(false);
             }}
             onStep={() => {
+              // One engine step: to the next step end in either run.
+              const next = Math.min(
+                nextStepEnd(runA.series.t, time),
+                ab ? nextStepEnd(runB.series.t, time) : Infinity,
+              );
               ph.setPlaying(false);
-              ph.setTime(Math.min(duration, time + duration / 200));
+              ph.setTime(Math.min(duration, next));
             }}
             onSeek={(t) => {
               ph.setPlaying(false);

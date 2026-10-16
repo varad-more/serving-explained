@@ -233,6 +233,33 @@ describe("share links", () => {
     }
   });
 
+  it("an A/B link keeps B even when B equals the defaults", () => {
+    const query = encodeLink({
+      a: { ...V1_DEFAULTS, sc: "static" },
+      b: { ...V1_DEFAULTS },
+      h: null,
+      hb: null,
+    });
+    const parsed = parseLink(query);
+    expect(parsed.b).toEqual(V1_DEFAULTS);
+    const both = parseLink(
+      encodeLink({
+        a: V1_DEFAULTS,
+        b: V1_DEFAULTS,
+        h: "0d8d398f",
+        hb: "0d8d398f",
+      }),
+    );
+    expect(both.b).toEqual(V1_DEFAULTS);
+    expect(both.hb).toBe("0d8d398f");
+  });
+
+  it("only a real B setting turns A/B on", () => {
+    const parsed = parseLink("v=1&b.zz=1&hb=12345678");
+    expect(parsed.b).toBeNull();
+    expect(parsed.notices.join(" ")).toContain("no settings for B");
+  });
+
   it("notices name what was dropped", () => {
     const parsed = parseLink(
       "v=1&a.bs=17&a.zz=1&a.m=gpt-9&a.n=999999&h=nothex",

@@ -25,17 +25,19 @@ export async function waitDone(page: Page, runs = 1, timeout = 60_000) {
 
 /** Sets the playhead as a scrub would, and waits for each run's frame. */
 export async function seek(page: Page, t: number, runs = 1) {
-  const value = await page.getByLabel("Playhead").evaluate((el, v) => {
-    const input = el as HTMLInputElement;
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    const set = Object.getOwnPropertyDescriptor(
-      HTMLInputElement.prototype,
-      "value",
-    )?.set;
-    set?.call(input, String(v));
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    return Number(input.value);
-  }, t);
+  const value = await page
+    .getByRole("slider", { name: "Playhead" })
+    .evaluate((el, v) => {
+      const input = el as HTMLInputElement;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      const set = Object.getOwnPropertyDescriptor(
+        HTMLInputElement.prototype,
+        "value",
+      )?.set;
+      set?.call(input, String(v));
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      return Number(input.value);
+    }, t);
   await expect(
     page.locator(`.sb-grid[data-frame-t="${String(value)}"]`),
   ).toHaveCount(runs);

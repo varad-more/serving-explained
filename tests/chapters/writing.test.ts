@@ -7,6 +7,7 @@ import { createProcessor } from "@mdx-js/mdx";
 import { describe, expect, it } from "vitest";
 import { glossary } from "../../src/chapters/glossary.ts";
 import sources from "../../src/data/sources.json" with { type: "json" };
+import { DESCRIPTIONS } from "../../src/viz/sandbox/presets.tsx";
 
 interface Node {
   type: string;
@@ -149,6 +150,23 @@ describe("the glossary", () => {
       sentences(e.definition).filter((s) => words(s).length >= MAX_WORDS),
     );
     expect(bad).toEqual([]);
+  });
+});
+
+describe("the sandbox's preset descriptions", () => {
+  const text = Object.values(DESCRIPTIONS);
+
+  it(`have no sentence of ${String(MAX_WORDS)} words or more`, () => {
+    const long = text
+      .flatMap(sentences)
+      .filter((s) => words(s).length >= MAX_WORDS);
+    expect(long).toEqual([]);
+  });
+
+  it("use no hype word and US spelling", () => {
+    const all = text.join(" ").toLowerCase();
+    expect(HYPE.filter((w) => new RegExp(`\\b${w}\\b`).test(all))).toEqual([]);
+    expect(all.match(UK)?.[0]).toBeUndefined();
   });
 });
 

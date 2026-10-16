@@ -66,7 +66,7 @@ export function buildConfig(c: SandboxConfig): Built {
       code: "kv-smaller-than-max-model-len",
       message:
         c.cap === "gpu"
-          ? `After the weights, the KV pool holds ${n(capacity)} tokens, but one request may need ${n(c.ml)} (max_model_len). Lower max_model_len, switch KV to fp8, or pick a bigger GPU.`
+          ? `After the weights, the KV pool holds ${n(capacity)} tokens, but one request may need ${n(c.ml)} (max_model_len). ${c.kd === "fp8" ? "Lower max_model_len or pick a bigger GPU." : "Lower max_model_len, switch KV to fp8, or pick a bigger GPU."}`
           : `The KV pool holds ${n(capacity)} tokens, but one request may need ${n(c.ml)} (max_model_len). Lower max_model_len or give the pool more blocks.`,
     };
   }

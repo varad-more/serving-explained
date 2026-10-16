@@ -19,6 +19,7 @@ import {
 } from "../../src/viz/sandbox/params.ts";
 import type { FromWorker } from "../../src/viz/sandbox/protocol.ts";
 import { createRunner } from "../../src/viz/sandbox/runner.ts";
+import { cellsOf } from "../../src/viz/sandbox/RunView.tsx";
 
 /** A fake clock that moves 10 ms per read, so runs split into many slices. */
 function fakeEnv() {
@@ -145,6 +146,30 @@ describe("sandbox worker", () => {
       }
     });
   }
+
+  it("the grid gives a request its slot's hue only while every holder is in slots 1–8", async () => {
+    const { out, handle } = await runAll(
+      CONFIGS["the defaults, 120 requests"] ?? V1_DEFAULTS,
+    );
+    const done = out.at(-1);
+    if (done?.type !== "done") throw new Error("no done");
+    let lowRunningHighSlot = 0;
+    for (let k = 1; k <= 80; k++) {
+      out.length = 0;
+      await handle({ type: "frame", t: (done.duration * k) / 81 });
+      const f = out[0];
+      if (f?.type !== "frame") throw new Error("no frame");
+      const high = f.holders.some((h) => h.slot > 8);
+      if (high && f.running <= 8) lowRunningHighSlot++;
+      for (const cell of cellsOf(f)) {
+        if (cell.kind !== "held") continue;
+        expect(high || f.running > 8).toBe(false);
+        expect(cell.slot).toBe(f.holders.find((h) => h.req === cell.req)?.slot);
+      }
+    }
+    // The case that once drew slots 9+ in slot 1's hue does occur here.
+    expect(lowRunningHighSlot).toBeGreaterThan(0);
+  });
 
   it("an event window holds exactly the events in it", async () => {
     const config = CONFIGS["shared-system-prompt"] ?? V1_DEFAULTS;

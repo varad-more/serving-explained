@@ -176,8 +176,22 @@ function parseBase(text: string): BaseLengthDist | null {
 }
 
 /** Clamps every length to [1, ml] and σ to its range; says what changed. */
-function clampDist(d: LengthDist, ml: number, notes: string[]): LengthDist {
-  const len = (x: number) => Math.min(ml, Math.max(1, x));
+function clampDist(
+  d: LengthDist,
+  ml: number,
+  label: string,
+  notes: string[],
+): LengthDist {
+  // An object, so the checks below see what the closures set.
+  const seen = { long: false, wide: false };
+  const len = (x: number) => {
+    if (x > ml) seen.long = true;
+    return Math.min(ml, Math.max(1, x));
+  };
+  const sigma = (x: number) => {
+    if (x > LIMITS.sigma.max) seen.wide = true;
+    return Math.min(LIMITS.sigma.max, x);
+  };
   const base = (b: BaseLengthDist): BaseLengthDist => {
     switch (b.kind) {
       case "fixed":
@@ -188,7 +202,7 @@ function clampDist(d: LengthDist, ml: number, notes: string[]): LengthDist {
         return {
           kind: "lognormal",
           median: len(b.median),
-          sigma: Math.min(LIMITS.sigma.max, b.sigma),
+          sigma: sigma(b.sigma),
           min: len(b.min),
           max: len(b.max),
         };
@@ -201,9 +215,13 @@ function clampDist(d: LengthDist, ml: number, notes: string[]): LengthDist {
           parts: d.parts.map((p) => ({ ...p, dist: base(p.dist) })),
         }
       : base(d);
-  if (encodeDist(out) !== encodeDist(d))
+  if (seen.long)
     notes.push(
-      `lengths above max_model_len (${String(ml)}) or σ above ${String(LIMITS.sigma.max)}`,
+      `${label}: lengths above max_model_len (${String(ml)}) were clipped to it`,
+    );
+  if (seen.wide)
+    notes.push(
+      `${label}: σ above ${String(LIMITS.sigma.max)} was lowered to it`,
     );
   return out;
 }
@@ -434,10 +452,8 @@ export function clampConfig(
       `${String(out.ml)} is out of range for this model; using ${String(ml)}`,
     );
   out.ml = ml;
-  const lengths: string[] = [];
-  out.pl = clampDist(out.pl, ml, lengths);
-  out.ol = clampDist(out.ol, ml, lengths);
-  if (lengths.length > 0) note("lengths", "clamped to 1 – max_model_len");
+  out.pl = clampDist(out.pl, ml, "prompt length", notes);
+  out.ol = clampDist(out.ol, ml, "output length", notes);
   const sp = {
     groups: clampNum(
       Math.round(out.sp.groups),
@@ -498,6 +514,7 @@ export function parseLink(query: string): Parsed {
     b: { ...V1_DEFAULTS },
   };
   let hasB = false;
+  const seen = new Set<string>();
   let h: string | null = null;
   let hb: string | null = null;
   for (const [rawKey, value] of params) {
@@ -517,12 +534,18 @@ export function parseLink(query: string): Parsed {
         notices.push(`Ignored an unknown setting "${clip(rawKey)}".`);
         continue;
       }
-      if (side === "b") hasB = true;
+      if (seen.has(rawKey))
+        notices.push(
+          `"${clip(rawKey)}" appears more than once; the last one is used.`,
+        );
+      seen.add(rawKey);
       const cfg = configs[side];
       if (key === "p") {
-        if ((PRESET_NAMES as string[]).includes(value))
+        if ((PRESET_NAMES as string[]).includes(value)) {
           cfg.p = value as PresetName;
-        else notices.push(`Ignored an unknown preset label "${clip(value)}".`);
+          if (side === "b") hasB = true;
+        } else
+          notices.push(`Ignored an unknown preset label "${clip(value)}".`);
         continue;
       }
       if (!(KEYS as readonly string[]).includes(key)) {
@@ -538,6 +561,7 @@ export function parseLink(query: string): Parsed {
         continue;
       }
       (cfg as unknown as Record<string, unknown>)[key] = parsed;
+      if (side === "b") hasB = true;
     } catch {
       notices.push(`Ignored a setting that could not be read.`);
     }
@@ -548,6 +572,8 @@ export function parseLink(query: string): Parsed {
     for (const n of notes) notices.push(`${side.toUpperCase()}: ${n}.`);
     return out;
   };
+  if (!hasB && hb)
+    notices.push("Ignored the hash for run B: the link has no settings for B.");
   return {
     a: clampSide("a"),
     b: hasB ? clampSide("b") : null,
@@ -586,7 +612,11 @@ function encodeSide(prefix: "a" | "b", c: SandboxConfig): string[] {
 /** The query string for a link: `v=1&a.…&b.…&h=…&hb=…`. */
 export function encodeLink(link: Link): string {
   const parts = ["v=1", ...encodeSide("a", link.a)];
-  if (link.b) parts.push(...encodeSide("b", link.b));
+  if (link.b) {
+    const b = encodeSide("b", link.b);
+    // B equal to the defaults still needs one key, or the link loses B.
+    parts.push(...(b.length > 0 ? b : [`b.s=${String(link.b.s)}`]));
+  }
   if (link.h) parts.push(`h=${link.h}`);
   if (link.b && link.hb) parts.push(`hb=${link.hb}`);
   return parts.join("&");
@@ -626,4 +656,15 @@ export function presetSandbox(name: PresetName): SandboxConfig {
     cp: sc.chunkedPrefill,
     ml: sc.maxModelLen,
   };
+}
+
+/** Whether a config is exactly its preset label's settings. */
+export function matchesPreset(c: SandboxConfig): boolean {
+  if (!c.p) return false;
+  const preset = presetSandbox(c.p);
+  return KEYS.every(
+    (key) =>
+      (PARAMS[key] as Param<Key>).encode(c[key] as never) ===
+      (PARAMS[key] as Param<Key>).encode(preset[key] as never),
+  );
 }

@@ -38,6 +38,84 @@ test.describe("sandbox: runs and links", () => {
     expect(errors).toEqual([]);
   });
 
+  test("Copy link puts the link on the clipboard", async ({
+    page,
+    context,
+    browserName,
+  }) => {
+    test.skip(
+      browserName !== "chromium",
+      "clipboard permissions are Chromium's",
+    );
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    await open(page, 1440, "v=1&a.n=40");
+    await waitDone(page);
+    await page.getByRole("button", { name: "Copy link" }).click();
+    await expect(page.locator(".sb-share")).toContainText("Link copied.");
+    const copied = await page.evaluate(() => navigator.clipboard.readText());
+    expect(copied).toBe(await shareLink(page));
+    // The note is about that link: it goes once the settings change.
+    await page.getByLabel("Requests", { exact: true }).fill("41");
+    await expect(page.locator(".sb-share")).not.toContainText("Link copied.");
+  });
+
+  test("without a clipboard, Copy link shows the link in a field", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "clipboard", {
+        value: { writeText: () => Promise.reject(new Error("denied")) },
+      });
+    });
+    await open(page, 1440, "v=1&a.n=40");
+    await waitDone(page);
+    await page.getByRole("button", { name: "Copy link" }).click();
+    await expect(page.getByLabel("Copy this link:")).toHaveValue(
+      (await shareLink(page)) ?? "",
+    );
+  });
+
+  test("after an edit, the banner says the link's hash no longer applies", async ({
+    page,
+  }) => {
+    await open(page, 1440, "v=1&a.n=40");
+    await waitDone(page);
+    const link = await shareLink(page);
+    await page.goto(link ?? "");
+    await expect(page.locator(".sb-verify")).toHaveText(/reproduced exactly/, {
+      timeout: 60_000,
+    });
+    await page.getByLabel("Scheduler", { exact: true }).selectOption("static");
+    await expect(page.locator(".sb-verify")).toHaveText(
+      "The settings changed since the link was opened, so its hashes no longer apply.",
+    );
+  });
+
+  test("a preset's description shows only while the settings are the preset's", async ({
+    page,
+  }) => {
+    await open(page, 1440, "v=1&a.p=chatbot&a.sc=static");
+    await expect(page.getByLabel("Start from a preset")).toHaveValue("");
+    await expect(page.locator(".sb-preset")).toHaveCount(0);
+    await page.getByLabel("Start from a preset").selectOption("chatbot");
+    await expect(page.locator(".sb-preset")).toContainText("Chat traffic");
+  });
+
+  test("typing a number keeps each keystroke, then clamps on blur", async ({
+    page,
+  }) => {
+    await open(page, 1440, "v=1&a.n=40");
+    const ml = page.getByLabel("max_model_len", { exact: true });
+    await ml.selectText();
+    await ml.pressSequentially("8192");
+    await ml.press("Tab");
+    await expect(ml).toHaveValue("8192");
+    await ml.selectText();
+    await ml.pressSequentially("10");
+    await ml.press("Enter");
+    await expect(ml).toHaveValue("64");
+  });
+
   test("a link whose hash does not match says so, naming both hashes", async ({
     page,
   }) => {
@@ -110,6 +188,16 @@ test.describe("sandbox: runs and links", () => {
         page.getByRole("heading", { level: 1, name: "Sandbox" }),
       ).toBeVisible();
       await expect(page.locator(".sb-notices li").first(), q).toBeVisible();
+      // Leave only once the worker has loaded and reported: WebKit reports a
+      // worker load cut off by navigation as a page error.
+      await expect(
+        page
+          .locator(
+            'section.sb-run:is([data-status="done"], [data-status="error"]), .sb-progress progress:not([max="1"])',
+          )
+          .first(),
+        q,
+      ).toBeAttached();
     }
     expect(errors).toEqual([]);
   });
@@ -134,6 +222,9 @@ test.describe("sandbox: runs and links", () => {
     const before = await page.locator(".sb-run").textContent();
     await page.waitForTimeout(800);
     expect(await page.locator(".sb-run").textContent()).toBe(before);
+    // A new setting starts a new run, which finishes.
+    await page.getByLabel("Requests", { exact: true }).fill("40");
+    await waitDone(page);
   });
 
   test("A/B: changing B's scheduler updates the diff table", async ({
@@ -182,6 +273,26 @@ test.describe("sandbox: runs and links", () => {
       "href",
       /llm-calculator/,
     );
+    await expect(page.locator(".sb-error .badge")).toHaveText(/computed/);
+  });
+
+  test("guardrails: a KV pool smaller than max_model_len explains why", async ({
+    page,
+  }) => {
+    await open(page, 1440, "v=1&a.ml=131072");
+    await expect(page.locator(".sb-error")).toContainText(
+      /^Cannot run even one request\. After the weights, the KV pool holds [\d,]+ tokens, but one request may need 131,072 \(max_model_len\)\. Lower max_model_len, switch KV to fp8, or pick a bigger GPU\./,
+    );
+    await expect(page.locator(".sb-error a")).toHaveAttribute(
+      "href",
+      /llm-calculator/,
+    );
+    // A pool set by hand: its numbers are the reader's, so no llmsize link.
+    await open(page, 1440, "v=1&a.cap=16");
+    await expect(page.locator(".sb-error")).toContainText(
+      "The KV pool holds 256 tokens, but one request may need 4,096 (max_model_len). Lower max_model_len or give the pool more blocks.",
+    );
+    await expect(page.locator(".sb-error a")).toHaveCount(0);
   });
 
   test("no layout shift while a run fills in the views", async ({ page }) => {
