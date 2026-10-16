@@ -563,6 +563,13 @@ function clip(text: string): string {
   return plain.length > 24 ? `${plain.slice(0, 24)}…` : plain;
 }
 
+/**
+ * Escapes only what a query value cannot hold, so `x0.85:u64-256|…` and
+ * `1,600,0.9` stay readable, as in SIM.md §12.2.
+ */
+const escape = (value: string) =>
+  value.replace(/[%&=#+\s]/g, (ch) => encodeURIComponent(ch));
+
 /** Every key that differs from V1_DEFAULTS, in §12.1's order. */
 function encodeSide(prefix: "a" | "b", c: SandboxConfig): string[] {
   const out: string[] = [];
@@ -571,7 +578,7 @@ function encodeSide(prefix: "a" | "b", c: SandboxConfig): string[] {
     const param = PARAMS[key] as Param<Key>;
     const value = param.encode(c[key]);
     if (value !== param.encode(V1_DEFAULTS[key]))
-      out.push(`${prefix}.${key}=${encodeURIComponent(value)}`);
+      out.push(`${prefix}.${key}=${escape(value)}`);
   }
   return out;
 }
