@@ -8,6 +8,7 @@ export default defineConfig(
     ignores: [
       "dist",
       "dist-ks",
+      "dist-og",
       "src/data",
       "test-results",
       "playwright-report",

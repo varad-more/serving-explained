@@ -68,16 +68,18 @@ export function postbuild(distDir: string, siteUrl: string): string[] {
   return written;
 }
 
-/** The production dist must not ship the kitchen sink (Prompt 1 step 6). */
+/**
+ * The production dist must not ship the kitchen sink (Prompt 1 step 6) or
+ * the preview cards (Prompt 9 decision 4).
+ */
 export function assertNoKitchenSink(distDir: string): void {
   const assets = join(distDir, "assets");
   for (const file of readdirSync(assets)) {
-    if (
-      /kitchen/i.test(file) ||
-      readFileSync(join(assets, file), "utf8").includes("Kitchen sink")
-    ) {
+    const text = readFileSync(join(assets, file), "utf8");
+    if (/kitchen/i.test(file) || text.includes("Kitchen sink"))
       throw new Error(`postbuild: ${file} contains the kitchen sink`);
-    }
+    if (/og-?cards/i.test(file) || text.includes("Preview cards"))
+      throw new Error(`postbuild: ${file} contains the preview cards`);
   }
 }
 

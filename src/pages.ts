@@ -18,6 +18,12 @@ export const pages: Record<Slug, Page> = {
 
 export const NotFound: Page = lazy(() => import("./pages/NotFound.tsx"));
 
+/** VITE_OG=1 only (`pnpm build:og`): the preview cards gen-og screenshots. */
+export const OgCards: Page | null =
+  import.meta.env.VITE_OG === "1"
+    ? lazy(() => import("./pages/OgCards.tsx"))
+    : null;
+
 /** Dev builds and VITE_KITCHEN_SINK=1 only; the import is dropped otherwise. */
 export const KitchenSink: Page | null =
   import.meta.env.DEV || import.meta.env.VITE_KITCHEN_SINK === "1"

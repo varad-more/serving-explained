@@ -1,0 +1,101 @@
+/* Preview cards (OgCards.tsx), in the Signal Box style (DESIGN.md): white,
+   heavy black rules, square corners, the title on a signal-yellow bar. */
+
+.og-cards {
+  display: grid;
+  gap: var(--space-6);
+  padding: var(--space-4);
+}
+
+.og {
+  display: grid;
+  grid-template-columns: 430px minmax(0, 1fr);
+  gap: var(--space-5);
+  width: 1200px;
+  height: 630px;
+  padding: var(--space-6) var(--space-6) var(--space-5);
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  border: 0;
+}
+
+.og--social {
+  width: 1280px;
+  height: 640px;
+  grid-template-columns: 470px minmax(0, 1fr);
+}
+
+.og__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.og__brand {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  padding-bottom: var(--space-3);
+  border-bottom: 6px solid var(--rule-strong);
+  font-size: var(--step-1);
+  font-weight: 700;
+}
+
+.og__title {
+  align-self: flex-start;
+  margin: var(--space-5) 0 var(--space-4) calc(-1 * var(--space-3));
+  padding: var(--space-1) var(--space-3);
+  background: var(--highlight);
+  color: var(--on-highlight);
+  font-size: var(--step-5);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+}
+
+.og__line {
+  margin: 0;
+  font-size: var(--step-2);
+  line-height: 1.3;
+}
+
+.og__url {
+  margin: auto 0 0;
+  padding-top: var(--space-3);
+  border-top: 2px solid var(--rule-strong);
+  font-size: var(--step-0);
+}
+
+.og__widget {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* The widget without its controls: gen-og sets the playhead first. */
+.og__widget .figure {
+  margin: 0;
+}
+
+/* The real A/B page at 1,280 px, where its two runs sit side by side. */
+.og__frame {
+  flex: none;
+  width: 1280px;
+  height: 1000px;
+  border: 0;
+  transform: scale(0.52);
+  transform-origin: 0 50%;
+}
+
+.og__terms {
+  columns: 2;
+  margin: 0;
+  padding: var(--space-4);
+  border: 2px solid var(--rule-strong);
+  background: var(--surface);
+  list-style: none;
+  font-size: var(--step-1);
+  line-height: 1.8;
+}

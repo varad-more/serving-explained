@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useRef } from "react";
-import { KitchenSink, NotFound, pages } from "./pages.ts";
+import { KitchenSink, NotFound, OgCards, pages } from "./pages.ts";
 import { pageTitle, routePath, routes } from "./routes.ts";
 import {
   Link,
@@ -20,20 +20,25 @@ export function App() {
   const [pathname = "/", hash = ""] = location.split(/(?=#)/);
   const route = matchRoute(pathname, base);
   const local = localPath(pathname, base);
-  const kitchenPage = !route && local === "/kitchen-sink/" ? KitchenSink : null;
-  const kitchen = kitchenPage !== null;
-  const Page = route ? pages[route.slug] : (kitchenPage ?? NotFound);
+  // Pages outside the routes, each in its own build only.
+  const extra = route
+    ? null
+    : local === "/kitchen-sink/" && KitchenSink
+      ? { Page: KitchenSink, title: "Kitchen sink – serving-explained" }
+      : local === "/og-cards/" && OgCards
+        ? { Page: OgCards, title: "Preview cards – serving-explained" }
+        : null;
+  const isExtra = extra !== null;
+  const Page = route ? pages[route.slug] : (extra?.Page ?? NotFound);
   const title = route
     ? pageTitle(route)
-    : kitchen
-      ? "Kitchen sink – serving-explained"
-      : "Page not found – serving-explained";
+    : (extra?.title ?? "Page not found – serving-explained");
 
   useEffect(() => {
-    if ((route || kitchen) && !pathname.endsWith("/")) {
+    if ((route || isExtra) && !pathname.endsWith("/")) {
       navigate(normalizePath(pathname) + window.location.search + hash, true);
     }
-  }, [route, kitchen, pathname, hash]);
+  }, [route, isExtra, pathname, hash]);
 
   return (
     <>

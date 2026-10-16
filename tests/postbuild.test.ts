@@ -88,4 +88,13 @@ describe("postbuild", () => {
       assertNoKitchenSink(dist);
     }).toThrow(/kitchen sink/);
   });
+
+  it("fails if the preview cards reach the production dist", () => {
+    const dist = mkdtempSync(join(tmpdir(), "postbuild-"));
+    mkdirSync(join(dist, "assets"));
+    writeFileSync(join(dist, "assets", "OgCards-abc.js"), "x");
+    expect(() => {
+      assertNoKitchenSink(dist);
+    }).toThrow(/preview cards/);
+  });
 });
