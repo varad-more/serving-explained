@@ -29,6 +29,7 @@
     "e2e",
     "vite.config.ts",
     "playwright.config.ts",
+    "playwright.audit.config.ts",
     "src/env.d.ts",
     "src/mathml.d.ts"
   ]
