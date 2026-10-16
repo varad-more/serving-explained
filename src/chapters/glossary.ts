@@ -454,4 +454,75 @@ export const glossary: readonly GlossaryEntry[] = [
       "When the request at the front of the queue cannot start, the ones behind it wait too, even if they would fit.",
     source: { id: "vllm-src", at: "v1/core/sched/scheduler.py L1114–1232" },
   },
+  // Chapter 4: prefix caching.
+  {
+    id: "prefix",
+    term: "Prefix",
+    definition:
+      "A request's opening tokens. Two prompts share a prefix when they start the same way.",
+    source: { id: "vllm-apc-doc" },
+  },
+  {
+    id: "system-prompt",
+    term: "System prompt",
+    definition:
+      "Instructions an application puts at the start of every request, so many requests share them as a prefix.",
+    source: { id: "vllm-apc-doc" },
+  },
+  {
+    id: "block-key",
+    term: "Block key",
+    definition:
+      "vLLM's name for a full block's cache entry: a hash of its parent's key, its tokens, and any extra keys.",
+    source: { id: "vllm-apc-doc", at: "L13–19" },
+  },
+  {
+    id: "parent-key",
+    term: "Parent key",
+    definition:
+      "The key of the block just before this one in the prompt. The first block has none.",
+    source: { id: "vllm-apc-doc", at: "L13–19" },
+  },
+  {
+    id: "cache-hit",
+    term: "Cache hit",
+    definition:
+      "A prompt block whose key is already in the cache, so its keys and values are reused, not computed.",
+    source: { id: "vllm-apc-doc", at: "L146–147" },
+  },
+  {
+    id: "hit-rate",
+    term: "Hit rate",
+    definition:
+      "Prompt tokens found in the cache divided by prompt tokens looked up, counted at each request's first admission.",
+    source: { id: "vllm-src", at: "v1/core/kv_cache_manager.py L253–262" },
+  },
+  {
+    id: "eviction",
+    term: "Eviction",
+    definition:
+      "Reusing a cached block for new KV, which drops its key from the cache.",
+    source: { id: "vllm-apc-doc", at: "L202–206" },
+  },
+  {
+    id: "lru",
+    term: "Least recently used (LRU)",
+    definition:
+      "An eviction order: the block no request has used for longest goes first.",
+    source: { id: "vllm-apc-doc", at: "L202–206" },
+  },
+  {
+    id: "radix-tree",
+    term: "Radix tree",
+    definition:
+      "A tree of token sequences where each path from the root spells a prefix, so shared prefixes share nodes.",
+    source: { id: "zheng2024", at: "§3" },
+  },
+  {
+    id: "replica",
+    term: "Replica",
+    definition:
+      "One of several copies of a served model, each on its own GPUs, with a balancer spreading requests among them.",
+    source: { id: "bench-kvtt" },
+  },
 ];

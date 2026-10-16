@@ -1,0 +1,187 @@
+/* Chapter 4 widgets. Cache states differ in pattern and outline, not only
+   color (DESIGN.md, "Prefix cache states"). */
+
+/* "256 blocks (4,096 tokens)" needs a wider column than chapter 2's. */
+.cache__controls {
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+}
+
+.cache__controls .slider__output {
+  min-width: 24ch;
+}
+
+.cache__svg {
+  display: block;
+  width: 100%;
+}
+
+.cache__ttft,
+.cache__lookup,
+.cache__counter {
+  margin: var(--space-2) 0;
+  font-size: var(--step--1);
+}
+
+.cache__note {
+  margin: 0;
+  font-size: var(--step--2);
+  color: var(--ink-2);
+  align-self: end;
+}
+
+.paged__readout .w6 {
+  display: inline-block;
+  min-width: 6ch;
+}
+
+/* Legend swatches for the grid's cache states. */
+
+.cache-swatch--shared {
+  background: var(--ink-2);
+  border: 1.5px solid var(--ink);
+  box-shadow: inset 0 0 0 2px var(--surface);
+}
+
+.cache-swatch--cached {
+  background-color: var(--surface);
+  background-image: radial-gradient(var(--ink-2) 1px, transparent 1.2px);
+  background-size: 4px 4px;
+  border-color: var(--ink-2);
+}
+
+.cache-swatch--evicted {
+  background: var(--surface);
+  border: 2px dashed var(--ink);
+}
+
+.summary--shared {
+  fill: var(--ink-2);
+}
+
+.summary--cached {
+  fill: var(--block-free-edge);
+  opacity: 0.5;
+}
+
+/* Figure 4.1. */
+
+.rp__prefix {
+  fill: var(--ink);
+}
+
+.rp__body {
+  fill: var(--block-free);
+  stroke: var(--ink-2);
+  stroke-width: 1;
+}
+
+.rp--recompute .rp__prefix,
+.rp--recompute .rp__body {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 2;
+}
+
+.rp--recompute .rp__prefix {
+  fill: var(--ink-2);
+}
+
+.rp__label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--surface);
+}
+
+.rp-swatch--prefix {
+  background: var(--ink);
+}
+
+.rp-swatch--body {
+  background: var(--block-free);
+  border-color: var(--ink-2);
+}
+
+.rp-swatch--recompute {
+  background: var(--ink-2);
+  border: 1.5px dashed var(--ink);
+}
+
+/* Figure 4.2. */
+
+.chain {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+  gap: var(--space-1);
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chain__block {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-1);
+  border: 1.5px solid var(--ink-2);
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.chain__name {
+  font-weight: 700;
+}
+
+.chain__parent {
+  color: var(--ink-2);
+}
+
+.chain__block[data-changed="true"] {
+  border: 2px dashed var(--ink);
+  background: var(--surface-2);
+}
+
+.chain__block[data-changed="true"] .chain__key {
+  font-weight: 700;
+}
+
+.chain__block[data-partial="true"] {
+  border-style: dotted;
+  color: var(--ink-2);
+}
+
+/* Figure 4.4. */
+
+.pb__band {
+  fill: transparent;
+}
+
+.pb__row[data-active="true"] .pb__band {
+  fill: var(--highlight);
+}
+
+.pb__row[data-active="true"] .chart__tick {
+  fill: var(--on-highlight);
+  font-weight: 700;
+}
+
+.pb__full {
+  fill: var(--ink-2);
+}
+
+.pb__partial {
+  fill: var(--surface);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 2;
+}
+
+.pb-swatch--full {
+  background: var(--ink-2);
+}
+
+.pb-swatch--partial {
+  background: var(--surface);
+  border: 1.5px dashed var(--ink);
+}

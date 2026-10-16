@@ -87,6 +87,21 @@ const SCENES: Record<string, Scene> = {
       await pause(page, 8000);
     },
   },
+  // Caching off vs. on at 2× from t = 0: the same requests, both caches.
+  "prefix-caching": {
+    figure: "4.6",
+    css: `
+      .site-header, .skip, .paged__controls, .paged__legend, .paged__keys,
+      .paged__select, .cache__ttft, .cache__lookup { display: none !important; }
+    `,
+    setup: async (fig) => {
+      await fig.getByLabel("Speed").selectOption("2");
+    },
+    run: async (fig, page) => {
+      await fig.getByRole("button", { name: "Play" }).click();
+      await pause(page, 8000);
+    },
+  },
   // Static vs. continuous at 2× from t = 0: the same requests, both schedulers.
   "continuous-batching": {
     figure: "3.3",
