@@ -2,12 +2,12 @@
   "_provenance": {
     "source": "llmsize",
     "repo": "https://github.com/varad-more/llm-calculator",
-    "commit": "5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf",
-    "math": "https://github.com/varad-more/llm-calculator/blob/5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf/docs/MATH.md",
+    "commit": "2cef2affe9ecc69f9acec3e8765ce454a9339c04",
+    "math": "https://github.com/varad-more/llm-calculator/blob/2cef2affe9ecc69f9acec3e8765ce454a9339c04/docs/MATH.md",
     "functions": [
       "estimateThroughput (bf16 weights and KV, tp 1, chunk 2048)"
     ],
-    "generated_at": "2026-10-02T23:57:40.906Z",
+    "generated_at": "2026-10-16T21:47:43.921Z",
     "generator": "scripts/gen-data.ts"
   },
   "mbu_decode": {

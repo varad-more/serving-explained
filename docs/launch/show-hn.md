@@ -93,7 +93,7 @@ Constraints:
   [docs/SIM.md §8](https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md#8-where-this-matches-vllm-and-where-it-differs)
   lists where it matches vLLM and where it differs.
 - Each step's time comes from a roofline model with llmsize's GPU and model
-  numbers ([MATH.md](https://github.com/varad-more/llm-calculator/blob/5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf/docs/MATH.md)).
+  numbers ([MATH.md](https://github.com/varad-more/llm-calculator/blob/2cef2affe9ecc69f9acec3e8765ce454a9339c04/docs/MATH.md)).
 - The animated widgets replay the engine's event log. Every number carries a
   badge: `simulated`, `computed`, or `measured`.
 - Each claim the text makes about the simulation is tagged and has a test

@@ -100,7 +100,7 @@
       "authors": "Varad More",
       "venue": "GitHub varad-more/llm-calculator",
       "year": 2026,
-      "url": "https://github.com/varad-more/llm-calculator/blob/5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf/docs/MATH.md",
+      "url": "https://github.com/varad-more/llm-calculator/blob/2cef2affe9ecc69f9acec3e8765ce454a9339c04/docs/MATH.md",
       "citedFor": "Every `computed` number: KV bytes per token, weight bytes, usable VRAM, roofline throughput, and the MBU/MFU assumptions",
       "status": "verified"
     },

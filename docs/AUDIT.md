@@ -291,7 +291,7 @@ Data, sandbox, glossary, and SOURCES.md (`review-sandbox-data.md`):
 - D-3: throughput badges link one log line; each number spans a range (L53–L56).
 - D-4: bench-ieb's TTFT clock starts when the client sends, so it excludes client-side waiting. The glossary's TTFT includes queueing.
 - D-5: the image tags rest on the log's pull-check lines; the pinned script has the image variables commented out.
-- D-7: llmsize PR #1 (the A10G fix) is still open, so the pin is off llmsize's `main`. The live llmsize app, which chapter 1 links, still shows 125 TFLOPS. PR #2's dead GPU `source_url`s are also open.
+- D-7: *(resolved 2026-10-16: #1 and #2 merged; `src/data` and every link re-pinned to llmsize `2cef2af`, no number changed; the live app shows 70)* llmsize PR #1 (the A10G fix) is still open, so the pin is off llmsize's `main`. The live llmsize app, which chapter 1 links, still shows 125 TFLOPS. PR #2's dead GPU `source_url`s are also open.
 - D-8: llmsize's M4 Max bf16 figure (11.6 TFLOPS) is not in its `source_url`.
 - D-9: there is no About page, though PRODUCT.md puts credibility there. The author is never named.
 - D-10: SIM.md links point at `main`, not a pinned commit.
@@ -501,7 +501,7 @@ the run, with no error.**
 | B2.1 design | open | resolved: B (Signal Box) is what ships |
 | B2.2 visibility | open → "public" | **regressed: private again (G1)** |
 | B2.3 rename | open | resolved: the site is at `/serving-explained/` |
-| B2.4–B2.7 | open | resolved and built; M9's llmsize PR is still open (D-7) |
+| B2.4–B2.7 | open | resolved and built; M9's llmsize PR merged 2026-10-16 (D-7) |
 | M1 label contrast | 4.35 and 4.36:1 | **fixed:** lowest 4.56:1 (slot 2, light) |
 | M2 waste hatch | 2.73:1 (dark) | **fixed:** 3.38:1 dark, 3.47:1 light; the strip is A5 |
 | M3 hue-only identity | glyphs dropped under 14 px | **partly:** marks, cells, strips, and timeline comply; the summary strip does not (C2-2) |
@@ -510,7 +510,7 @@ the run, with no error.**
 | M6 free-order cite | contradicting doc | fixed: cites `block_pool.py` L777–808 |
 | M7 knob untested | no test | fixed: `longer-prefix-saves-more` asserts both trends |
 | M8 absolute "nothing" | absolute | fixed in chapter 4 and PRODUCT.md; chapter 3 contradicts it (C3-2) |
-| M9 A10G TFLOPS | 125 | fixed on the site (70); llmsize PR #1 open (D-7) |
+| M9 A10G TFLOPS | 125 | fixed on the site (70); llmsize PR #1 merged 2026-10-16 (D-7) |
 | m1 ink on highlight | 1.35:1 possible | fixed: a test forbids it (`tests/viz/css.test.ts`); still 1.35:1 if used |
 | m2 link check | needed | **fixed in this audit:** `scripts/link-check.ts` |
 | m3–m8 | wording | fixed |

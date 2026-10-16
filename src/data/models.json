@@ -2,8 +2,8 @@
   "_provenance": {
     "source": "llmsize",
     "repo": "https://github.com/varad-more/llm-calculator",
-    "commit": "5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf",
-    "math": "https://github.com/varad-more/llm-calculator/blob/5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf/docs/MATH.md",
+    "commit": "2cef2affe9ecc69f9acec3e8765ce454a9339c04",
+    "math": "https://github.com/varad-more/llm-calculator/blob/2cef2affe9ecc69f9acec3e8765ce454a9339c04/docs/MATH.md",
     "functions": [
       "listModels",
       "resolveModel",
@@ -11,7 +11,7 @@
       "weightBytes(bf16)",
       "kvBytesForSequence(tokens 1, block size 1)"
     ],
-    "generated_at": "2026-10-02T23:57:40.905Z",
+    "generated_at": "2026-10-16T21:47:43.920Z",
     "generator": "scripts/gen-data.ts"
   },
   "contrast": {

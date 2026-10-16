@@ -15,7 +15,7 @@ import type { SandboxConfig } from "./params.ts";
 
 /** llmsize's math, the source of every `computed` number here. */
 export const LLMSIZE_URL =
-  "https://github.com/varad-more/llm-calculator/blob/5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf/docs/MATH.md";
+  "https://github.com/varad-more/llm-calculator/blob/2cef2affe9ecc69f9acec3e8765ce454a9339c04/docs/MATH.md";
 
 export type Built =
   | {

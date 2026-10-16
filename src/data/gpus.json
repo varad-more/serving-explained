@@ -2,14 +2,14 @@
   "_provenance": {
     "source": "llmsize",
     "repo": "https://github.com/varad-more/llm-calculator",
-    "commit": "5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf",
-    "math": "https://github.com/varad-more/llm-calculator/blob/5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf/docs/MATH.md",
+    "commit": "2cef2affe9ecc69f9acec3e8765ce454a9339c04",
+    "math": "https://github.com/varad-more/llm-calculator/blob/2cef2affe9ecc69f9acec3e8765ce454a9339c04/docs/MATH.md",
     "functions": [
       "getGpu",
       "usableVram",
       "defaultAssumptions"
     ],
-    "generated_at": "2026-10-02T23:57:40.906Z",
+    "generated_at": "2026-10-16T21:47:43.921Z",
     "generator": "scripts/gen-data.ts"
   },
   "gpus": [
@@ -34,7 +34,7 @@
       "reservedFractionFrom": "gpu",
       "memBandwidthBytesPerSec": 300000000000,
       "bf16Tflops": 121,
-      "source_url": "https://resources.nvidia.com/en-us-l4/l4-datasheet",
+      "source_url": "https://dam-cdn.nvd.orangelogic.com/AssetLink/8f4cjsr458mk07kxxt608b1ct0t570x7.pdf",
       "notes": "GDDR6 datacenter cards ship with in-band ECC enabled, which stores parity in the framebuffer itself and costs 1/16 of capacity. AWS documents the result per instance: 22 GiB of 24 on the A10G (g5) and L4 (g6), 44 GiB of 48 on the L40S (g6e). The 1/16 is the mechanism and matches those figures to within AWS's whole-GiB rounding. Consumer GeForce cards have no ECC and are not reduced. Figures: https://docs.aws.amazon.com/ec2/latest/instancetypes/ac.html"
     },
     {
@@ -46,7 +46,7 @@
       "reservedFractionFrom": "gpu",
       "memBandwidthBytesPerSec": 864000000000,
       "bf16Tflops": 362.05,
-      "source_url": "https://resources.nvidia.com/en-us-l40s/l40s-datasheet-28413",
+      "source_url": "https://www.nvidia.com/en-us/data-center/l40s/",
       "notes": "GDDR6 datacenter cards ship with in-band ECC enabled, which stores parity in the framebuffer itself and costs 1/16 of capacity. AWS documents the result per instance: 22 GiB of 24 on the A10G (g5) and L4 (g6), 44 GiB of 48 on the L40S (g6e). The 1/16 is the mechanism and matches those figures to within AWS's whole-GiB rounding. Consumer GeForce cards have no ECC and are not reduced. Figures: https://docs.aws.amazon.com/ec2/latest/instancetypes/ac.html"
     },
     {
@@ -58,7 +58,7 @@
       "reservedFractionFrom": "assumption",
       "memBandwidthBytesPerSec": 3352000000000,
       "bf16Tflops": 989.4,
-      "source_url": "https://resources.nvidia.com/en-us-tensor-core/nvidia-tensor-core-gpu-datasheet",
+      "source_url": "https://www.nvidia.com/en-us/data-center/h100/",
       "notes": null
     },
     {
