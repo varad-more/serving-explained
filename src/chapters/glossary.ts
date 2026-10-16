@@ -467,13 +467,13 @@ export const glossary: readonly GlossaryEntry[] = [
     term: "System prompt",
     definition:
       "Instructions an application puts at the start of every request, so many requests share them as a prefix.",
-    source: { id: "vllm-apc-doc" },
+    source: { id: "zheng2024", at: "§3" },
   },
   {
     id: "block-key",
     term: "Block key",
     definition:
-      "vLLM's name for a full block's cache entry: a hash of its parent's key, its tokens, and any extra keys.",
+      "Our name for vLLM's block hash: a full block's cache entry, hashed from its parent's key, its tokens, and any extra keys.",
     source: { id: "vllm-apc-doc", at: "L13–19" },
   },
   {
@@ -510,6 +510,20 @@ export const glossary: readonly GlossaryEntry[] = [
     definition:
       "An eviction order: the block no request has used for longest goes first.",
     source: { id: "vllm-apc-doc", at: "L202–206" },
+  },
+  {
+    id: "free-queue",
+    term: "Free queue",
+    definition:
+      "vLLM's list of blocks no request holds. Allocation takes blocks from its head; cached blocks wait in it until they are reused or evicted.",
+    source: { id: "vllm-src", at: "v1/core/block_pool.py L777–808" },
+  },
+  {
+    id: "admission",
+    term: "Admission",
+    definition:
+      "The step at which the scheduler moves a waiting request into the running batch and gives it blocks.",
+    source: { id: "vllm-src", at: "v1/core/sched/scheduler.py L563–684" },
   },
   {
     id: "radix-tree",

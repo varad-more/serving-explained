@@ -92,7 +92,7 @@ const SCENES: Record<string, Scene> = {
     figure: "4.6",
     css: `
       .site-header, .skip, .paged__controls, .paged__legend, .paged__keys,
-      .paged__select, .cache__ttft, .cache__lookup { display: none !important; }
+      .paged__select, .cache__ttft, .cache__lookup, .cache__note { display: none !important; }
     `,
     setup: async (fig) => {
       await fig.getByLabel("Speed").selectOption("2");

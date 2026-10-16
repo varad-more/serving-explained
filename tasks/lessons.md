@@ -4,6 +4,14 @@ Mistakes, corrections, and surprises. Newest first.
 
 ## 2026-10-15
 
+- **Test every stop a reader can reach, not only the ones the plan sweeps.**
+  A slider stop past the preset's max_model_len threw inside a render and
+  unmounted the whole page; the claim tests never moved that slider.
+- **A slider whose value is not one of its stops sits at stop 0.** Each
+  figure needs stops that include its own starting value.
+- **Building frames from snapshots is simple but slow.** Copying every
+  request each step cost 41–85 ms per run; replaying the event log costs
+  10–20 ms, and a test checks it against the snapshots.
 - **An SVG scaled to its measured width has a fractional height.** Chapter
   3's full-page screenshots came out 1 px taller or shorter between CI runs.
   Give every SVG a fixed pixel height; let only its width follow the layout.

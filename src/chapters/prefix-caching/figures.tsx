@@ -19,11 +19,13 @@ import {
   decodePair,
   FULL_HIT,
   PRESSURE,
+  REPEATED_FIGURE,
   SELF_HIT,
   SHARED,
   sharers,
   SWEPT_FRACTIONS,
   SWEPT_PREFIX_LENS,
+  BLOCK_SIZES,
   UNIQUE,
   type CacheOptions,
   type PresetKey,
@@ -142,6 +144,11 @@ export const F = {
     sharers: repeated.sharers,
     preempted: repeated.preempted.length,
     times: repeated.sharers + repeated.preempted.length,
+    /** The first preempted sharing request among Figure 4.1's rows. */
+    example:
+      repeated.preempted
+        .filter((id) => id < REPEATED_FIGURE.requests)
+        .sort((a, b) => a - b)[0] ?? -1,
     tokens: repeated.tokens,
   },
   chain: {
@@ -161,6 +168,7 @@ export const F = {
     maxOff: memOff.maxRunning,
     queueOn: memOn.queue,
     queueOff: memOff.queue,
+    prefixStops: SWEPT_PREFIX_LENS,
     fractions: SWEPT_FRACTIONS.map((fraction) => ({
       fraction: 100 * fraction,
       rate: 100 * hitRate(run("shared-system-prompt", { ...SHARED, fraction })),
@@ -169,6 +177,7 @@ export const F = {
   },
   partial: {
     rows: sharedRows,
+    sizes: BLOCK_SIZES,
     smallest: firstRow?.B ?? 0,
     largest: lastRow?.B ?? 0,
     sharedLargest: lastRow?.shared ?? 0,
@@ -198,6 +207,7 @@ export const F = {
     uniquePreemptions:
       unique.m.summary.preemptions + uniqueOff.m.summary.preemptions,
     uniqueRate: 100 * hitRate(unique),
+    selfRequests: SELF_HIT.requests.length,
     selfReq: selfReadmit.req,
     selfCached: selfReadmit.cached,
     pairHit: (() => {

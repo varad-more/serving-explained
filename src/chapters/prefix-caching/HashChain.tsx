@@ -61,7 +61,7 @@ export function HashChain() {
             ? `Token ${String(position)} is in the last block, which is not full and has no key: no key changes.`
             : changed
               ? `Changing token ${String(position)} changes the keys of blocks ${String(first)}–${String(after.length - 1)}: ${String(moved)} of ${String(after.length)}. Blocks before ${String(first)} keep theirs.`
-              : `${String(after.length)} full blocks have keys; the last ${String(tokens.length - after.length * B)} tokens fill no block, so they have none.`}{" "}
+              : `${String(after.length)} full blocks have keys; the last ${String(tokens.length - after.length * B)} tokens fill only part of a block, which has no key.`}{" "}
           <ProvenanceBadge kind="simulated" />
         </p>
         <ol className="chain" aria-label="Blocks of the system prompt">

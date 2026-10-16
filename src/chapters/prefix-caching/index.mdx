@@ -25,16 +25,16 @@ export const KVTT = "https://github.com/varad-more/kv-transfer-tax/blob/56b5ab5d
 ## The same prompt, computed again
 
 Many requests start the same way.
-An application often puts the same <GlossaryTerm id="system-prompt">system prompt</GlossaryTerm> at the start of every request, and chat turns repeat their history (<SourceLink id="vllm-apc-doc" />).
+Different requests often share common parts, such as a <GlossaryTerm id="system-prompt">system prompt</GlossaryTerm> that an application puts first in every request (<SourceLink id="zheng2024" at="§3" />).
 Call a request's opening tokens its <GlossaryTerm id="prefix">prefix</GlossaryTerm>.
 Two requests that share a prefix compute the same keys and values for it (<SourceLink id="vllm-apc-doc" />).
 
-Figure 4.1 runs <Num value={F.requests} kind="simulated" badge={false} /> requests, arriving at about <Num value={F.rate} digits={1} unit="per second" kind="simulated" />.
+Figure 4.1's workload has <Num value={F.requests} kind="simulated" badge={false} /> requests, arriving at about <Num value={F.rate} digits={1} unit="per second" kind="simulated" />.
 <Num value={F.fraction} unit="%" kind="simulated" badge={false} /> of them start with one <Num value={F.prefixLen} kind="simulated" />-token system prompt.
 The KV pool holds <Num value={F.capacity} kind="simulated" badge={false} /> tokens in <Num value={F.blocks} kind="simulated" /> blocks, and at most <Num value={F.maxNumSeqs} kind="simulated" /> requests run at once.
 
-<Claim id="repeated-prefill">With caching off, <Num value={F.repeated.sharers} kind="simulated" badge={false} /> requests compute the <Num value={F.prefixLen} kind="simulated" badge={false} />-token prefix. The <Num value={F.repeated.preempted} kind="simulated" badge={false} /> of them that get preempted compute it again, so the prefix costs <Num value={F.repeated.tokens} kind="simulated" /> tokens of prefill. Figure 4.1 labels r9's second prefill as a recompute.</Claim>
-<Link to="/paged-attention/">Chapter 2</Link> covered <GlossaryTerm id="preemption">preemption</GlossaryTerm>: a preempted request loses its blocks and computes its tokens again.
+<Claim id="repeated-prefill">With caching off, <Num value={F.repeated.sharers} kind="simulated" /> requests compute the <Num value={F.prefixLen} kind="simulated" badge={false} />-token prefix. The <Num value={F.repeated.preempted} kind="simulated" badge={false} /> of them that get preempted compute it again, so the prefix costs <Num value={F.repeated.tokens} kind="simulated" /> tokens of prefill. Figure 4.1 labels r{F.repeated.example}'s second prefill as a recompute.</Claim>
+<Link to="/paged-attention/">Chapter 2</Link> covered <GlossaryTerm id="preemption">preemption</GlossaryTerm>: a preempted request gives up its blocks, and with caching off it computes its tokens again.
 
 </ChapterStep>
 
@@ -43,13 +43,13 @@ The KV pool holds <Num value={F.capacity} kind="simulated" badge={false} /> toke
 ## Each full block gets a key
 
 vLLM's <GlossaryTerm id="prefix-caching">prefix caching</GlossaryTerm> gives each full block a <GlossaryTerm id="block-key">key</GlossaryTerm> (<SourceLink id="vllm-apc-doc" at="L13–19" />).
-The key is a hash of the block's <GlossaryTerm id="parent-key">parent key</GlossaryTerm>, its tokens, and extra keys for LoRA adapters, images, or a cache salt.
+The key is a hash of the block's <GlossaryTerm id="parent-key">parent key</GlossaryTerm>, its tokens, and extra keys that keep different adapters, images, or tenants apart.
 Because each key includes its parent's, a key stands for the whole prefix up to its block.
 
-<Claim id="one-token-changes-chain">So changing one token keeps every earlier block's key and changes the key of its own block and every block after. We checked our engine's keys for every token of a 64-token prompt at block sizes 4, 8, and 16.</Claim>
-Figure 4.2 shows the preset's system prompt: <Num value={F.chain.full} kind="simulated" badge={false} /> full blocks of <Num value={F.blockSize} kind="simulated" badge={false} /> tokens, and <Num value={F.chain.partial} kind="simulated" /> tokens left over.
+<Claim id="one-token-changes-chain">So changing a token in a full block keeps every earlier key and changes the key of its own block and every block after. We checked our engine's keys for every token of a 64-token prompt at block sizes 4, 8, and 16.</Claim>
+Figure 4.2 shows Figure 4.1's system prompt: <Num value={F.chain.full} kind="simulated" badge={false} /> full blocks of <Num value={F.blockSize} kind="simulated" badge={false} /> tokens, and <Num value={F.chain.partial} kind="simulated" /> tokens left over.
 
-<Claim id="full-blocks-only">Only full blocks get keys (<SourceLink id="vllm-apc-doc" at="L22" />). In both of this chapter's presets, every block the engine caches is full.</Claim>
+<Claim id="full-blocks-only">Only full blocks get keys (<SourceLink id="vllm-apc-doc" at="L22" />). In both of this chapter's workloads, every block the engine caches is full.</Claim>
 
 vLLM hashes with sha256 by default (<SourceLink id="vllm-apc-doc" at="Note 2" />).
 Our engine uses a 53-bit hash and checks the tokens on every hit, so a collision cannot give a wrong hit (<a href={`${SIM}#3-data-structures`}>SIM.md §3</a>).
@@ -60,24 +60,36 @@ Our engine uses a 53-bit hash and checks the tokens on every hit, so a collision
 
 ## A hit reuses the chain
 
-A new request looks up its full blocks in order, key by key, until one misses (<SourceLink id="vllm-apc-doc" at="L146–147" />).
+At <GlossaryTerm id="admission">admission</GlossaryTerm>, the engine hashes a request's full blocks and looks them up in order (<SourceLink id="vllm-apc-doc" at="L143" />).
+It stops at the first miss: a missing block means every later one misses too (<SourceLink id="vllm-src" at="v1/core/single_type_kv_cache_manager.py L797–805" />).
 Each block found is a <GlossaryTerm id="cache-hit">cache hit</GlossaryTerm>.
-The request's block table points at that block, and its <GlossaryTerm id="reference-count">reference count</GlossaryTerm> goes up by one.
+The request's <GlossaryTerm id="block-table">block table</GlossaryTerm> points at that block, and its <GlossaryTerm id="reference-count">reference count</GlossaryTerm> goes up by one (<SourceLink id="vllm-apc-doc" at="L146–147" />).
 
 <Claim id="hit-walks-chain">In Figure 4.3, each sharing request after the first hits <Num value={F.hit.perSharer} kind="simulated" /> tokens whenever those full blocks are still cached when it is admitted.</Claim>
 <Claim id="refcount-counts-sharers">A prefix block's reference count is the number of running requests whose tables hold it: up to <Num value={F.hit.mostSharers} kind="simulated" /> at once here.</Claim>
 
-<Claim id="caching-lowers-ttft-and-prefill">Caching cuts mean TTFT from <Num value={F.hit.ttftOff} digits={2} unit="s" kind="simulated" badge={false} /> to <Num value={F.hit.ttftOn} digits={2} unit="s" kind="simulated" />. Prefill work falls from <Num value={F.hit.prefillOff} kind="simulated" badge={false} /> tokens to <Num value={F.hit.prefillOn} kind="simulated" />.</Claim>
+<Claim id="caching-lowers-ttft-and-prefill">Caching cuts mean <GlossaryTerm id="ttft">time to first token (TTFT)</GlossaryTerm> from <Num value={F.hit.ttftOff} digits={2} unit="s" kind="simulated" badge={false} /> to <Num value={F.hit.ttftOn} digits={2} unit="s" kind="simulated" />. Prefill work falls from <Num value={F.hit.prefillOff} kind="simulated" badge={false} /> tokens to <Num value={F.hit.prefillOn} kind="simulated" />.</Claim>
 
-Sharing saves memory too.
-We measure memory as blocks in use per running request, counting each shared block once and averaging over the time playback shows each step.
+</ChapterStep>
+
+<ChapterStep figure="hit" id="memory">
+
+## Sharing saves memory too
+
+We measure memory as blocks in use per running request, counting each shared block once, averaged over time as playback shows it.
 <Claim id="sharing-saves-memory">With caching on, that is <Num value={F.hit.memOn} digits={1} kind="simulated" badge={false} /> blocks, against <Num value={F.hit.memOff} digits={1} kind="simulated" /> off. So more requests fit: up to <Num value={F.hit.maxOn} kind="simulated" badge={false} /> run at once, against <Num value={F.hit.maxOff} kind="simulated" />. The queue averages <Num value={F.hit.queueOn} digits={1} kind="simulated" badge={false} /> requests, against <Num value={F.hit.queueOff} digits={1} kind="simulated" />.</Claim>
-So caching cuts TTFT in two ways: less prefill, and less waiting.
+Our reading: caching cuts TTFT in two ways, with less prefill and less waiting.
+
+</ChapterStep>
+
+<ChapterStep figure="hit" id="hit-rate">
+
+## What the hit rate depends on
 
 The <GlossaryTerm id="hit-rate">hit rate</GlossaryTerm> is the share of prompt tokens found in the cache, at each request's first admission (<SourceLink id="vllm-src" at="v1/core/kv_cache_manager.py L253–262" />).
-<Claim id="share-fraction-raises-hits">It follows the workload. As the share of requests with the prefix goes from <Num value={F.hit.fractions[0]?.fraction ?? 0} unit="%" kind="simulated" badge={false} /> to <Num value={F.hit.fractions.at(-1)?.fraction ?? 0} unit="%" kind="simulated" badge={false} />, the hit rate rises at every step, from <Num value={F.hit.fractions[0]?.rate ?? 0} digits={1} unit="%" kind="simulated" badge={false} /> to <Num value={F.hit.fractions.at(-1)?.rate ?? 0} digits={1} unit="%" kind="simulated" />.</Claim>
+<Claim id="share-fraction-raises-hits">It follows the workload. With <Num value={F.hit.fractions[0]?.fraction ?? 0} kind="simulated" badge={false} />, <Num value={F.hit.fractions[1]?.fraction ?? 0} kind="simulated" badge={false} />, <Num value={F.hit.fractions[2]?.fraction ?? 0} kind="simulated" badge={false} />, and <Num value={F.hit.fractions[3]?.fraction ?? 0} unit="%" kind="simulated" badge={false} /> of requests sharing the prefix, the hit rate is <Num value={F.hit.fractions[0]?.rate ?? 0} digits={1} unit="%" kind="simulated" badge={false} />, <Num value={F.hit.fractions[1]?.rate ?? 0} digits={1} unit="%" kind="simulated" badge={false} />, <Num value={F.hit.fractions[2]?.rate ?? 0} digits={1} unit="%" kind="simulated" badge={false} />, and <Num value={F.hit.fractions[3]?.rate ?? 0} digits={1} unit="%" kind="simulated" />.</Claim>
 
-<Claim id="longer-prefix-saves-more">A longer shared prefix saves more. From <Num value={F.hit.sweep[0]?.prefixLen ?? 0} kind="simulated" badge={false} /> to <Num value={F.hit.sweep.at(-1)?.prefixLen ?? 0} kind="simulated" badge={false} /> tokens, each sharing request hits more at every step, up to <Num value={F.hit.sweep.at(-1)?.hits ?? 0} digits={0} kind="simulated" /> tokens on average. The TTFT gap to caching off widens at every step, to <Num value={F.hit.sweep.at(-1)?.gap ?? 0} digits={1} unit="s" kind="simulated" />.</Claim>
+<Claim id="longer-prefix-saves-more">A longer shared prefix saves more. At prefixes of <Num value={F.hit.prefixStops[0] ?? 0} kind="simulated" badge={false} />, <Num value={F.hit.prefixStops[1] ?? 0} kind="simulated" badge={false} />, <Num value={F.hit.prefixStops[2] ?? 0} kind="simulated" badge={false} />, <Num value={F.hit.prefixStops[3] ?? 0} kind="simulated" badge={false} />, and <Num value={F.hit.prefixStops[4] ?? 0} kind="simulated" /> tokens, the average hit per sharing request rises each time, to <Num value={F.hit.sweep.at(-1)?.hits ?? 0} digits={0} kind="simulated" badge={false} /> tokens. The TTFT gap to caching off widens each time, to <Num value={F.hit.sweep.at(-1)?.gap ?? 0} digits={1} unit="s" kind="simulated" />.</Claim>
 
 </ChapterStep>
 
@@ -85,8 +97,8 @@ The <GlossaryTerm id="hit-rate">hit rate</GlossaryTerm> is the share of prompt t
 
 ## Only full blocks match
 
-<Claim id="partial-not-reused">A partial block is never reused. On both presets and at every block size, every block a hit reuses is full, and every hit is a whole number of blocks.</Claim>
-<Claim id="shared-tokens-floor">So the <Num value={F.prefixLen} kind="simulated" badge={false} />-token prompt shares <Num value={F.partial.rows[0]?.shared ?? 0} kind="simulated" badge={false} />, <Num value={F.partial.rows[1]?.shared ?? 0} kind="simulated" badge={false} />, <Num value={F.partial.rows[2]?.shared ?? 0} kind="simulated" badge={false} />, <Num value={F.partial.rows[3]?.shared ?? 0} kind="simulated" badge={false} />, and <Num value={F.partial.rows[4]?.shared ?? 0} kind="simulated" /> tokens at block sizes <Num value={F.partial.smallest} kind="simulated" badge={false} /> to <Num value={F.partial.largest} kind="simulated" badge={false} />.</Claim>
+<Claim id="partial-not-reused">A partial block is never reused. In both workloads and at every block size, every block a hit reuses is full, and every hit is a whole number of blocks.</Claim>
+<Claim id="shared-tokens-floor">So the <Num value={F.prefixLen} kind="simulated" badge={false} />-token system prompt shares <Num value={F.partial.rows[0]?.shared ?? 0} kind="simulated" badge={false} />, <Num value={F.partial.rows[1]?.shared ?? 0} kind="simulated" badge={false} />, <Num value={F.partial.rows[2]?.shared ?? 0} kind="simulated" badge={false} />, <Num value={F.partial.rows[3]?.shared ?? 0} kind="simulated" badge={false} />, and <Num value={F.partial.rows[4]?.shared ?? 0} kind="simulated" /> tokens at block sizes <Num value={F.partial.sizes[0] ?? 0} kind="simulated" badge={false} />, <Num value={F.partial.sizes[1] ?? 0} kind="simulated" badge={false} />, <Num value={F.partial.sizes[2] ?? 0} kind="simulated" badge={false} />, <Num value={F.partial.sizes[3] ?? 0} kind="simulated" badge={false} />, and <Num value={F.partial.sizes[4] ?? 0} kind="simulated" badge={false} />.</Claim>
 Each request computes the rest itself.
 
 <Claim id="full-hit-cap">Even an identical prompt computes its last block again. A <Num value={F.partial.fullHitPrompt} kind="simulated" badge={false} />-token prompt sent twice hits only <Num value={F.partial.fullHitTokens} kind="simulated" /> tokens at block size <Num value={F.partial.fullHitBlock} kind="simulated" badge={false} />.</Claim>
@@ -98,30 +110,43 @@ vLLM caps a hit one token short of the prompt, rounded down to a block, so the l
 
 ## Eviction
 
-A cached block with no references stays keyed in the free queue (<SourceLink id="vllm-apc-doc" at="L202–206" />).
+A cached block with no references stays keyed in the <GlossaryTerm id="free-queue">free queue</GlossaryTerm> (<SourceLink id="vllm-apc-doc" at="L202–206" />).
 New allocations take blocks from the head of that queue.
 Taking a cached block is an <GlossaryTerm id="eviction">eviction</GlossaryTerm>: its key leaves the cache.
 
 vLLM puts a freed block without a key at the front of the queue, and one with a key at the back (<SourceLink id="vllm-src" at="v1/core/block_pool.py L777–808" />).
-So the head is the <GlossaryTerm id="lru">least recently used</GlossaryTerm> cached block.
+So free blocks without a key go first; among cached blocks, the <GlossaryTerm id="lru">least recently used</GlossaryTerm> is nearest the head.
 <Claim id="lru-evicts-head">In Figure 4.5, every eviction takes the block at the head of the queue, eviction order 1 in the grid.</Claim>
 <Claim id="evict-only-when-needed">And a cached block is evicted only when no free block without a key is left.</Claim>
 
-Figure 4.5 runs <Num value={F.pressure.prefixes} kind="simulated" badge={false} /> system prompts of <Num value={F.pressure.prefixLen} kind="simulated" badge={false} /> tokens each.
+Figure 4.5's workload has <Num value={F.pressure.prefixes} kind="simulated" badge={false} /> system prompts of <Num value={F.pressure.prefixLen} kind="simulated" /> tokens each.
 Together they need <Num value={F.pressure.needed} kind="simulated" badge={false} /> blocks, and the pool has <Num value={F.pressure.blocks} kind="simulated" />.
 <Claim id="evictions-happen">The engine evicts <Num value={F.pressure.evictions} kind="simulated" /> times.</Claim>
-<Claim id="pressure-lowers-hit-rate">The hit rate falls to <Num value={F.pressure.rate} digits={1} unit="%" kind="simulated" badge={false} />, against <Num value={F.pressure.sharedRate} digits={1} unit="%" kind="simulated" /> with one shared prompt.</Claim>
+<Claim id="pressure-lowers-hit-rate">The hit rate falls to <Num value={F.pressure.rate} digits={1} unit="%" kind="simulated" badge={false} />, against <Num value={F.pressure.sharedRate} digits={1} unit="%" kind="simulated" /> on Figure 4.3's workload, which shares one longer system prompt in a bigger pool.</Claim>
 <Claim id="more-blocks-more-hits">More capacity keeps more prefixes. From <Num value={F.pressure.capacities[0]?.capacity ?? 0} kind="simulated" badge={false} /> to <Num value={F.pressure.capacities.at(-1)?.capacity ?? 0} kind="simulated" badge={false} /> tokens of KV, the hit rate never falls, and it rises from <Num value={F.pressure.capacities[0]?.rate ?? 0} digits={1} unit="%" kind="simulated" badge={false} /> to <Num value={F.pressure.capacities.at(-1)?.rate ?? 0} digits={1} unit="%" kind="simulated" />.</Claim>
+
+</ChapterStep>
+
+<ChapterStep figure="compare" id="not-faster">
+
+## Not every request gets faster
+
+Figure 4.6 runs caching off and on side by side, in lockstep.
+Set its share of requests with a prefix to 0%, and the two runs look alike.
 
 <Callout kind="misconception">
 
 "Prefix caching makes every request faster."
 It saves prefill only when prefixes repeat and their blocks are still cached.
-<Claim id="unique-no-hits">With no shared prefix, the shared-prompt preset gets no hits: <Num value={F.myth.uniqueRate} digits={0} unit="%" kind="simulated" />. Neither run preempts, and every request's TTFT is exactly the same with caching on and off.</Claim>
-<Claim id="self-hit-after-preemption">One exception: a preempted request can hit its own blocks. In a small run of two unrelated prompts, r{F.myth.selfReq} is preempted, and when admitted again it hits <Num value={F.myth.selfCached} kind="simulated" /> of its own tokens.</Claim>
+<Claim id="unique-no-hits">With no shared prefix, Figure 4.3's workload gets no hits: <Num value={F.myth.uniqueRate} digits={0} unit="%" kind="simulated" />. Neither run preempts, and every request's TTFT is exactly the same with caching on and off.</Claim>
+<Claim id="self-hit-after-preemption">One exception: a preempted request can hit its own blocks, which keep their keys when freed. In a small run of <Num value={F.myth.selfRequests} kind="simulated" badge={false} /> unrelated prompts, r{F.myth.selfReq} is preempted, and when admitted again it hits <Num value={F.myth.selfCached} kind="simulated" /> of its own tokens.</Claim>
+That follows vLLM, which frees a preempted request's blocks without dropping their keys (<SourceLink id="vllm-src" at="v1/core/sched/scheduler.py L1540–1583, v1/core/block_pool.py L777–808" />).
 
-<Claim id="decode-cost-unchanged">It does nothing for a decode step, which reads the whole context whether it came from a hit or not. A request whose first <Num value={F.myth.pairHit} kind="simulated" /> tokens hit decodes in steps exactly as long as when they were computed.</Claim>
-<Claim id="caching-raises-p50-itl">Decode can even get slightly slower. With caching on, each decode step runs more requests, <Num value={F.myth.batchOn} digits={1} kind="simulated" badge={false} /> against <Num value={F.myth.batchOff} digits={1} kind="simulated" /> on average. So p50 ITL rises, from <Num value={1000 * F.myth.p50Off} digits={1} unit="ms" kind="simulated" badge={false} /> to <Num value={1000 * F.myth.p50On} digits={1} unit="ms" kind="simulated" />. p99 ITL falls, from <Num value={1000 * F.myth.p99Off} unit="ms" kind="simulated" badge={false} /> to <Num value={1000 * F.myth.p99On} unit="ms" kind="simulated" />.</Claim>
+Our reasoning: a decode step reads the whole context, whether it came from a hit or not.
+vLLM does so too by default; its cascade attention, which can share those reads, is off unless enabled (<SourceLink id="vllm-src" at="config/model.py L284–290" />).
+<Claim id="decode-cost-unchanged">In our engine, a request whose first <Num value={F.myth.pairHit} kind="simulated" /> tokens hit decodes in steps exactly as long as when they were computed.</Claim>
+<Claim id="caching-raises-p50-itl">Decode can even get slightly slower. With caching on, each decode step runs more requests, <Num value={F.myth.batchOn} digits={1} kind="simulated" badge={false} /> against <Num value={F.myth.batchOff} digits={1} kind="simulated" /> on average. So p50 <GlossaryTerm id="itl">inter-token latency (ITL)</GlossaryTerm> rises, from <Num value={1000 * F.myth.p50Off} digits={1} unit="ms" kind="simulated" badge={false} /> to <Num value={1000 * F.myth.p50On} digits={1} unit="ms" kind="simulated" />. p99 ITL falls, from <Num value={1000 * F.myth.p99Off} unit="ms" kind="simulated" badge={false} /> to <Num value={1000 * F.myth.p99On} unit="ms" kind="simulated" />.</Claim>
+<GlossaryTerm id="percentile">p50 and p99</GlossaryTerm> are the median and the slowest 1%.
 Our reasoning: with caching off, longer prefills and more preemptions stall decodes, which is what p99 sees.
 
 </Callout>
@@ -132,7 +157,6 @@ Our reasoning: with caching off, longer prefills and more preemptions stall deco
 
 ## Another design: RadixAttention
 
-Figure 4.6 runs caching off and on side by side, in lockstep.
 SGLang's RadixAttention keeps cached KV in a <GlossaryTerm id="radix-tree">radix tree</GlossaryTerm>, in pages of one token, so it matches token by token (<SourceLink id="zheng2024" at="§3" />).
 It evicts the least recently used leaf first, never a node in use, and cached and running requests share one memory pool.
 Its scheduler runs requests with longer cached prefixes first; ours serves requests in arrival order.
@@ -146,7 +170,7 @@ Our comparison, not the paper's: one-token pages lose nothing to partial blocks,
 
 A large service runs several <GlossaryTerm id="replica">replicas</GlossaryTerm> of a model.
 Our reasoning: with several replicas, a hit needs the request to land on the replica that holds its prefix.
-The balancer in kv-transfer-tax routes by load, not by prefix (<a href={`${KVTT}/proxy/replica_lb.py#L56-L75`}>proxy/replica_lb.py L56–75</a>, <SourceLink id="bench-kvtt" />).
+The author's kv-transfer-tax benchmark has a replica balancer, and it routes by load or in turn, never by prefix (<a href={`${KVTT}/proxy/replica_lb.py#L56-L75`}>proxy/replica_lb.py L56–75</a>, <SourceLink id="bench-kvtt" />).
 It runs separate servers (<a href={`${KVTT}/README.md#L113-L115`}>README L113–115</a>), so each keeps its own cache; that last part is our inference.
 
 </ChapterStep>
@@ -161,11 +185,14 @@ It runs separate servers (<a href={`${KVTT}/README.md#L113-L115`}>README L113–
 
 ## What this leaves out
 
-- Extra keys for LoRA adapters, images, and cache salts, and sha256: our keys hash only the parent key and the tokens (<SourceLink id="vllm-apc-doc" at="L13–19" />, <a href={SIM9}>SIM.md §9.8</a>).
+- Extra keys for adapters, images, and tenants, and sha256: our keys hash only the parent key and the tokens (<SourceLink id="vllm-apc-doc" at="L13–19" />, <a href={SIM9}>SIM.md §9.8</a>).
+- Real text: our tokens are synthetic numbers, with no tokenizer or chat template. Real prefixes hit only when their token ids match (<a href={SIM9}>SIM.md §9.5</a>).
 - Cache-aware scheduling: we serve requests in arrival order only (<SourceLink id="zheng2024" at="§3" />, <a href={SIM9}>SIM.md §9.10</a>).
+- Cascade attention, which can share decode reads of a common prefix; vLLM leaves it off by default (<SourceLink id="vllm-src" at="config/model.py L284–290" />).
+- vLLM's asynchronous scheduling, which shifts TTFT; ours plans each step after the last ends (<a href={SIM9}>SIM.md §9.3</a>).
 - More than one replica (<a href={SIM9}>SIM.md §9.1</a>).
 - Moving KV to CPU memory or disk (<a href={SIM9}>SIM.md §9.13</a>).
-- A real pool: ours holds <Num value={F.capacity} kind="simulated" badge={false} /> tokens and at most <Num value={F.maxNumSeqs} kind="simulated" /> requests at once. vLLM's default max_num_seqs is 256 on GPUs under 70 GB (<SourceLink id="vllm-src" at="engine/arg_utils.py L2886–2895" />).
+- A real pool: ours holds <Num value={F.capacity} kind="simulated" badge={false} /> tokens and at most <Num value={F.maxNumSeqs} kind="simulated" /> requests at once (<a href={SIM9}>SIM.md §9.14</a>). vLLM's default <GlossaryTerm id="max-num-seqs">max_num_seqs</GlossaryTerm> is 256 on GPUs under 70 GB (<SourceLink id="vllm-src" at="engine/arg_utils.py L2866–2895" />).
 - Measured step times: ours come from a roofline with no step overhead (<a href={SIM9}>SIM.md §9.2</a>).
 - The CPU time the prefix cache's own bookkeeping takes (<a href={SIM9}>SIM.md §9.2</a>).
 - Swapping preempted requests to CPU memory: we recompute, as vLLM V1 does (<a href={SIM9}>SIM.md §9.9</a>).
@@ -177,6 +204,6 @@ It runs separate servers (<a href={`${KVTT}/README.md#L113-L115`}>README L113–
 - <SourceLink id="vllm-src" at="v1/core/block_pool.py, v1/core/kv_cache_utils.py" />: block keys, the free queue, and eviction at the pinned commit.
 - <SourceLink id="zheng2024" at="§3" />: RadixAttention and cache-aware scheduling.
 - <SourceLink id="kwon2023" at="§4.4" />: the vLLM paper's shared prefixes, reserved by hand, with copy-on-write.
-- <SourceLink id="bench-kvtt" />: the replica balancer and the cost of moving KV between machines.
+- <SourceLink id="bench-kvtt" />: the replica balancer, and the cost of moving KV between GPUs on one machine.
 
 </ChapterLayout>

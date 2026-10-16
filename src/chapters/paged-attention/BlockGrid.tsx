@@ -338,7 +338,9 @@ export function BlockGrid({
         ctx.font = `700 11px ${colors.font}`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(`×${String(c.reqs.length)}`, x + cell / 2, y + cell / 2);
+        // Above the chain number's tab when this block is in the selected chain.
+        const badgeY = chain !== null && showLogical ? y + 9 : y + cell / 2;
+        ctx.fillText(`×${String(c.reqs.length)}`, x + cell / 2, badgeY);
       } else if (c.kind === "cached") {
         // Cached: a dotted --ink-2 fill and its eviction order (DESIGN.md).
         dots(x, y);
@@ -590,9 +592,10 @@ function Summary({
         <rect
           key={i}
           x={i}
-          y={2}
+          // Cached blocks are half height, so shape tells them from shared.
+          y={c.kind === "cached" ? 6 : 2}
           width={1}
-          height={8}
+          height={c.kind === "cached" ? 4 : 8}
           className={
             c.kind === "held"
               ? c.fill > 0

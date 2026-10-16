@@ -52,10 +52,17 @@ export const PRESSURE = defaults("cache-pressure");
 /** The misconception: no shared prefix at all (decision 3). */
 export const UNIQUE: CacheOptions = { ...SHARED, fraction: 0 };
 
-/** The prefix-length control's stops. */
-export const PREFIX_LENS = [0, 100, 250, 600, 1000, 1500] as const;
-/** `longer-prefix-saves-more` sweeps these (the plan's range). */
-export const SWEPT_PREFIX_LENS = [0, 100, 250, 600, 1000] as const;
+/**
+ * The prefix-length control's stops, per preset: each leaves room for the
+ * longest body and output under max_model_len, so no prompt is clipped. The
+ * author dropped the plan's 1,500 stop (2026-10-15): it clipped every body.
+ */
+export const PREFIX_STOPS: Record<PresetKey, readonly number[]> = {
+  "shared-system-prompt": [0, 100, 250, 600, 1000],
+  "cache-pressure": [0, 128, 256, 512, 640],
+};
+/** `longer-prefix-saves-more` sweeps the control's own stops. */
+export const SWEPT_PREFIX_LENS = PREFIX_STOPS["shared-system-prompt"];
 /** `share-fraction-raises-hits` sweeps these. */
 export const SWEPT_FRACTIONS = [0.25, 0.5, 0.75, 1] as const;
 /** The capacity control's stops, in tokens. */

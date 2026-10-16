@@ -149,7 +149,7 @@ export function RepeatedPrefill() {
               className="legend-swatch rp-swatch--body"
               aria-hidden="true"
             />
-            The rest of the prompt
+            The rest: the prompt&apos;s own tokens, plus outputs on a recompute
           </li>
           <li>
             <span

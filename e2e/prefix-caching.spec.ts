@@ -9,7 +9,10 @@ import { blockKeys } from "../src/sim/index.ts";
 import { hex6 } from "../src/chapters/prefix-caching/cells.ts";
 import { sharedPrompt } from "../src/chapters/prefix-caching/HashChain.tsx";
 import { partialRows } from "../src/chapters/prefix-caching/PartialBlocks.tsx";
-import { SHARED } from "../src/chapters/prefix-caching/presets.ts";
+import {
+  PREFIX_STOPS,
+  SHARED,
+} from "../src/chapters/prefix-caching/presets.ts";
 import {
   axeViolations,
   clippedSvgText,
@@ -22,7 +25,7 @@ import {
   watchErrors,
   watchShifts,
 } from "./helpers.ts";
-import { driveGrid, open, seek } from "./prefix-caching.ts";
+import { driveGrid, open, readout, seek } from "./prefix-caching.ts";
 
 const WIDTHS = [375, 768, 1440] as const;
 
@@ -82,6 +85,27 @@ test.describe("prefix-caching: widgets", () => {
       text = (await live.textContent()) ?? "";
     }
     expect(text).toMatch(/: cached\. .* Eviction order \d+ \(1 goes next\)\.$/);
+  });
+
+  test("grid: Figure 4.5's prefix slider starts at its preset and reaches every stop", async ({
+    page,
+    browserName,
+  }) => {
+    const errors = watchErrors(page);
+    await open(page);
+    const fig = figure(page, "4.5");
+    const slider = fig.getByLabel("Shared prefix length");
+    const out = fig.locator(".slider__output").first();
+    await expect(out).toHaveText("256 tokens");
+    await tabTo(page, slider, browserName);
+    await page.keyboard.press("Home");
+    const stops = PREFIX_STOPS["cache-pressure"];
+    for (const [i, stop] of stops.entries()) {
+      if (i > 0) await page.keyboard.press("ArrowRight");
+      await expect(out).toHaveText(`${stop.toLocaleString("en-US")} tokens`);
+    }
+    await expect(readout(fig, "Caching on")).toContainText("Hit rate");
+    expect(errors).toEqual([]);
   });
 
   test("repeated prefill: r9's second prefill is a labelled recompute", async ({
@@ -167,7 +191,10 @@ test.describe("prefix-caching: widgets", () => {
   }) => {
     await open(page, 1440);
     const board = page.locator(".chapter__figure");
-    const figures = ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6", "4.6"];
+    const figures = [
+      ...["4.1", "4.2", "4.3", "4.3", "4.3", "4.4", "4.5"],
+      ...["4.6", "4.6", "4.6"],
+    ];
     for (const [i, n] of figures.entries()) {
       await page
         .locator(`.step[data-step="${String(i + 1)}"]`)

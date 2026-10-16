@@ -21,7 +21,7 @@ import {
   BLOCK_SIZES,
   CAPACITIES,
   cacheConfig,
-  PREFIX_LENS,
+  PREFIX_STOPS,
   PRESSURE,
   SHARED,
   type CacheOptions,
@@ -49,12 +49,11 @@ const CAPTION: Record<Mode, { number: string; caption: string }> = {
   hit: {
     number: "4.3",
     caption:
-      "Requests that share one system prompt, with prefix caching on. Shared blocks show how many tables point at them.",
+      "At its starting settings: requests that share one system prompt, with prefix caching on. Shared blocks show how many tables point at them.",
   },
   pressure: {
     number: "4.5",
-    caption:
-      "Twelve system prompts compete for a small pool. Cached blocks show their place in the eviction order.",
+    caption: `At its starting settings: ${String(PRESSURE.groups)} system prompts compete for a small pool. Cached blocks show their place in the eviction order.`,
   },
   compare: {
     number: "4.6",
@@ -192,6 +191,12 @@ export function CacheFigure({ mode }: { mode: Mode }) {
               : "No request has been admitted yet."}
           </p>
         )}
+        <p className="cache__note">
+          Readouts count up to the playhead. Hit rate counts each request&apos;s
+          first admission. Tokens computed include recomputes after a
+          preemption, and tokens reused include hits when a preempted request
+          comes back.
+        </p>
         <Legend />
         <p className="paged__keys">
           Keys: Tab to a grid, then arrows move the cell cursor, Home and End
@@ -287,7 +292,7 @@ const Controls = memo(function Controls({
       <Slider
         label="Shared prefix length"
         value={o.prefixLen}
-        stops={PREFIX_LENS}
+        stops={PREFIX_STOPS[PRESET[mode]]}
         format={(v) => `${n(v)} tokens`}
         onChange={(v) => {
           set({ prefixLen: v });
@@ -357,11 +362,11 @@ function Readout({
           <dd className="w4">{pct(rate)}</dd>
         </div>
         <div>
-          <dt>Prefill computed</dt>
+          <dt>Tokens computed</dt>
           <dd className="w6">{n(f?.prefillTokens ?? 0)}</dd>
         </div>
         <div>
-          <dt>Saved</dt>
+          <dt>Tokens reused</dt>
           <dd className="w6">{n(f?.savedTokens ?? 0)}</dd>
         </div>
         <div>

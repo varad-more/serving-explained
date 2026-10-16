@@ -2286,52 +2286,59 @@ Copied from docs/CHAPTER_DOD.md for chapter 4. Each item is ticked with how it
 was verified.
 
 **Content**
-- [ ] 1. Objective first, checked last: PRODUCT.md's objective opens the
-  chapter; CheckYourself needs the mechanism, not recall.
-- [ ] 2. Sources: every technical claim has a `SourceLink`; ids exist in
-  sources.json; our own reasoning says so.
-- [ ] 3. Provenance: every number from data or the sim renders through `<Num>`
-  with a badge; source numbers carry a `SourceLink`.
-- [ ] 4. Claims tested: one test per `<Claim id>` on the configs the chapter
-  imports; the meta-test passes.
-- [ ] 5. Writing rules: writing.test.ts passes; one idea per step, US
-  English, terms defined at first use (review).
-- [ ] 6. End sections: "What this leaves out", one line per simplification
-  with its source or SIM.md §9 entry; "Go deeper" links SOURCES.md ids only.
+- [x] 1. Objective first, checked last: PRODUCT.md's objective opens the
+  chapter. CheckYourself asks "how many, and why"; the answer needs the
+  full-block rule.
+- [x] 2. Sources: every technical sentence has a `SourceLink` or says "our
+  reasoning"; the review checked line ranges at cfd54ca8 and 56b5ab5d.
+  Free order cites vllm-src (M6); the RadixAttention contrast is marked as
+  ours (note 4).
+- [x] 3. Provenance: every sim number renders through `<Num>` from
+  `figures.tsx` (`F`), with a badge in each sentence.
+- [x] 4. Claims tested: 22 claims, one test each, plus the meta-test.
+- [x] 5. Writing rules: `writing.test.ts` passes; terms defined at first use;
+  ten steps, one idea each.
+- [x] 6. End sections: 12 "leaves out" lines, each with a source or SIM.md
+  §9 entry; "Go deeper" links SOURCES.md ids only.
 
 **Widgets**
-- [ ] 7. Keyboard and touch: Tab reaches every control, arrows, Enter, or
-  Space operate it, focus is visible; hit areas at least 44 × 44 px at 375 and
-  768; nothing on hover alone.
-- [ ] 8. Labels: every control has a visible label; changing readouts are
-  polite live regions.
-- [ ] 9. Playback: every animated widget has a PlaybackBar and is driven by
-  the event log.
-- [ ] 10. Reduced motion: no transitions or autoplay; Step shows every state.
-- [ ] 11. Sizes, themes, browsers: 375, 768, 1440 px, light and dark, no
-  horizontal scroll or clipped labels, in Chromium, WebKit, and Firefox.
-- [ ] 12. No layout shift: CLS 0 in the interaction test.
-- [ ] 13. No console or page errors.
-- [ ] 14. axe: no violations.
+- [x] 7. Keyboard and touch: e2e Tabs to Step, the caching switch (Space),
+  sliders (arrows, Home), selects, the grid cursor (arrows, Home, Enter),
+  and the hash chain's switch, with focus rings. Controls and grid cells are
+  at least 44 × 44 px at 375 and 768 (three browsers).
+- [x] 8. Labels: visible labels on every control; readouts, the lookup line,
+  and counters are polite live regions (readouts off while playing).
+- [x] 9. Playback: Figures 4.3, 4.5, and 4.6 have a PlaybackBar; frames are
+  rebuilt from the event log and checked against the engine's snapshot at
+  every step (`tests/viz/cacheFrames.test.ts`, six configs).
+- [x] 10. Reduced motion: Play disabled; Step moves to the next step end.
+- [x] 11. Sizes, themes, browsers: no horizontal scroll or clipped SVG text
+  at 375, 768, and 1440 in three browsers; screenshots light and dark.
+- [x] 12. No layout shift: CLS 0 in the interaction test.
+- [x] 13. No console or page errors (interaction tests, every prefix stop).
+- [x] 14. axe: no violations at 768 light and dark, and 1440 light.
 
-**Performance** (Chromium, with and without 4× CPU throttling, traces saved)
-- [ ] 15. Interactions respond within 100 ms (Event Timing max; report max
-  and p95).
-- [ ] 16. Animation holds 60 fps: rAF p95 at most 18 ms, no frame over 50 ms
-  (report p50, p95, max).
+**Performance** (Chromium, traces saved under test-results)
+- [x] 15. Controls (Step, caching, capacity, block size): Event Timing max
+  24 ms, p95 24 at 1×; max 32, p95 24 at 4×.
+- [x] 16. Figure 4.6 at block size 8 (1,024 blocks), 4× speed: frames
+  p50/p95/max 16.7/16.7/16.8 ms at 1× and 16.7/16.7/33.3 ms at 4× CPU.
+  Snapshot-built frames cost 41–85 ms per run; frames rebuilt from the
+  event log cost 10–20 ms.
 
 **Tests and review**
-- [ ] 17. Screenshots: Chromium at 375, 768, and 1440 px, light and dark.
-- [ ] 18. Interaction: one Playwright test per widget in all three browsers,
-  asserting rendered text changes.
-- [ ] 19. Checks: `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm build`.
-- [ ] 20. Fresh-eyes review by a sub-agent; every point fixed or answered.
+- [x] 17. Screenshots: Chromium at 375, 768, and 1440, light and dark,
+  paused at t = 10 s, with the page pinned to a whole pixel.
+- [x] 18. Interaction: 17 Playwright tests × 3 browsers, 51 pass.
+- [x] 19. `pnpm test`, `pnpm typecheck`, `pnpm lint`, `pnpm build`.
+- [x] 20. Fresh-eyes review by a sub-agent: 32 points, answered below.
 
 **Launch assets**
-- [ ] 21. Capture: `pnpm capture prefix-caching`, 6–10 s, mp4 and a GIF under
-  3 MB.
-- [ ] 22. Route HTML: title, description, canonical, og and twitter tags, and
-  a 1200×630 image, checked by postbuild and the live smoke test.
+- [x] 21. Capture: `pnpm capture prefix-caching`: caching off vs. on at 2×,
+  8.13 s, mp4 514 KB (1200 × 1868), GIF 0.90 MB.
+- [x] 22. Route HTML: title "Prefix caching – serving-explained",
+  description, canonical, og and twitter tags, and og/prefix-caching.png at
+  1200 × 630 (postbuild; live smoke test after deploy).
 
 ### Build log
 
@@ -2374,6 +2381,67 @@ that step's own duration; playback shows a state until the next step ends.
 Blocks per running request are now 24.0 vs 46.9 (was 24.1 vs 46.6). The queue
 is 2.4 vs 13.2 (was 2.3 vs 12.8). p50 ITL 40.4 vs 39.7 ms, p99 124 vs 441 ms.
 Requests per decode step are 6.0 vs 4.5.
+
+### Fresh-eyes review: findings and answers
+
+1. Major. Figure 4.5 crashed the page at the 1,500-token prefix stop.
+   Fixed: per-figure stops (author, 2026-10-15) and
+   `tests/viz/cacheControls.test.ts`, which runs every stop of every control.
+2. Major. Figure 4.5's prefix slider started off its stops. Fixed: its stops
+   are 0, 128, 256, 512, and 640 (768 would clip prompts); e2e walks them.
+3. Major. 1,500 clipped every body and broke the knob claim. The author
+   dropped the stop; the claim test sweeps the control's own stops.
+4. Major. "Saved" and "Prefill computed" were unclear. Fixed: "Tokens
+   computed" and "Tokens reused", with a note on what each counts.
+5. Major. System prompts cited the wrong doc. Fixed: zheng2024 §3; chat
+   history dropped from the prose.
+6. Fixed: the lookup cites doc L143 and vllm-src
+   single_type_kv_cache_manager.py L797–805.
+7. Fixed: the decode sentence is our reasoning, scoped to vLLM's defaults
+   (cascade attention off, config/model.py L284–290); a leaves-out line.
+8. Fixed: the self-hit exception cites vllm-src.
+9. Fixed: "with caching off it computes its tokens again".
+10. Fixed by wording: the comparison names Figure 4.3's longer prompt and
+    bigger pool. The test is unchanged.
+11. Fixed: "Our reading:".
+12. Fixed: step 3 split in three; the misconception has its own step.
+13. Fixed: Figure 4.6 is introduced in the misconception's step.
+14. Fixed: TTFT, ITL, p50/p99, block table, max_num_seqs wrapped; free
+    queue and admission added to the glossary; LoRA and salt reworded;
+    "preset" and kv-transfer-tax replaced or introduced.
+15. Fixed: badges in every sentence; r9, the run's size, and the caption's
+    prompt count come from F.
+16. Fixed: "between GPUs on one machine".
+17. Fixed: synthetic tokens, cascade attention, and async scheduling added;
+    the pool line links §9.14.
+18. Fixed: unkeyed blocks go first; LRU orders the cached ones.
+19. Fixed: the legend says recomputes include outputs.
+20. Fixed: the sweep values are named, and "average hit".
+21. Fixed. 22. Fixed: "in a full block". 23. Fixed: L2866–2895; the author's
+    wording "under 70 GB" stays.
+24. Fixed: "by load or in turn, never by prefix" (author, 2026-10-15).
+25. Fixed: "Our name for vLLM's block hash". 26. Fixed. 27. Fixed.
+28. Fixed: captions say "at its starting settings".
+29. Answer: each figure's legend defines its dashed outline.
+30. Fixed: "×n" moves up when a chain number is drawn.
+31. Fixed: cached blocks are half height in the summary strip.
+32. Answer: the site cites vLLM paths without the `vllm/` prefix.
+
+### Deviations from the plan (reported)
+
+- The prefix stops: 1,500 dropped (the author's answer); Figure 4.5 has its
+  own stops.
+- The replica sentence reads "by load or in turn" (the author's answer) and
+  is split in two for the 25-word rule.
+- A request's lookup is a "latest lookup" line, not animated block by block:
+  a step lasts about 40 ms of sim time.
+- The 48-cell window applies below 1024 px, as the plan's "48 on mobile"
+  says; chapter 2 windows only below 480 px.
+- Figure 4.6 (compare mode) shows in the last three steps.
+- Ten steps instead of seven (splits after the review).
+- BlockGrid gained optional props; chapter 2 is unchanged (its baselines
+  pass).
+
 
 ## Prompt 7: sandbox (PLAN, approved 2026-10-02)
 
