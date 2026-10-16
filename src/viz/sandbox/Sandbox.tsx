@@ -3,7 +3,7 @@ import gpus from "../../data/gpus.json" with { type: "json" };
 import models from "../../data/models.json" with { type: "json" };
 import { ENGINE_VERSION } from "../../sim/index.ts";
 import { PlaybackBar } from "../ui/PlaybackBar.tsx";
-import { ProvenanceBadge } from "../ui/ProvenanceBadge.tsx";
+import { BadgeLegend, ProvenanceBadge } from "../ui/ProvenanceBadge.tsx";
 import { usePlayhead } from "../usePlayhead.ts";
 import { Controls } from "./Controls.tsx";
 import {
@@ -211,6 +211,7 @@ export function Sandbox() {
         llmsize&apos;s data <ProvenanceBadge kind="computed" />.{" "}
         <a href={SIM9}>SIM.md §9</a> lists what the engine leaves out.
       </p>
+      <BadgeLegend />
       {opened.notices.length > 0 && (
         <div className="sb-notices" role="status">
           <p>

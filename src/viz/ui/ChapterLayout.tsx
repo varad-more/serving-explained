@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { useMediaQuery } from "../useMediaQuery.ts";
+import { BadgeLegend } from "./ProvenanceBadge.tsx";
 import { Step } from "./Step.tsx";
 
 interface ChapterStepProps {
@@ -101,6 +102,7 @@ export function ChapterLayout({
           </p>
           {objective}
         </div>
+        <BadgeLegend />
         {steps.map((step, i) => {
           const n = i + 1;
           const showFigure = !wide && figureOf(n) !== figureOf(n - 1);

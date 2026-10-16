@@ -211,6 +211,59 @@ select:disabled {
   color: var(--bg);
 }
 
+/* Simulated and computed badges are buttons that open their meaning (B1). */
+button.badge {
+  margin: 0;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+  /* A tap flash would fill the shape, which tells the kinds apart. */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* A badge's meaning, opened on tap or keyboard focus; placed by script. */
+.badge-tip {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  max-width: min(18rem, calc(100vw - 32px));
+  padding: var(--space-2) var(--space-3);
+  border: 1.5px solid var(--badge-ink);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+  text-transform: none;
+  white-space: normal;
+}
+
+/* One visible key to the badges per page (B1). */
+.badge-legend {
+  display: grid;
+  gap: var(--space-1);
+  margin: var(--space-4) 0;
+  max-width: 58ch;
+  font-size: var(--step--1);
+  color: var(--ink-2);
+}
+
+.badge-legend > div {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.badge-legend dt {
+  flex: none;
+}
+
+.badge-legend dd {
+  margin: 0;
+}
+
 /* Callouts. */
 
 .callout {

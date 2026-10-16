@@ -382,7 +382,7 @@ WebKit:**
   1 s.
 
 **Minor:**
-- B1: a provenance badge's meaning is only in its `title` tooltip ("Produced by the toy engine on this page. Not a measurement."), so touch and keyboard readers can't reach it. The visible word ("simulated") carries the main point (`ProvenanceBadge.tsx:47`).
+- B1: *(fixed 2026-10-16: keyboard focus and a tap open each badge's meaning; every page with badges shows one legend; `e2e/badges.spec.ts`)* a provenance badge's meaning is only in its `title` tooltip ("Produced by the toy engine on this page. Not a measurement."), so touch and keyboard readers can't reach it. The visible word ("simulated") carries the main point (`ProvenanceBadge.tsx:47`).
 - B2: in WebKit only, Tab focuses two sandbox inputs without scrolling them into view at 1440 px: "GPU memory fraction" (A/B) and "Prompt length: max". This may be WebKit's scroll timing; confirm by hand.
 
 ## 4. Performance
@@ -538,7 +538,7 @@ the run, with no error.**
 | `aria-live` at a polite rate | not run | quiet during play except A2; silent Step in A3 |
 | Reduced motion | not run | passes everywhere |
 | 3 browsers × 375, 768, 1440 | not run | passes everywhere |
-| Touch | not run | passes; badge tooltip B1 |
+| Touch | not run | passes; badge tooltip B1 (fixed 2026-10-16) |
 | Safari: sticky, SVG text, workers | not run | passes |
 | Lighthouse on every route | not run | 100 everywhere except P1 |
 | JS per route under 200 KB | not run | at most 125 KB served |

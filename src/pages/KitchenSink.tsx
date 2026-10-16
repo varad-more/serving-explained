@@ -12,7 +12,7 @@ import { CheckYourself } from "../viz/ui/CheckYourself.tsx";
 import { Figure } from "../viz/ui/Figure.tsx";
 import { GlossaryTerm } from "../viz/ui/GlossaryTerm.tsx";
 import { PlaybackBar } from "../viz/ui/PlaybackBar.tsx";
-import { ProvenanceBadge } from "../viz/ui/ProvenanceBadge.tsx";
+import { BadgeLegend, ProvenanceBadge } from "../viz/ui/ProvenanceBadge.tsx";
 import { RequestMark } from "../viz/ui/RequestMark.tsx";
 import { paintRequestMark, SLOTS } from "../viz/ui/markSpec.ts";
 import { Select } from "../viz/ui/Select.tsx";
@@ -87,6 +87,7 @@ function Panel() {
         <ProvenanceBadge kind="computed" />, and measured{" "}
         <ProvenanceBadge kind="measured" href={MEASURED_FILE} />.
       </p>
+      <BadgeLegend />
 
       <h3>Callouts</h3>
       <Callout kind="simplification">
