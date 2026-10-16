@@ -2458,7 +2458,7 @@ Requests per decode step are 6.0 vs 4.5.
 - [x] SIM.md §12 (approved 2026-10-02): input limits, capacity derived from GPU memory, the
       share-link format v1, and `ConfigError` codes plus `ENGINE_VERSION` in
       §2.
-- [ ] The sandbox (Build 5).
+- [x] The sandbox (Build 5): `v0.8-sandbox`.
 
 ### Depends on
 
@@ -2785,8 +2785,8 @@ the chapters, so they stay.
 - [x] 2026-10-02: the author decided B2 and M9. The doc fixes for M1–M8 and
       m1–m19 are applied (AUDIT.md, "Resolution log"). B1 stays open until the
       build. m2 is a build task.
-- [ ] After the build (Build 6), run the whole audit again and record before
-      and after numbers.
+- [x] After the build (Build 6), run the whole audit again and record before
+      and after numbers: audit 2, docs/AUDIT.md, `v0.9-audited`.
 
 ### Audit 2 (2026-10-15): plan
 
@@ -3182,6 +3182,30 @@ ed9f711 9c40957  6582141 a5e1618  063b317 84f7291  10403da d6f4340
 c484fd2 b7ff702  d325dbc 6fef2fd  c905b47 eb795c3  2bd1c32 6b051f9
 cf70cb8 ba79474  256fff6 0c4d7dd  b496d8a fd3cfaa
 ```
+
+## Pre-launch fixes (approved 2026-10-16)
+
+One commit each, built locally for the author's review before any push.
+
+- [x] D-7: llmsize re-pinned to main `2cef2af`; no number changed (`13e223c`).
+- [x] B1: badge meanings on tap, keyboard focus, and a legend (`cd0994b`).
+- [x] A4: a second cue for every highlighted state (`5a6ab6d`).
+- [ ] D-9: About section on the landing page. Text awaits the author.
+- [x] Housekeeping: tags `v0.1-foundation` (e219584) and `v0.2-sim`
+      (c23166b), local only; two finished items ticked.
+- [ ] After review: Linux baselines (workflow on a pushed branch), delete
+      the 7 merged remote branches, push main and tags, check CI and the
+      live site, tag `v1.0.0-rc.2`.
+
+Review notes:
+- Every remote branch tip has the same tree as a commit on main, checked
+  with `git rev-parse <tip>^{tree}` against main's log.
+- `5a6ab6d`'s message says paged-attention 1440 shows "the token cursor
+  flag". A crop shows it is the legend swatch's flag. Not amended: main is
+  never rewritten.
+- The touch audit fails "bar 0: 0 → 0" (chapter 2, sandbox) and five
+  chapter 3 sliders at 8. The live site, without these fixes, fails the
+  same way.
 
 ## Backlog
 

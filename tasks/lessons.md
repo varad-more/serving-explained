@@ -4,6 +4,12 @@ Mistakes, corrections, and surprises. Newest first.
 
 ## 2026-10-16
 
+- **Never rewrite or force-push main, and never move a tag** (the author,
+  after the second re-date). Fix a pushed mistake with a new commit, and
+  correct a wrong commit message in tasks/todo.md, not with `--amend`.
+- **Measure a screenshot diff before describing it.** A commit message
+  named the wrong flag in one baseline; a crop of the changed region showed
+  which. Rule: crop every changed region before writing what it shows.
 - **`spawn("pnpm", ["exec", "vite", …])` leaves vite running after
   `kill()`.** Only the pnpm wrapper dies. Preview servers from Oct 2, 9,
   and 15 still held ports 4173–4177, and a new server with `--strictPort`
