@@ -20,6 +20,13 @@ body {
   line-height: calc(27 / 17);
 }
 
+/* The message readers see with JavaScript off (AUDIT.md R1). */
+.noscript {
+  max-width: 58ch;
+  margin: var(--space-6) auto;
+  padding: 0 var(--space-3);
+}
+
 [data-theme] {
   background: var(--bg);
   color: var(--ink);

@@ -48,6 +48,18 @@ test.describe("smoke", () => {
     expect(new Set(pages.map(og)).size).toBe(routes.length);
   });
 
+  test("without JavaScript, every route says why it is blank (AUDIT.md R1)", async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+    for (const route of routes) {
+      await page.goto(BASE + routePath(route.slug).slice(1));
+      await expect(page.getByText(/needs JavaScript/)).toBeVisible();
+    }
+    await context.close();
+  });
+
   test("an unknown path renders the not-found page", async ({ page }) => {
     await page.goto(`${BASE}no-such-page/`);
     await expect(page.locator("h1")).toHaveText("Page not found");
