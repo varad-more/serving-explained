@@ -10,7 +10,14 @@ export type Cell =
   /** Free space too small for a region (contiguous only). */
   | { kind: "gap" }
   /** Held by a request; `fill` of B slots hold KV. */
-  | { kind: "held"; req: number; slot: number; fill: number; logical: number };
+  | { kind: "held"; req: number; slot: number; fill: number; logical: number }
+  /**
+   * Chapter 4: held by two or more requests. `reqs[i]` maps it at its logical
+   * block `logical[i]`. A shared block is always full.
+   */
+  | { kind: "shared"; reqs: number[]; logical: number[] }
+  /** Chapter 4: no request holds it, but it keeps its key. 1 = next to evict. */
+  | { kind: "cached"; rank: number };
 
 export interface GridSpec {
   allocator: Allocator;

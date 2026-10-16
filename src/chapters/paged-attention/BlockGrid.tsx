@@ -34,6 +34,16 @@ interface Props {
   label: string;
   selected: number | null;
   onSelect: (req: number | null) => void;
+  /** Chapter 4: cells built from its own frames, in place of cellsOf(frame). */
+  cells?: Cell[];
+  /** Chapter 4: the canvas's accessible name, in place of describe(frame). */
+  summary?: string;
+  /** Chapter 4: blocks to outline dashed (evicted this step). */
+  marked?: ReadonlySet<number>;
+  /** Chapter 4: number the selected request's blocks by logical index. */
+  showLogical?: boolean;
+  /** Wider than 480 px, show at most this many cells, with a pager. */
+  maxCells?: number;
 }
 
 interface Colors {
@@ -44,6 +54,7 @@ interface Colors {
   freeEdge: string;
   waste: string;
   highlight: string;
+  onHighlight: string;
   focus: string;
   font: string;
   req: { fill: string; ink: string }[];
@@ -60,6 +71,7 @@ function readColors(el: Element): Colors {
     freeEdge: v("--block-free-edge"),
     waste: v("--block-waste"),
     highlight: v("--highlight"),
+    onHighlight: v("--on-highlight"),
     focus: v("--focus"),
     font: v("--font-body"),
     req: Array.from({ length: 8 }, (_, i) => ({
@@ -85,10 +97,25 @@ export function cellText(
   if (cell.kind === "free") return `${name}: free.`;
   if (cell.kind === "gap")
     return `${name}: gap, free space too small for a region.`;
+  if (cell.kind === "cached")
+    return `${name}: cached. No request holds it, and it keeps its key. Eviction order ${String(cell.rank)} (1 goes next).`;
+  if (cell.kind === "shared")
+    return `${name}: shared by ${cell.reqs.map((r, i) => `r${String(r)} (logical block ${String(cell.logical[i] ?? 0)})`).join(", ")}. ${String(B)} of ${String(B)} slots hold KV.`;
   if (spec.allocator === "paged")
     return `${name}: r${String(cell.req)}'s block table maps its logical block ${String(cell.logical)} here. ${String(cell.fill)} of ${String(B)} slots hold KV.`;
   const from = cell.logical * B;
   return `${name}: r${String(cell.req)}'s region, its slots ${String(from)}–${String(from + B - 1)}. ${String(cell.fill)} of ${String(B)} hold KV.`;
+}
+
+/** The selected request's logical index for this cell, or null. */
+function chainIndex(c: Cell | undefined, selected: number | null) {
+  if (selected === null || !c) return null;
+  if (c.kind === "held") return c.req === selected ? c.logical : null;
+  if (c.kind === "shared") {
+    const i = c.reqs.indexOf(selected);
+    return i >= 0 ? (c.logical[i] ?? null) : null;
+  }
+  return null;
 }
 
 /**
@@ -96,7 +123,18 @@ export function cellText(
  * one cell per block of B slots, for both allocators. It is one tab stop:
  * arrows move a cell cursor, and Enter selects the cell's request.
  */
-export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
+export function BlockGrid({
+  frame,
+  spec,
+  label,
+  selected,
+  onSelect,
+  cells: given,
+  summary,
+  marked,
+  showLogical = false,
+  maxCells = Infinity,
+}: Props) {
   const [wrapRef, width] = useWidth<HTMLDivElement>(600);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sprites = useRef(new Map<string, HTMLCanvasElement>());
@@ -110,7 +148,7 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
   const liveId = useId();
 
   const B = spec.blockSize;
-  const cells = cellsOf(frame, spec);
+  const cells = given ?? cellsOf(frame, spec);
   const n = cells.length;
   const desktop = useMediaQuery("(min-width: 1024px)");
   const narrow = width < NARROW_BELOW;
@@ -125,9 +163,10 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
       );
   const fit = Math.floor((width - gap * (cols - 1)) / cols);
   const cell = desktop ? Math.min(MAX_CELL + (narrow ? 16 : 0), fit) : fit;
-  // Whole rows of cells, at most WINDOW of them.
-  const visible = narrow ? Math.min(Math.floor(WINDOW / cols) * cols, n) : n;
-  const start = narrow ? Math.min(windowStart, n - visible) : 0;
+  // Whole rows of cells, at most WINDOW of them (maxCells when wider).
+  const most = narrow ? WINDOW : maxCells;
+  const visible = Math.min(Math.max(cols, Math.floor(most / cols) * cols), n);
+  const start = Math.min(windowStart, n - visible);
   // A new block size can shrink the grid under the cursor.
   const cursor = Math.min(cursorState, n - 1);
   const rows = Math.ceil(visible / cols);
@@ -224,6 +263,36 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
       ctx.drawImage(s, x, y, size, size);
     };
 
+    // The cached dots, drawn once per cell size and then copied.
+    const dots = (x: number, y: number) => {
+      const size = cell;
+      const key = `dots:${String(size)}`;
+      let s = sprites.current.get(key);
+      if (!s) {
+        s = document.createElement("canvas");
+        s.width = Math.round(size * dpr);
+        s.height = Math.round(size * dpr);
+        const sc = s.getContext("2d");
+        if (sc) {
+          sc.scale(dpr, dpr);
+          sc.fillStyle = colors.surface;
+          sc.fillRect(0, 0, size, size);
+          sc.fillStyle = colors.ink2;
+          for (let dy = 2.5; dy < size; dy += 4)
+            for (let dx = 2.5; dx < size; dx += 4) {
+              sc.beginPath();
+              sc.arc(dx, dy, 1, 0, 2 * Math.PI);
+              sc.fill();
+            }
+          sc.strokeStyle = colors.ink2;
+          sc.lineWidth = 1;
+          sc.strokeRect(0.5, 0.5, size - 1, size - 1);
+        }
+        sprites.current.set(key, s);
+      }
+      ctx.drawImage(s, x, y, size, size);
+    };
+
     let gapLabelled = false;
     for (let k = 0; k < visible; k++) {
       const i = start + k;
@@ -232,12 +301,18 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
       const y = Math.floor(k / cols) * (cell + gap);
       const labelGap = c?.kind === "gap" && !gapLabelled;
       gapLabelled = c?.kind === "gap";
+      const chain = chainIndex(c, selected);
       const sig = [
         c?.kind === "held"
           ? `${String(c.slot)}.${String(c.req)}.${String(c.fill)}`
-          : (c?.kind ?? "free"),
+          : c?.kind === "shared"
+            ? `shared.${String(c.reqs.length)}`
+            : c?.kind === "cached"
+              ? `cached.${String(c.rank)}`
+              : (c?.kind ?? "free"),
         labelGap,
-        c?.kind === "held" && c.req === selected,
+        chain,
+        marked?.has(i) ?? false,
         focused && i === cursor,
       ].join(":");
       shown.push(sig);
@@ -250,6 +325,31 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
         ctx.strokeStyle = colors.freeEdge;
         ctx.lineWidth = 1;
         ctx.strokeRect(x + 0.5, y + 0.5, cell - 1, cell - 1);
+      } else if (c.kind === "shared") {
+        // Shared: --ink-2 fill, a double outline, and "×n" (DESIGN.md).
+        ctx.fillStyle = colors.ink2;
+        ctx.fillRect(x, y, cell, cell);
+        ctx.strokeStyle = colors.ink;
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(x + 0.75, y + 0.75, cell - 1.5, cell - 1.5);
+        ctx.strokeStyle = colors.surface;
+        ctx.strokeRect(x + 3.75, y + 3.75, cell - 7.5, cell - 7.5);
+        ctx.fillStyle = colors.surface;
+        ctx.font = `700 11px ${colors.font}`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(`×${String(c.reqs.length)}`, x + cell / 2, y + cell / 2);
+      } else if (c.kind === "cached") {
+        // Cached: a dotted --ink-2 fill and its eviction order (DESIGN.md).
+        dots(x, y);
+        ctx.fillStyle = colors.surface;
+        const plate = Math.min(cell - 6, 18);
+        ctx.fillRect(x + (cell - plate) / 2, y + (cell - 14) / 2, plate, 14);
+        ctx.fillStyle = colors.ink;
+        ctx.font = `700 11px ${colors.font}`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(String(c.rank), x + cell / 2, y + cell / 2);
       } else if (c.kind === "gap") {
         ctx.fillStyle = colors.surface;
         ctx.fillRect(x, y, cell, cell);
@@ -301,10 +401,29 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
           );
         }
       }
-      if (c?.kind === "held" && c.req === selected) {
+      if (chain !== null) {
         ctx.strokeStyle = colors.highlight;
         ctx.lineWidth = 3;
         ctx.strokeRect(x + 1.5, y + 1.5, cell - 3, cell - 3);
+        if (showLogical) {
+          // The logical index on a highlight tab, in --on-highlight.
+          const label = String(chain);
+          ctx.font = `700 10px ${colors.font}`;
+          const w = Math.ceil(ctx.measureText(label).width) + 6;
+          ctx.fillStyle = colors.highlight;
+          ctx.fillRect(x + cell - w, y + cell - 13, w, 13);
+          ctx.fillStyle = colors.onHighlight;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(label, x + cell - w / 2, y + cell - 6.5);
+        }
+      }
+      if (marked?.has(i)) {
+        ctx.strokeStyle = colors.ink;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([3, 2]);
+        ctx.strokeRect(x + 1, y + 1, cell - 2, cell - 2);
+        ctx.setLineDash([]);
       }
     }
     // Last, so a neighbor's repaint never clears part of the ring.
@@ -333,13 +452,15 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
     focused,
     themeKey,
     B,
+    marked,
+    showLogical,
   ]);
 
   const moveTo = (i: number) => {
     const next = Math.max(0, Math.min(n - 1, i));
     setCursor(next);
-    // On mobile, show the page of blocks that holds the cursor.
-    if (narrow && (next < start || next >= start + visible)) {
+    // When the grid is windowed, show the page of blocks that holds the cursor.
+    if (visible < n && (next < start || next >= start + visible)) {
       setWindowStart(
         Math.min(n - visible, Math.floor(next / visible) * visible),
       );
@@ -405,7 +526,7 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
           className="block-grid__canvas"
           style={{ width: gridW, height: gridH }}
           role="img"
-          aria-label={describe(frame, spec)}
+          aria-label={summary ?? describe(frame, spec)}
           data-cols={cols}
           onClick={onClick}
         />
@@ -413,7 +534,7 @@ export function BlockGrid({ frame, spec, label, selected, onSelect }: Props) {
       <p className="visually-hidden" id={liveId} aria-live="polite">
         {focused ? cellText(cells[cursor], cursor, spec) : ""}
       </p>
-      {narrow && n > visible && (
+      {n > visible && (
         <div className="block-grid__window">
           <Summary cells={cells} start={start} visible={visible} />
           <div className="block-grid__pager">
@@ -479,7 +600,11 @@ function Summary({
                 : "summary--waste"
               : c.kind === "gap"
                 ? "summary--gap"
-                : "summary--free"
+                : c.kind === "shared"
+                  ? "summary--shared"
+                  : c.kind === "cached"
+                    ? "summary--cached"
+                    : "summary--free"
           }
         />
       ))}
