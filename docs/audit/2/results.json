@@ -1,0 +1,4264 @@
+{
+  "site": "https://varadmore.me/serving-explained/",
+  "commit": "7cdf3bc",
+  "date": "2026-10-15",
+  "axe": {
+    "continuous-batching-dark-1440-chromium": [],
+    "continuous-batching-dark-1440-firefox": [],
+    "continuous-batching-dark-1440-webkit": [],
+    "continuous-batching-dark-375-chromium": [],
+    "continuous-batching-dark-375-firefox": [],
+    "continuous-batching-dark-375-webkit": [],
+    "continuous-batching-light-1440-chromium": [],
+    "continuous-batching-light-1440-firefox": [],
+    "continuous-batching-light-1440-webkit": [],
+    "continuous-batching-light-375-chromium": [],
+    "continuous-batching-light-375-firefox": [],
+    "continuous-batching-light-375-webkit": [],
+    "glossary-dark-1440-chromium": [],
+    "glossary-dark-1440-firefox": [],
+    "glossary-dark-1440-webkit": [],
+    "glossary-dark-375-chromium": [],
+    "glossary-dark-375-firefox": [],
+    "glossary-dark-375-webkit": [],
+    "glossary-light-1440-chromium": [],
+    "glossary-light-1440-firefox": [],
+    "glossary-light-1440-webkit": [],
+    "glossary-light-375-chromium": [],
+    "glossary-light-375-firefox": [],
+    "glossary-light-375-webkit": [],
+    "kv-cache-dark-1440-chromium": [],
+    "kv-cache-dark-1440-firefox": [],
+    "kv-cache-dark-1440-webkit": [],
+    "kv-cache-dark-375-chromium": [],
+    "kv-cache-dark-375-firefox": [],
+    "kv-cache-dark-375-webkit": [],
+    "kv-cache-light-1440-chromium": [],
+    "kv-cache-light-1440-firefox": [],
+    "kv-cache-light-1440-webkit": [],
+    "kv-cache-light-375-chromium": [],
+    "kv-cache-light-375-firefox": [],
+    "kv-cache-light-375-webkit": [],
+    "landing-dark-1440-chromium": ["landmark-unique (moderate) .site-nav"],
+    "landing-dark-1440-firefox": ["landmark-unique (moderate) .site-nav"],
+    "landing-dark-1440-webkit": ["landmark-unique (moderate) .site-nav"],
+    "landing-dark-375-chromium": ["landmark-unique (moderate) .site-nav"],
+    "landing-dark-375-firefox": ["landmark-unique (moderate) .site-nav"],
+    "landing-dark-375-webkit": ["landmark-unique (moderate) .site-nav"],
+    "landing-light-1440-chromium": ["landmark-unique (moderate) .site-nav"],
+    "landing-light-1440-firefox": ["landmark-unique (moderate) .site-nav"],
+    "landing-light-1440-webkit": ["landmark-unique (moderate) .site-nav"],
+    "landing-light-375-chromium": ["landmark-unique (moderate) .site-nav"],
+    "landing-light-375-firefox": ["landmark-unique (moderate) .site-nav"],
+    "landing-light-375-webkit": ["landmark-unique (moderate) .site-nav"],
+    "not-found-dark-1440-chromium": [],
+    "not-found-dark-1440-firefox": [],
+    "not-found-dark-1440-webkit": [],
+    "not-found-dark-375-chromium": [],
+    "not-found-dark-375-firefox": [],
+    "not-found-dark-375-webkit": [],
+    "not-found-light-1440-chromium": [],
+    "not-found-light-1440-firefox": [],
+    "not-found-light-1440-webkit": [],
+    "not-found-light-375-chromium": [],
+    "not-found-light-375-firefox": [],
+    "not-found-light-375-webkit": [],
+    "paged-attention-dark-1440-chromium": [],
+    "paged-attention-dark-1440-firefox": [],
+    "paged-attention-dark-1440-webkit": [],
+    "paged-attention-dark-375-chromium": [],
+    "paged-attention-dark-375-firefox": [],
+    "paged-attention-dark-375-webkit": [],
+    "paged-attention-light-1440-chromium": [],
+    "paged-attention-light-1440-firefox": [],
+    "paged-attention-light-1440-webkit": [],
+    "paged-attention-light-375-chromium": [],
+    "paged-attention-light-375-firefox": [],
+    "paged-attention-light-375-webkit": [],
+    "prefix-caching-dark-1440-chromium": [],
+    "prefix-caching-dark-1440-firefox": [],
+    "prefix-caching-dark-1440-webkit": [],
+    "prefix-caching-dark-375-chromium": [],
+    "prefix-caching-dark-375-firefox": [],
+    "prefix-caching-dark-375-webkit": [],
+    "prefix-caching-light-1440-chromium": [],
+    "prefix-caching-light-1440-firefox": [],
+    "prefix-caching-light-1440-webkit": [],
+    "prefix-caching-light-375-chromium": [],
+    "prefix-caching-light-375-firefox": [],
+    "prefix-caching-light-375-webkit": [],
+    "sandbox-ab-dark-1440-chromium": [],
+    "sandbox-ab-dark-1440-firefox": [],
+    "sandbox-ab-dark-1440-webkit": [],
+    "sandbox-ab-dark-375-chromium": [],
+    "sandbox-ab-dark-375-firefox": [],
+    "sandbox-ab-dark-375-webkit": [],
+    "sandbox-ab-light-1440-chromium": [],
+    "sandbox-ab-light-1440-firefox": [],
+    "sandbox-ab-light-1440-webkit": [],
+    "sandbox-ab-light-375-chromium": [],
+    "sandbox-ab-light-375-firefox": [],
+    "sandbox-ab-light-375-webkit": [],
+    "sandbox-dark-1440-chromium": [],
+    "sandbox-dark-1440-firefox": [],
+    "sandbox-dark-1440-webkit": [],
+    "sandbox-dark-375-chromium": [],
+    "sandbox-dark-375-firefox": [],
+    "sandbox-dark-375-webkit": [],
+    "sandbox-light-1440-chromium": [],
+    "sandbox-light-1440-firefox": [],
+    "sandbox-light-1440-webkit": [],
+    "sandbox-light-375-chromium": [],
+    "sandbox-light-375-firefox": [],
+    "sandbox-light-375-webkit": []
+  },
+  "axeRuns": 108,
+  "keyboard": {
+    "continuous-batching-chromium": {
+      "stops": 101,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "continuous-batching-firefox": {
+      "stops": 101,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "continuous-batching-webkit": {
+      "stops": 101,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "glossary-chromium": {
+      "stops": 80,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "glossary-firefox": {
+      "stops": 80,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "glossary-webkit": {
+      "stops": 80,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "kv-cache-chromium": {
+      "stops": 75,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "kv-cache-firefox": {
+      "stops": 75,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "kv-cache-webkit": {
+      "stops": 75,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "landing-chromium": {
+      "stops": 15,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "landing-firefox": {
+      "stops": 15,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "landing-webkit": {
+      "stops": 15,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "not-found-chromium": {
+      "stops": 10,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "not-found-firefox": {
+      "stops": 10,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "not-found-webkit": {
+      "stops": 10,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "paged-attention-chromium": {
+      "stops": 85,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "paged-attention-firefox": {
+      "stops": 85,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "paged-attention-webkit": {
+      "stops": 85,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "prefix-caching-chromium": {
+      "stops": 71,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "prefix-caching-firefox": {
+      "stops": 71,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "prefix-caching-webkit": {
+      "stops": 71,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "sandbox-ab-chromium": {
+      "stops": 121,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "sandbox-ab-firefox": {
+      "stops": 121,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "sandbox-ab-webkit": {
+      "stops": 121,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [
+        "input \"GPU memory fraction\"",
+        "input \"Prompt length: max\""
+      ],
+      "invisible": [],
+      "revisits": []
+    },
+    "sandbox-chromium": {
+      "stops": 98,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "sandbox-firefox": {
+      "stops": 98,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": [],
+      "invisible": [],
+      "revisits": []
+    },
+    "sandbox-webkit": {
+      "stops": 98,
+      "end": "left the page",
+      "noRing": [],
+      "notInView": ["input \"Prompt length: max\""],
+      "invisible": [],
+      "revisits": []
+    }
+  },
+  "liveRegions": {
+    "continuous-batching": [
+      {
+        "step": 2,
+        "playMs": 3032,
+        "duringPlay": 0,
+        "perSecond": 0,
+        "steps": 3,
+        "perStep": 0.33,
+        "regions": ["polite cb__readout"]
+      },
+      {
+        "step": 3,
+        "playMs": 3036,
+        "duringPlay": 0,
+        "perSecond": 0,
+        "steps": 3,
+        "perStep": 1,
+        "regions": ["polite cb__readout"]
+      },
+      {
+        "step": 4,
+        "playMs": 3034,
+        "duringPlay": 0,
+        "perSecond": 0,
+        "steps": 3,
+        "perStep": 0.67,
+        "regions": ["polite cb__readout"]
+      },
+      {
+        "step": 5,
+        "playMs": 3034,
+        "duringPlay": 0,
+        "perSecond": 0,
+        "steps": 3,
+        "perStep": 1,
+        "regions": ["polite cb__readout"]
+      },
+      {
+        "step": 6,
+        "playMs": 3034,
+        "duringPlay": 0,
+        "perSecond": 0,
+        "steps": 3,
+        "perStep": 1,
+        "regions": ["polite cb__readout"]
+      },
+      {
+        "step": 7,
+        "playMs": 3035,
+        "duringPlay": 0,
+        "perSecond": 0,
+        "steps": 3,
+        "perStep": 1,
+        "regions": ["polite cb__readout"]
+      }
+    ],
+    "kv-cache": [
+      {
+        "step": 1,
+        "playMs": 3030,
+        "duringPlay": 0,
+        "perSecond": 0,
+        "steps": 2,
+        "perStep": 1,
+        "regions": ["polite token-grid__readout num"]
+      },
+      {
+        "step": 2,
+        "playMs": 3033,
+        "duringPlay": 0,
+        "perSecond": 0,
+        "steps": 2,
+        "perStep": 1,
+        "regions": ["polite token-grid__readout num"]
+      }
+    ],
+    "paged-attention": [
+      {
+        "step": 1,
+        "playMs": 3035,
+        "duringPlay": 0,
+        "perSecond": 0,
+        "steps": 3,
+        "perStep": 0,
+        "regions": []
+      },
+      {
+        "step": 2,
+        "playMs": 3035,
+        "duringPlay": 0,
+        "perSecond": 0,
+        "steps": 3,
+        "perStep": 0,
+        "regions": []
+      },
+      {
+        "step": 3,
+        "playMs": 3037,
+        "duringPlay": 0,
+        "perSecond": 0,
+        "steps": 3,
+        "perStep": 0.67,
+        "regions": ["polite paged__readout"]
+      },
+      {
+        "step": 5,
+        "playMs": 3033,
+        "duringPlay": 0,
+        "perSecond": 0,
+        "steps": 3,
+        "perStep": 0.67,
+        "regions": ["polite paged__readout"]
+      },
+      {
+        "step": 6,
+        "playMs": 3033,
+        "duringPlay": 0,
+        "perSecond": 0,
+        "steps": 3,
+        "perStep": 0.67,
+        "regions": ["polite paged__readout"]
+      },
+      {
+        "step": 7,
+        "playMs": 3034,
+        "duringPlay": 0,
+        "perSecond": 0,
+        "steps": 3,
+        "perStep": 0.67,
+        "regions": ["polite paged__readout"]
+      },
+      {
+        "step": 8,
+        "playMs": 5009,
+        "duringPlay": 0,
+        "perSecond": 0,
+        "steps": 0,
+        "perStep": 0,
+        "regions": []
+      }
+    ],
+    "prefix-caching": [
+      {
+        "step": 3,
+        "playMs": 3032,
+        "duringPlay": 4,
+        "perSecond": 1.32,
+        "steps": 3,
+        "perStep": 0.33,
+        "regions": ["polite cache__lookup num", "polite paged__readout"]
+      },
+      {
+        "step": 4,
+        "playMs": 3034,
+        "duringPlay": 4,
+        "perSecond": 1.32,
+        "steps": 3,
+        "perStep": 0.33,
+        "regions": ["polite cache__lookup num", "polite paged__readout"]
+      },
+      {
+        "step": 5,
+        "playMs": 3033,
+        "duringPlay": 4,
+        "perSecond": 1.32,
+        "steps": 3,
+        "perStep": 0.33,
+        "regions": ["polite cache__lookup num", "polite paged__readout"]
+      },
+      {
+        "step": 7,
+        "playMs": 3033,
+        "duringPlay": 2,
+        "perSecond": 0.66,
+        "steps": 3,
+        "perStep": 0,
+        "regions": ["polite cache__lookup num"]
+      },
+      {
+        "step": 8,
+        "playMs": 3033,
+        "duringPlay": 4,
+        "perSecond": 1.32,
+        "steps": 3,
+        "perStep": 0.33,
+        "regions": ["polite cache__lookup num", "polite paged__readout"]
+      },
+      {
+        "step": 9,
+        "playMs": 3034,
+        "duringPlay": 4,
+        "perSecond": 1.32,
+        "steps": 3,
+        "perStep": 0.33,
+        "regions": ["polite cache__lookup num", "polite paged__readout"]
+      },
+      {
+        "step": 10,
+        "playMs": 3034,
+        "duringPlay": 4,
+        "perSecond": 1.32,
+        "steps": 3,
+        "perStep": 0.33,
+        "regions": ["polite cache__lookup num", "polite paged__readout"]
+      }
+    ],
+    "sandbox-ab": [
+      {
+        "step": 1,
+        "playMs": 3037,
+        "duringPlay": 0,
+        "perSecond": 0,
+        "steps": 3,
+        "perStep": 0,
+        "regions": []
+      }
+    ],
+    "sandbox": [
+      {
+        "step": 1,
+        "playMs": 3034,
+        "duringPlay": 0,
+        "perSecond": 0,
+        "steps": 3,
+        "perStep": 0,
+        "regions": []
+      }
+    ]
+  },
+  "reducedMotion": {
+    "continuous-batching-1440-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "continuous-batching-1440-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "continuous-batching-1440-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "continuous-batching-375-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 5,
+      "enabledPlay": 0,
+      "notices": 5
+    },
+    "continuous-batching-375-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 5,
+      "enabledPlay": 0,
+      "notices": 5
+    },
+    "continuous-batching-375-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 5,
+      "enabledPlay": 0,
+      "notices": 5
+    },
+    "glossary-1440-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "glossary-1440-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "glossary-1440-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "glossary-375-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "glossary-375-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "glossary-375-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "kv-cache-1440-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "kv-cache-1440-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "kv-cache-1440-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "kv-cache-375-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 2,
+      "enabledPlay": 0,
+      "notices": 2
+    },
+    "kv-cache-375-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 2,
+      "enabledPlay": 0,
+      "notices": 2
+    },
+    "kv-cache-375-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 2,
+      "enabledPlay": 0,
+      "notices": 2
+    },
+    "landing-1440-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "landing-1440-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "landing-1440-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "landing-375-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "landing-375-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "landing-375-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "not-found-1440-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "not-found-1440-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "not-found-1440-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "not-found-375-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "not-found-375-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "not-found-375-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 0,
+      "enabledPlay": 0,
+      "notices": 0
+    },
+    "paged-attention-1440-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    },
+    "paged-attention-1440-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    },
+    "paged-attention-1440-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    },
+    "paged-attention-375-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 5,
+      "enabledPlay": 0,
+      "notices": 5
+    },
+    "paged-attention-375-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 5,
+      "enabledPlay": 0,
+      "notices": 5
+    },
+    "paged-attention-375-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 5,
+      "enabledPlay": 0,
+      "notices": 5
+    },
+    "prefix-caching-1440-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    },
+    "prefix-caching-1440-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    },
+    "prefix-caching-1440-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    },
+    "prefix-caching-375-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 3,
+      "enabledPlay": 0,
+      "notices": 3
+    },
+    "prefix-caching-375-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 3,
+      "enabledPlay": 0,
+      "notices": 3
+    },
+    "prefix-caching-375-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 3,
+      "enabledPlay": 0,
+      "notices": 3
+    },
+    "sandbox-1440-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    },
+    "sandbox-1440-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    },
+    "sandbox-1440-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    },
+    "sandbox-375-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    },
+    "sandbox-375-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    },
+    "sandbox-375-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    },
+    "sandbox-ab-1440-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    },
+    "sandbox-ab-1440-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    },
+    "sandbox-ab-1440-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    },
+    "sandbox-ab-375-chromium": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    },
+    "sandbox-ab-375-firefox": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    },
+    "sandbox-ab-375-webkit": {
+      "autoplay": false,
+      "running": [],
+      "transitions": [],
+      "playbackBars": 1,
+      "enabledPlay": 0,
+      "notices": 1
+    }
+  },
+  "layout": {
+    "continuous-batching-dark-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "continuous-batching-dark-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "continuous-batching-dark-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "continuous-batching-dark-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "continuous-batching-dark-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "continuous-batching-dark-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "continuous-batching-dark-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "continuous-batching-dark-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "continuous-batching-dark-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "continuous-batching-light-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "continuous-batching-light-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "continuous-batching-light-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "continuous-batching-light-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "continuous-batching-light-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "continuous-batching-light-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "continuous-batching-light-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "continuous-batching-light-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "continuous-batching-light-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-dark-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-dark-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-dark-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-dark-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-dark-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-dark-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-dark-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-dark-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-dark-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-light-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-light-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-light-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-light-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-light-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-light-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-light-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-light-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "glossary-light-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-dark-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-dark-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-dark-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-dark-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-dark-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-dark-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-dark-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-dark-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-dark-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-light-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-light-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-light-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-light-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-light-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-light-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-light-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-light-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "kv-cache-light-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-dark-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-dark-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-dark-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-dark-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-dark-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-dark-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-dark-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-dark-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-dark-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-light-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-light-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-light-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-light-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-light-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-light-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-light-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-light-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "landing-light-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-dark-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-dark-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-dark-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-dark-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-dark-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-dark-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-dark-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-dark-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-dark-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-light-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-light-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-light-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-light-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-light-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-light-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-light-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-light-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "not-found-light-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-dark-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-dark-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-dark-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-dark-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-dark-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-dark-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-dark-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-dark-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-dark-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-light-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-light-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-light-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-light-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-light-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-light-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-light-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-light-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "paged-attention-light-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-dark-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-dark-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-dark-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-dark-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-dark-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-dark-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-dark-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-dark-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-dark-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-light-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-light-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-light-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-light-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-light-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-light-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-light-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-light-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "prefix-caching-light-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-dark-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-dark-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-dark-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-dark-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-dark-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-dark-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-dark-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-dark-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-dark-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-light-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-light-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-light-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-light-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-light-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-light-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-light-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-light-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-ab-light-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-dark-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-dark-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-dark-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-dark-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-dark-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-dark-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-dark-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-dark-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-dark-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-light-1440-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-light-1440-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-light-1440-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-light-375-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-light-375-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-light-375-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-light-768-chromium": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-light-768-firefox": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    },
+    "sandbox-light-768-webkit": {
+      "maxOverflow": 0,
+      "clipped": [],
+      "small": []
+    }
+  },
+  "hoverOnly": {
+    "landing": {
+      "reveal": [],
+      "titled": []
+    },
+    "kv-cache": {
+      "reveal": [],
+      "titled": [
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints\"",
+        "a \"The math (llmsize docs/MATH.md)\"",
+        "a \"The math (llmsize docs/MATH.md)\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "a \"vLLM source code\"",
+        "a \"The math (llmsize docs/MATH.md)\"",
+        "a \"SGLang: Efficient Execution of Structured Language Model Programs\"",
+        "a \"GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints\"",
+        "a \"GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"The math (llmsize docs/MATH.md)\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "a \"vLLM source code\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "a \"The math (llmsize docs/MATH.md)\"",
+        "a \"vLLM source code\"",
+        "a \"vLLM source code\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "a \"The math (llmsize docs/MATH.md)\"",
+        "a \"The math (llmsize docs/MATH.md)\"",
+        "a \"The math (llmsize docs/MATH.md)\"",
+        "a \"The math (llmsize docs/MATH.md)\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints\"",
+        "a \"The math (llmsize docs/MATH.md)\""
+      ]
+    },
+    "paged-attention": {
+      "reveal": [],
+      "titled": [
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"vLLM source code\"",
+        "a \"vLLM source code\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"vLLM source code\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"vLLM source code\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "a \"The math (llmsize docs/MATH.md)\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"vLLM source code\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Paged Attention (design doc)\"",
+        "a \"vLLM source code\"",
+        "a \"Orca: A Distributed Serving System for Transformer-Based Generative Models\""
+      ]
+    },
+    "continuous-batching": {
+      "reveal": [],
+      "titled": [
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Orca: A Distributed Serving System for Transformer-Based Generative Models\"",
+        "a \"Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve\"",
+        "a \"Orca: A Distributed Serving System for Transformer-Based Generative Models\"",
+        "a \"vLLM source code\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve\"",
+        "a \"Orca: A Distributed Serving System for Transformer-Based Generative Models\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Orca: A Distributed Serving System for Transformer-Based Generative Models\"",
+        "a \"vLLM source code\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"vLLM source code\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"vLLM source code\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve\"",
+        "a \"vLLM source code\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"vLLM source code\"",
+        "a \"Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"SARATHI: Efficient LLM Inference by Piggybacking Decodes with Chunked Prefills\"",
+        "a \"Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"vLLM source code\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve\"",
+        "a \"Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"inference-engine-benchmark-system\"",
+        "a \"Read from a committed benchmark result file. Opens the file.\"",
+        "a \"Read from a committed benchmark result file. Opens the file.\"",
+        "a \"Read from a committed benchmark result file. Opens the file.\"",
+        "a \"Read from a committed benchmark result file. Opens the file.\"",
+        "a \"Read from a committed benchmark result file. Opens the file.\"",
+        "a \"Read from a committed benchmark result file. Opens the file.\"",
+        "a \"vLLM source code\"",
+        "a \"Read from a committed benchmark result file. Opens the file.\"",
+        "a \"Read from a committed benchmark result file. Opens the file.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Orca: A Distributed Serving System for Transformer-Based Generative Models\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Orca: A Distributed Serving System for Transformer-Based Generative Models\"",
+        "a \"Orca: A Distributed Serving System for Transformer-Based Generative Models\"",
+        "a \"Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "a \"The math (llmsize docs/MATH.md)\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Read from a committed benchmark result file. Opens the file.\"",
+        "a \"vLLM source code\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"vLLM source code\"",
+        "a \"Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve\"",
+        "a \"Orca: A Distributed Serving System for Transformer-Based Generative Models\"",
+        "a \"SARATHI: Efficient LLM Inference by Piggybacking Decodes with Chunked Prefills\"",
+        "a \"Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"vLLM source code\""
+      ]
+    },
+    "prefix-caching": {
+      "reveal": [],
+      "titled": [
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"SGLang: Efficient Execution of Structured Language Model Programs\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "a \"vLLM source code\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"vLLM source code\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"vLLM source code\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "a \"vLLM source code\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"vLLM source code\"",
+        "a \"vLLM source code\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"SGLang: Efficient Execution of Structured Language Model Programs\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "a \"kv-transfer-tax\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "a \"SGLang: Efficient Execution of Structured Language Model Programs\"",
+        "a \"vLLM source code\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "a \"vLLM source code\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "a \"vLLM source code\"",
+        "a \"SGLang: Efficient Execution of Structured Language Model Programs\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"kv-transfer-tax\""
+      ]
+    },
+    "sandbox": {
+      "reveal": [],
+      "titled": [
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "a \"vLLM source code\"",
+        "a \"vLLM source code\"",
+        "a \"vLLM source code\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\""
+      ]
+    },
+    "glossary": {
+      "reveal": [],
+      "titled": [
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints\"",
+        "a \"GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints\"",
+        "a \"The math (llmsize docs/MATH.md)\"",
+        "a \"GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints\"",
+        "a \"GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints\"",
+        "a \"The math (llmsize docs/MATH.md)\"",
+        "a \"vLLM source code\"",
+        "a \"The math (llmsize docs/MATH.md)\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"The math (llmsize docs/MATH.md)\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"vLLM source code\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "a \"vLLM source code\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Efficient Memory Management for Large Language Model Serving with PagedAttention\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "a \"Orca: A Distributed Serving System for Transformer-Based Generative Models\"",
+        "a \"Orca: A Distributed Serving System for Transformer-Based Generative Models\"",
+        "a \"Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve\"",
+        "a \"Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve\"",
+        "a \"The math (llmsize docs/MATH.md)\"",
+        "a \"Orca: A Distributed Serving System for Transformer-Based Generative Models\"",
+        "a \"Orca: A Distributed Serving System for Transformer-Based Generative Models\"",
+        "a \"Orca: A Distributed Serving System for Transformer-Based Generative Models\"",
+        "a \"Orca: A Distributed Serving System for Transformer-Based Generative Models\"",
+        "a \"Orca: A Distributed Serving System for Transformer-Based Generative Models\"",
+        "a \"Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve\"",
+        "a \"Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve\"",
+        "a \"vLLM source code\"",
+        "a \"Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve\"",
+        "a \"SARATHI: Efficient LLM Inference by Piggybacking Decodes with Chunked Prefills\"",
+        "a \"Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve\"",
+        "a \"vLLM source code\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "a \"SGLang: Efficient Execution of Structured Language Model Programs\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "a \"vLLM source code\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "a \"Automatic Prefix Caching (design doc)\"",
+        "a \"vLLM source code\"",
+        "a \"vLLM source code\"",
+        "a \"SGLang: Efficient Execution of Structured Language Model Programs\"",
+        "a \"kv-transfer-tax\""
+      ]
+    },
+    "not-found": {
+      "reveal": [],
+      "titled": []
+    },
+    "sandbox-ab": {
+      "reveal": [],
+      "titled": [
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "a \"vLLM source code\"",
+        "a \"vLLM source code\"",
+        "a \"vLLM source code\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Computed with llmsize's formulas.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\"",
+        "span \"Produced by the toy engine on this page. Not a measurement.\""
+      ]
+    }
+  },
+  "sticky": {
+    "chromium": {
+      "kv-cache 900": {
+        "position": "sticky",
+        "tops": [24, 24],
+        "showButtons": 0
+      },
+      "kv-cache 500": {
+        "position": "static",
+        "tops": [-2975, -4805],
+        "showButtons": 6
+      },
+      "paged-attention 900": {
+        "position": "sticky",
+        "tops": [24, 24],
+        "showButtons": 0
+      },
+      "paged-attention 500": {
+        "position": "static",
+        "tops": [-3508, -6289],
+        "showButtons": 8
+      },
+      "continuous-batching 900": {
+        "position": "sticky",
+        "tops": [24, 24],
+        "showButtons": 0
+      },
+      "continuous-batching 500": {
+        "position": "static",
+        "tops": [-4301, -7754],
+        "showButtons": 9
+      },
+      "prefix-caching 900": {
+        "position": "sticky",
+        "tops": [24, 24],
+        "showButtons": 0
+      },
+      "prefix-caching 500": {
+        "position": "static",
+        "tops": [-3797, -7023],
+        "showButtons": 10
+      }
+    },
+    "firefox": {
+      "kv-cache 900": {
+        "position": "sticky",
+        "tops": [24, 24],
+        "showButtons": 0
+      },
+      "kv-cache 500": {
+        "position": "static",
+        "tops": [-2975, -4804],
+        "showButtons": 6
+      },
+      "paged-attention 900": {
+        "position": "sticky",
+        "tops": [24, 24],
+        "showButtons": 0
+      },
+      "paged-attention 500": {
+        "position": "static",
+        "tops": [-3508, -6289],
+        "showButtons": 8
+      },
+      "continuous-batching 900": {
+        "position": "sticky",
+        "tops": [24, 24],
+        "showButtons": 0
+      },
+      "continuous-batching 500": {
+        "position": "static",
+        "tops": [-4301, -7754],
+        "showButtons": 9
+      },
+      "prefix-caching 900": {
+        "position": "sticky",
+        "tops": [24, 24],
+        "showButtons": 0
+      },
+      "prefix-caching 500": {
+        "position": "static",
+        "tops": [-3797, -6996],
+        "showButtons": 10
+      }
+    },
+    "webkit": {
+      "kv-cache 900": {
+        "position": "sticky",
+        "tops": [24, 24],
+        "showButtons": 0
+      },
+      "kv-cache 500": {
+        "position": "static",
+        "tops": [-2976, -4806],
+        "showButtons": 6
+      },
+      "paged-attention 900": {
+        "position": "sticky",
+        "tops": [24, 24],
+        "showButtons": 0
+      },
+      "paged-attention 500": {
+        "position": "static",
+        "tops": [-3508, -6289],
+        "showButtons": 8
+      },
+      "continuous-batching 900": {
+        "position": "sticky",
+        "tops": [24, 24],
+        "showButtons": 0
+      },
+      "continuous-batching 500": {
+        "position": "static",
+        "tops": [-4288, -7727],
+        "showButtons": 9
+      },
+      "prefix-caching 900": {
+        "position": "sticky",
+        "tops": [24, 24],
+        "showButtons": 0
+      },
+      "prefix-caching 500": {
+        "position": "static",
+        "tops": [-3797, -7023],
+        "showButtons": 10
+      }
+    }
+  },
+  "workers": {
+    "chromium": {
+      "statuses": ["done", "done"],
+      "ms": 968
+    },
+    "firefox": {
+      "statuses": ["done", "done"],
+      "ms": 889
+    },
+    "webkit": {
+      "statuses": ["done", "done"],
+      "ms": 977
+    }
+  },
+  "touch": {
+    "continuous-batching-Pixel 7": {
+      "width": 412,
+      "small": [],
+      "overflow": 0,
+      "results": [
+        "bar 0: 0 → 0.409736589372918",
+        "bar 1: 0 → 0.409736589372918",
+        "bar 2: 0 → 0.266279000292024",
+        "bar 3: 0 → 1.69506783539495",
+        "bar 4: 0 → 1.69506783539495",
+        "slider 0 44 px tall: 1.2 → 2.3",
+        "slider 1 44 px tall: 4 → 6",
+        "slider 2 44 px tall: 8 → 8",
+        "slider 3 44 px tall: 1.2 → 2.3",
+        "slider 4 44 px tall: 4 → 6",
+        "slider 5 44 px tall: 8 → 8",
+        "slider 6 44 px tall: 1.2 → 2.3",
+        "slider 7 44 px tall: 4 → 6",
+        "slider 8 44 px tall: 8 → 8",
+        "slider 10 44 px tall: 1.5 → 2.3",
+        "slider 11 44 px tall: 8 → 8",
+        "slider 12 44 px tall: 5 → 7",
+        "slider 13 44 px tall: 1.5 → 2.3",
+        "slider 14 44 px tall: 8 → 8",
+        "slider 15 44 px tall: 5 → 7"
+      ]
+    },
+    "continuous-batching-iPhone 13": {
+      "width": 390,
+      "small": [],
+      "overflow": 0,
+      "results": [
+        "bar 0: 0 → 0.409736589372918",
+        "bar 1: 0 → 0.409736589372918",
+        "bar 2: 0 → 0.266279000292024",
+        "bar 3: 0 → 1.69506783539495",
+        "bar 4: 0 → 1.69506783539495",
+        "slider 0 44 px tall: 1.2 → 2.3",
+        "slider 1 44 px tall: 4 → 6",
+        "slider 2 44 px tall: 8 → 8",
+        "slider 3 44 px tall: 1.2 → 2.3",
+        "slider 4 44 px tall: 4 → 6",
+        "slider 5 44 px tall: 8 → 8",
+        "slider 6 44 px tall: 1.2 → 2.3",
+        "slider 7 44 px tall: 4 → 6",
+        "slider 8 44 px tall: 8 → 8",
+        "slider 10 44 px tall: 1.5 → 2.3",
+        "slider 11 44 px tall: 8 → 8",
+        "slider 12 44 px tall: 5 → 7",
+        "slider 13 44 px tall: 1.5 → 2.3",
+        "slider 14 44 px tall: 8 → 8",
+        "slider 15 44 px tall: 5 → 7"
+      ]
+    },
+    "glossary-Pixel 7": {
+      "width": 412,
+      "small": [],
+      "overflow": 0,
+      "results": []
+    },
+    "glossary-iPhone 13": {
+      "width": 390,
+      "small": [],
+      "overflow": 0,
+      "results": []
+    },
+    "kv-cache-Pixel 7": {
+      "width": 412,
+      "small": [],
+      "overflow": 0,
+      "results": [
+        "bar 0: 0 → 1",
+        "bar 1: 0 → 1",
+        "slider 0 44 px tall: 10 → 17",
+        "slider 1 44 px tall: 3 → 16"
+      ]
+    },
+    "kv-cache-iPhone 13": {
+      "width": 390,
+      "small": [],
+      "overflow": 0,
+      "results": [
+        "bar 0: 0 → 1",
+        "bar 1: 0 → 1",
+        "slider 0 44 px tall: 10 → 17",
+        "slider 1 44 px tall: 3 → 16"
+      ]
+    },
+    "landing-Pixel 7": {
+      "width": 412,
+      "small": [],
+      "overflow": 0,
+      "results": []
+    },
+    "landing-iPhone 13": {
+      "width": 390,
+      "small": [],
+      "overflow": 0,
+      "results": []
+    },
+    "not-found-Pixel 7": {
+      "width": 412,
+      "small": [],
+      "overflow": 0,
+      "results": []
+    },
+    "not-found-iPhone 13": {
+      "width": 390,
+      "small": [],
+      "overflow": 0,
+      "results": []
+    },
+    "paged-attention-Pixel 7": {
+      "width": 412,
+      "small": [],
+      "overflow": 0,
+      "results": [
+        "bar 0: 0 → 0",
+        "bar 1: 0 → 0.191527917295652",
+        "bar 2: 0 → 0",
+        "bar 3: 0 → 0.191527917295652",
+        "bar 4: 0 → 1",
+        "slider 0 44 px tall: 0 → 50",
+        "slider 1 44 px tall: 1 → 4",
+        "slider 2 44 px tall: 1.5 → 2.75",
+        "slider 3 44 px tall: 0.6 → 0.9",
+        "slider 4 44 px tall: 1 → 4"
+      ]
+    },
+    "paged-attention-iPhone 13": {
+      "width": 390,
+      "small": [],
+      "overflow": 0,
+      "results": [
+        "bar 0: 0 → 0",
+        "bar 1: 0 → 0.191527917295652",
+        "bar 2: 0 → 0",
+        "bar 3: 0 → 0.191527917295652",
+        "bar 4: 0 → 1",
+        "slider 0 44 px tall: 0 → 51",
+        "slider 1 44 px tall: 1 → 4",
+        "slider 2 44 px tall: 1.5 → 2.75",
+        "slider 3 44 px tall: 0.6 → 1",
+        "slider 4 44 px tall: 1 → 4"
+      ]
+    },
+    "prefix-caching-Pixel 7": {
+      "width": 412,
+      "small": [],
+      "overflow": 0,
+      "results": [
+        "bar 0: 0 → 0.689373089859074",
+        "bar 1: 0 → 1.29345658283908",
+        "bar 2: 0 → 0.796944777192043",
+        "slider 0 44 px tall: 300 → 561",
+        "slider 1 44 px tall: 3 → 4",
+        "slider 2 44 px tall: 1 → 15",
+        "slider 3 44 px tall: 0.9 → 1",
+        "slider 4 44 px tall: 2 → 4",
+        "slider 5 44 px tall: 1 → 4",
+        "slider 6 44 px tall: 2 → 4",
+        "slider 7 44 px tall: 12 → 15",
+        "slider 8 44 px tall: 0.9 → 1",
+        "slider 9 44 px tall: 0 → 4",
+        "slider 10 44 px tall: 1 → 4",
+        "slider 11 44 px tall: 3 → 4",
+        "slider 12 44 px tall: 1 → 15",
+        "slider 13 44 px tall: 0.9 → 1",
+        "slider 14 44 px tall: 2 → 4",
+        "slider 15 44 px tall: 1 → 4"
+      ]
+    },
+    "prefix-caching-iPhone 13": {
+      "width": 390,
+      "small": [],
+      "overflow": 0,
+      "results": [
+        "bar 0: 0 → 0.689373089859074",
+        "bar 1: 0 → 1.29345658283908",
+        "bar 2: 0 → 0.796944777192043",
+        "slider 0 44 px tall: 300 → 577",
+        "slider 1 44 px tall: 3 → 4",
+        "slider 2 44 px tall: 1 → 16",
+        "slider 3 44 px tall: 0.9 → 1",
+        "slider 4 44 px tall: 2 → 4",
+        "slider 5 44 px tall: 1 → 4",
+        "slider 6 44 px tall: 2 → 4",
+        "slider 7 44 px tall: 12 → 16",
+        "slider 8 44 px tall: 0.9 → 1",
+        "slider 9 44 px tall: 0 → 4",
+        "slider 10 44 px tall: 1 → 4",
+        "slider 11 44 px tall: 3 → 4",
+        "slider 12 44 px tall: 1 → 16",
+        "slider 13 44 px tall: 0.9 → 1",
+        "slider 14 44 px tall: 2 → 4",
+        "slider 15 44 px tall: 1 → 4"
+      ]
+    },
+    "sandbox-Pixel 7": {
+      "width": 412,
+      "small": [],
+      "overflow": 0,
+      "results": ["bar 0: 0 → 0"]
+    },
+    "sandbox-ab-Pixel 7": {
+      "width": 412,
+      "small": [],
+      "overflow": 0,
+      "results": ["bar 0: 0 → 0"]
+    },
+    "sandbox-ab-iPhone 13": {
+      "width": 390,
+      "small": [],
+      "overflow": 0,
+      "results": ["bar 0: 0 → 0"]
+    },
+    "sandbox-iPhone 13": {
+      "width": 390,
+      "small": [],
+      "overflow": 0,
+      "results": ["bar 0: 0 → 0"]
+    }
+  },
+  "requests": {
+    "continuous-batching-chromium": {
+      "requests": 13,
+      "thirdParty": [],
+      "afterLoad": [
+        "script /serving-explained/assets/continuous-batching-_mAYYT_i.js",
+        "script /serving-explained/assets/Num-sNy_BQ98.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/Toggle-yrPUyBR3.js",
+        "script /serving-explained/assets/continuous-batching-MCYV3nbV.js",
+        "script /serving-explained/assets/usePlayhead-2iF3vhSz.js",
+        "script /serving-explained/assets/RequestMark-DTZdQNmB.js",
+        "stylesheet /serving-explained/assets/continuous-batching-wCSBnhPI.css",
+        "script /serving-explained/assets/KvFormula-BW1-9Lch.js"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 10,
+        "gzip9": 120938,
+        "encoded": 124080,
+        "raw": 373958
+      }
+    },
+    "continuous-batching-firefox": {
+      "requests": 14,
+      "thirdParty": [],
+      "afterLoad": [
+        "document /serving-explained/continuous-batching/",
+        "script /serving-explained/assets/index-CHbT5MNe.js",
+        "stylesheet /serving-explained/assets/index-BcNGywl1.css",
+        "script /serving-explained/assets/continuous-batching-_mAYYT_i.js",
+        "script /serving-explained/assets/Num-sNy_BQ98.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/Toggle-yrPUyBR3.js",
+        "script /serving-explained/assets/continuous-batching-MCYV3nbV.js",
+        "script /serving-explained/assets/usePlayhead-2iF3vhSz.js",
+        "script /serving-explained/assets/RequestMark-DTZdQNmB.js",
+        "stylesheet /serving-explained/assets/continuous-batching-wCSBnhPI.css",
+        "script /serving-explained/assets/KvFormula-BW1-9Lch.js",
+        "image /serving-explained/favicon.svg"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 10,
+        "gzip9": 120938,
+        "encoded": 121939,
+        "raw": 373958
+      }
+    },
+    "continuous-batching-webkit": {
+      "requests": 13,
+      "thirdParty": [],
+      "afterLoad": [
+        "script /serving-explained/assets/continuous-batching-_mAYYT_i.js",
+        "script /serving-explained/assets/Num-sNy_BQ98.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/Toggle-yrPUyBR3.js",
+        "script /serving-explained/assets/continuous-batching-MCYV3nbV.js",
+        "script /serving-explained/assets/usePlayhead-2iF3vhSz.js",
+        "script /serving-explained/assets/RequestMark-DTZdQNmB.js",
+        "stylesheet /serving-explained/assets/continuous-batching-wCSBnhPI.css",
+        "script /serving-explained/assets/KvFormula-BW1-9Lch.js"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 10,
+        "gzip9": 120938,
+        "encoded": 122065,
+        "raw": 373958
+      }
+    },
+    "glossary-chromium": {
+      "requests": 5,
+      "thirdParty": [],
+      "afterLoad": [
+        "script /serving-explained/assets/Glossary-CGbWBQqB.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 3,
+        "gzip9": 79191,
+        "encoded": 80830,
+        "raw": 251102
+      }
+    },
+    "glossary-firefox": {
+      "requests": 6,
+      "thirdParty": [],
+      "afterLoad": [
+        "document /serving-explained/glossary/",
+        "script /serving-explained/assets/index-CHbT5MNe.js",
+        "stylesheet /serving-explained/assets/index-BcNGywl1.css",
+        "script /serving-explained/assets/Glossary-CGbWBQqB.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "image /serving-explained/favicon.svg"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 3,
+        "gzip9": 79191,
+        "encoded": 80120,
+        "raw": 251102
+      }
+    },
+    "glossary-webkit": {
+      "requests": 5,
+      "thirdParty": [],
+      "afterLoad": [
+        "script /serving-explained/assets/Glossary-CGbWBQqB.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 3,
+        "gzip9": 79191,
+        "encoded": 80183,
+        "raw": 251102
+      }
+    },
+    "kv-cache-chromium": {
+      "requests": 9,
+      "thirdParty": [],
+      "afterLoad": [
+        "script /serving-explained/assets/kv-cache-ChUFjOpi.js",
+        "script /serving-explained/assets/Num-sNy_BQ98.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/KvFormula-BW1-9Lch.js",
+        "stylesheet /serving-explained/assets/kv-cache-BiVnKOGu.css"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 6,
+        "gzip9": 105697,
+        "encoded": 107838,
+        "raw": 331187
+      }
+    },
+    "kv-cache-firefox": {
+      "requests": 10,
+      "thirdParty": [],
+      "afterLoad": [
+        "document /serving-explained/kv-cache/",
+        "script /serving-explained/assets/index-CHbT5MNe.js",
+        "stylesheet /serving-explained/assets/index-BcNGywl1.css",
+        "script /serving-explained/assets/kv-cache-ChUFjOpi.js",
+        "script /serving-explained/assets/Num-sNy_BQ98.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/KvFormula-BW1-9Lch.js",
+        "stylesheet /serving-explained/assets/kv-cache-BiVnKOGu.css",
+        "image /serving-explained/favicon.svg"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 6,
+        "gzip9": 105697,
+        "encoded": 106660,
+        "raw": 331187
+      }
+    },
+    "kv-cache-webkit": {
+      "requests": 9,
+      "thirdParty": [],
+      "afterLoad": [
+        "script /serving-explained/assets/kv-cache-ChUFjOpi.js",
+        "script /serving-explained/assets/Num-sNy_BQ98.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/KvFormula-BW1-9Lch.js",
+        "stylesheet /serving-explained/assets/kv-cache-BiVnKOGu.css"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 6,
+        "gzip9": 105697,
+        "encoded": 106750,
+        "raw": 331187
+      }
+    },
+    "landing-chromium": {
+      "requests": 4,
+      "thirdParty": [],
+      "afterLoad": ["script /serving-explained/assets/Landing-L3ruRehQ.js"],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 2,
+        "gzip9": 71271,
+        "encoded": 72559,
+        "raw": 228401
+      }
+    },
+    "landing-firefox": {
+      "requests": 5,
+      "thirdParty": [],
+      "afterLoad": [
+        "document /serving-explained/",
+        "script /serving-explained/assets/index-CHbT5MNe.js",
+        "stylesheet /serving-explained/assets/index-BcNGywl1.css",
+        "script /serving-explained/assets/Landing-L3ruRehQ.js",
+        "image /serving-explained/favicon.svg"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 2,
+        "gzip9": 71271,
+        "encoded": 72135,
+        "raw": 228401
+      }
+    },
+    "landing-webkit": {
+      "requests": 4,
+      "thirdParty": [],
+      "afterLoad": ["script /serving-explained/assets/Landing-L3ruRehQ.js"],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 2,
+        "gzip9": 71271,
+        "encoded": 72189,
+        "raw": 228401
+      }
+    },
+    "not-found-chromium": {
+      "requests": 4,
+      "thirdParty": [],
+      "afterLoad": ["script /serving-explained/assets/NotFound-CIW7GkLG.js"],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 2,
+        "gzip9": 71026,
+        "encoded": 72423,
+        "raw": 227825
+      }
+    },
+    "not-found-firefox": {
+      "requests": 5,
+      "thirdParty": [],
+      "afterLoad": [
+        "document /serving-explained/no-such-page/",
+        "script /serving-explained/assets/index-CHbT5MNe.js",
+        "stylesheet /serving-explained/assets/index-BcNGywl1.css",
+        "script /serving-explained/assets/NotFound-CIW7GkLG.js",
+        "image /serving-explained/favicon.svg"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 2,
+        "gzip9": 71026,
+        "encoded": 71889,
+        "raw": 227825
+      }
+    },
+    "not-found-webkit": {
+      "requests": 4,
+      "thirdParty": [],
+      "afterLoad": ["script /serving-explained/assets/NotFound-CIW7GkLG.js"],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 2,
+        "gzip9": 71026,
+        "encoded": 71943,
+        "raw": 227825
+      }
+    },
+    "paged-attention-chromium": {
+      "requests": 11,
+      "thirdParty": [],
+      "afterLoad": [
+        "script /serving-explained/assets/paged-attention-iVYu8wmx.js",
+        "script /serving-explained/assets/Num-sNy_BQ98.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/usePlayhead-2iF3vhSz.js",
+        "script /serving-explained/assets/RequestMark-DTZdQNmB.js",
+        "script /serving-explained/assets/paged-attention-oxJGMIRC.js",
+        "stylesheet /serving-explained/assets/paged-attention-DSLbEtm9.css"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 8,
+        "gzip9": 113266,
+        "encoded": 116092,
+        "raw": 350589
+      }
+    },
+    "paged-attention-firefox": {
+      "requests": 12,
+      "thirdParty": [],
+      "afterLoad": [
+        "document /serving-explained/paged-attention/",
+        "script /serving-explained/assets/index-CHbT5MNe.js",
+        "stylesheet /serving-explained/assets/index-BcNGywl1.css",
+        "script /serving-explained/assets/paged-attention-iVYu8wmx.js",
+        "script /serving-explained/assets/Num-sNy_BQ98.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/usePlayhead-2iF3vhSz.js",
+        "script /serving-explained/assets/RequestMark-DTZdQNmB.js",
+        "script /serving-explained/assets/paged-attention-oxJGMIRC.js",
+        "stylesheet /serving-explained/assets/paged-attention-DSLbEtm9.css",
+        "image /serving-explained/favicon.svg"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 8,
+        "gzip9": 113266,
+        "encoded": 114274,
+        "raw": 350589
+      }
+    },
+    "paged-attention-webkit": {
+      "requests": 11,
+      "thirdParty": [],
+      "afterLoad": [
+        "script /serving-explained/assets/paged-attention-iVYu8wmx.js",
+        "script /serving-explained/assets/Num-sNy_BQ98.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/usePlayhead-2iF3vhSz.js",
+        "script /serving-explained/assets/RequestMark-DTZdQNmB.js",
+        "script /serving-explained/assets/paged-attention-oxJGMIRC.js",
+        "stylesheet /serving-explained/assets/paged-attention-DSLbEtm9.css"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 8,
+        "gzip9": 113266,
+        "encoded": 114382,
+        "raw": 350589
+      }
+    },
+    "prefix-caching-chromium": {
+      "requests": 12,
+      "thirdParty": [],
+      "afterLoad": [
+        "script /serving-explained/assets/prefix-caching-Bs2J_RU9.js",
+        "script /serving-explained/assets/Num-sNy_BQ98.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/Toggle-yrPUyBR3.js",
+        "script /serving-explained/assets/usePlayhead-2iF3vhSz.js",
+        "script /serving-explained/assets/paged-attention-oxJGMIRC.js",
+        "stylesheet /serving-explained/assets/paged-attention-DSLbEtm9.css",
+        "stylesheet /serving-explained/assets/prefix-caching-DpuSvpCI.css"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 8,
+        "gzip9": 115356,
+        "encoded": 117992,
+        "raw": 358322
+      }
+    },
+    "prefix-caching-firefox": {
+      "requests": 13,
+      "thirdParty": [],
+      "afterLoad": [
+        "document /serving-explained/prefix-caching/",
+        "script /serving-explained/assets/index-CHbT5MNe.js",
+        "stylesheet /serving-explained/assets/index-BcNGywl1.css",
+        "script /serving-explained/assets/prefix-caching-Bs2J_RU9.js",
+        "script /serving-explained/assets/Num-sNy_BQ98.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/Toggle-yrPUyBR3.js",
+        "script /serving-explained/assets/usePlayhead-2iF3vhSz.js",
+        "script /serving-explained/assets/paged-attention-oxJGMIRC.js",
+        "stylesheet /serving-explained/assets/paged-attention-DSLbEtm9.css",
+        "stylesheet /serving-explained/assets/prefix-caching-DpuSvpCI.css",
+        "image /serving-explained/favicon.svg"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 8,
+        "gzip9": 115356,
+        "encoded": 116382,
+        "raw": 358322
+      }
+    },
+    "prefix-caching-webkit": {
+      "requests": 12,
+      "thirdParty": [],
+      "afterLoad": [
+        "script /serving-explained/assets/prefix-caching-Bs2J_RU9.js",
+        "script /serving-explained/assets/Num-sNy_BQ98.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/Toggle-yrPUyBR3.js",
+        "script /serving-explained/assets/usePlayhead-2iF3vhSz.js",
+        "script /serving-explained/assets/paged-attention-oxJGMIRC.js",
+        "stylesheet /serving-explained/assets/paged-attention-DSLbEtm9.css",
+        "stylesheet /serving-explained/assets/prefix-caching-DpuSvpCI.css"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 8,
+        "gzip9": 115356,
+        "encoded": 116490,
+        "raw": 358322
+      }
+    },
+    "sandbox-ab-chromium": {
+      "requests": 16,
+      "thirdParty": [],
+      "afterLoad": [
+        "script /serving-explained/assets/Sandbox-jMYjpsVP.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/continuous-batching-MCYV3nbV.js",
+        "script /serving-explained/assets/Toggle-yrPUyBR3.js",
+        "script /serving-explained/assets/usePlayhead-2iF3vhSz.js",
+        "script /serving-explained/assets/RequestMark-DTZdQNmB.js",
+        "stylesheet /serving-explained/assets/continuous-batching-wCSBnhPI.css",
+        "script /serving-explained/assets/paged-attention-oxJGMIRC.js",
+        "stylesheet /serving-explained/assets/paged-attention-DSLbEtm9.css",
+        "stylesheet /serving-explained/assets/Sandbox-BcFSJHcO.css",
+        "script /serving-explained/assets/sim.worker-CPMUv1xs.js",
+        "script /serving-explained/assets/sim.worker-CPMUv1xs.js"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 11,
+        "gzip9": 160399,
+        "encoded": 128678,
+        "raw": 484324
+      }
+    },
+    "sandbox-ab-firefox": {
+      "requests": 17,
+      "thirdParty": [],
+      "afterLoad": [
+        "document /serving-explained/sandbox/?v=1&a.sc=static&b.p=chatbot",
+        "script /serving-explained/assets/index-CHbT5MNe.js",
+        "stylesheet /serving-explained/assets/index-BcNGywl1.css",
+        "script /serving-explained/assets/Sandbox-jMYjpsVP.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/continuous-batching-MCYV3nbV.js",
+        "script /serving-explained/assets/Toggle-yrPUyBR3.js",
+        "script /serving-explained/assets/usePlayhead-2iF3vhSz.js",
+        "script /serving-explained/assets/RequestMark-DTZdQNmB.js",
+        "stylesheet /serving-explained/assets/continuous-batching-wCSBnhPI.css",
+        "script /serving-explained/assets/paged-attention-oxJGMIRC.js",
+        "stylesheet /serving-explained/assets/paged-attention-DSLbEtm9.css",
+        "stylesheet /serving-explained/assets/Sandbox-BcFSJHcO.css",
+        "image /serving-explained/favicon.svg",
+        "script /serving-explained/assets/sim.worker-CPMUv1xs.js",
+        "script /serving-explained/assets/sim.worker-CPMUv1xs.js"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 11,
+        "gzip9": 160399,
+        "encoded": 161455,
+        "raw": 484324
+      }
+    },
+    "sandbox-ab-webkit": {
+      "requests": 15,
+      "thirdParty": [],
+      "afterLoad": [
+        "script /serving-explained/assets/Sandbox-jMYjpsVP.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/continuous-batching-MCYV3nbV.js",
+        "script /serving-explained/assets/Toggle-yrPUyBR3.js",
+        "script /serving-explained/assets/usePlayhead-2iF3vhSz.js",
+        "script /serving-explained/assets/RequestMark-DTZdQNmB.js",
+        "stylesheet /serving-explained/assets/continuous-batching-wCSBnhPI.css",
+        "script /serving-explained/assets/paged-attention-oxJGMIRC.js",
+        "stylesheet /serving-explained/assets/paged-attention-DSLbEtm9.css",
+        "stylesheet /serving-explained/assets/Sandbox-BcFSJHcO.css",
+        "xhr /serving-explained/assets/sim.worker-CPMUv1xs.js"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 10,
+        "gzip9": 142909,
+        "encoded": 144079,
+        "raw": 433484
+      }
+    },
+    "sandbox-chromium": {
+      "requests": 15,
+      "thirdParty": [],
+      "afterLoad": [
+        "script /serving-explained/assets/Sandbox-jMYjpsVP.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/continuous-batching-MCYV3nbV.js",
+        "script /serving-explained/assets/Toggle-yrPUyBR3.js",
+        "script /serving-explained/assets/usePlayhead-2iF3vhSz.js",
+        "script /serving-explained/assets/RequestMark-DTZdQNmB.js",
+        "stylesheet /serving-explained/assets/continuous-batching-wCSBnhPI.css",
+        "script /serving-explained/assets/paged-attention-oxJGMIRC.js",
+        "stylesheet /serving-explained/assets/paged-attention-DSLbEtm9.css",
+        "stylesheet /serving-explained/assets/Sandbox-BcFSJHcO.css",
+        "script /serving-explained/assets/sim.worker-CPMUv1xs.js"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 10,
+        "gzip9": 142909,
+        "encoded": 128486,
+        "raw": 433484
+      }
+    },
+    "sandbox-firefox": {
+      "requests": 16,
+      "thirdParty": [],
+      "afterLoad": [
+        "document /serving-explained/sandbox/",
+        "script /serving-explained/assets/index-CHbT5MNe.js",
+        "stylesheet /serving-explained/assets/index-BcNGywl1.css",
+        "script /serving-explained/assets/Sandbox-jMYjpsVP.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/continuous-batching-MCYV3nbV.js",
+        "script /serving-explained/assets/Toggle-yrPUyBR3.js",
+        "script /serving-explained/assets/usePlayhead-2iF3vhSz.js",
+        "script /serving-explained/assets/RequestMark-DTZdQNmB.js",
+        "stylesheet /serving-explained/assets/continuous-batching-wCSBnhPI.css",
+        "script /serving-explained/assets/paged-attention-oxJGMIRC.js",
+        "stylesheet /serving-explained/assets/paged-attention-DSLbEtm9.css",
+        "stylesheet /serving-explained/assets/Sandbox-BcFSJHcO.css",
+        "image /serving-explained/favicon.svg",
+        "script /serving-explained/assets/sim.worker-CPMUv1xs.js"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 10,
+        "gzip9": 142909,
+        "encoded": 143935,
+        "raw": 433484
+      }
+    },
+    "sandbox-webkit": {
+      "requests": 15,
+      "thirdParty": [],
+      "afterLoad": [
+        "script /serving-explained/assets/Sandbox-jMYjpsVP.js",
+        "script /serving-explained/assets/PlaybackBar-DJAz5DRo.js",
+        "script /serving-explained/assets/SourceLink-K3DX8EFE.js",
+        "script /serving-explained/assets/continuous-batching-MCYV3nbV.js",
+        "script /serving-explained/assets/Toggle-yrPUyBR3.js",
+        "script /serving-explained/assets/usePlayhead-2iF3vhSz.js",
+        "script /serving-explained/assets/RequestMark-DTZdQNmB.js",
+        "stylesheet /serving-explained/assets/continuous-batching-wCSBnhPI.css",
+        "script /serving-explained/assets/paged-attention-oxJGMIRC.js",
+        "stylesheet /serving-explained/assets/paged-attention-DSLbEtm9.css",
+        "stylesheet /serving-explained/assets/Sandbox-BcFSJHcO.css",
+        "xhr /serving-explained/assets/sim.worker-CPMUv1xs.js"
+      ],
+      "cookies": [],
+      "storage": ["theme"],
+      "js": {
+        "files": 10,
+        "gzip9": 142909,
+        "encoded": 144079,
+        "raw": 433484
+      }
+    }
+  },
+  "fallbacks": {
+    "metadata": {
+      "landing": {
+        "status": 200,
+        "title": "serving-explained",
+        "description": "Interactive explainers of how LLM servers manage GPU memory and schedule requests, run on a small simulated engine in your browser.",
+        "canonical": "https://varadmore.me/serving-explained/",
+        "ogTitle": "serving-explained",
+        "ogUrl": "https://varadmore.me/serving-explained/",
+        "ogImage": "https://varadmore.me/serving-explained/og/index.png",
+        "ogImageStatus": 200,
+        "ogImageSize": [1200, 630],
+        "twitterCard": "summary_large_image",
+        "twitterImage": "https://varadmore.me/serving-explained/og/index.png",
+        "lang": "en"
+      },
+      "kv-cache": {
+        "status": 200,
+        "title": "The KV cache – serving-explained",
+        "description": "What the KV cache stores, how to estimate its size, and why it limits how many requests fit on a GPU.",
+        "canonical": "https://varadmore.me/serving-explained/kv-cache/",
+        "ogTitle": "The KV cache – serving-explained",
+        "ogUrl": "https://varadmore.me/serving-explained/kv-cache/",
+        "ogImage": "https://varadmore.me/serving-explained/og/kv-cache.png",
+        "ogImageStatus": 200,
+        "ogImageSize": [1200, 630],
+        "twitterCard": "summary_large_image",
+        "twitterImage": "https://varadmore.me/serving-explained/og/kv-cache.png",
+        "lang": "en"
+      },
+      "paged-attention": {
+        "status": 200,
+        "title": "Paged attention – serving-explained",
+        "description": "How fixed-size blocks and a block table cut the memory wasted by reserving space for each request.",
+        "canonical": "https://varadmore.me/serving-explained/paged-attention/",
+        "ogTitle": "Paged attention – serving-explained",
+        "ogUrl": "https://varadmore.me/serving-explained/paged-attention/",
+        "ogImage": "https://varadmore.me/serving-explained/og/paged-attention.png",
+        "ogImageStatus": 200,
+        "ogImageSize": [1200, 630],
+        "twitterCard": "summary_large_image",
+        "twitterImage": "https://varadmore.me/serving-explained/og/paged-attention.png",
+        "lang": "en"
+      },
+      "continuous-batching": {
+        "status": 200,
+        "title": "Continuous batching – serving-explained",
+        "description": "How scheduling requests at every step changes waiting time, token latency, and throughput.",
+        "canonical": "https://varadmore.me/serving-explained/continuous-batching/",
+        "ogTitle": "Continuous batching – serving-explained",
+        "ogUrl": "https://varadmore.me/serving-explained/continuous-batching/",
+        "ogImage": "https://varadmore.me/serving-explained/og/continuous-batching.png",
+        "ogImageStatus": 200,
+        "ogImageSize": [1200, 630],
+        "twitterCard": "summary_large_image",
+        "twitterImage": "https://varadmore.me/serving-explained/og/continuous-batching.png",
+        "lang": "en"
+      },
+      "prefix-caching": {
+        "status": 200,
+        "title": "Prefix caching – serving-explained",
+        "description": "How requests that share a prompt prefix reuse cached KV blocks, and when they cannot.",
+        "canonical": "https://varadmore.me/serving-explained/prefix-caching/",
+        "ogTitle": "Prefix caching – serving-explained",
+        "ogUrl": "https://varadmore.me/serving-explained/prefix-caching/",
+        "ogImage": "https://varadmore.me/serving-explained/og/prefix-caching.png",
+        "ogImageStatus": 200,
+        "ogImageSize": [1200, 630],
+        "twitterCard": "summary_large_image",
+        "twitterImage": "https://varadmore.me/serving-explained/og/prefix-caching.png",
+        "lang": "en"
+      },
+      "sandbox": {
+        "status": 200,
+        "title": "Sandbox – serving-explained",
+        "description": "Combine all four mechanisms on a workload, and compare two configurations side by side.",
+        "canonical": "https://varadmore.me/serving-explained/sandbox/",
+        "ogTitle": "Sandbox – serving-explained",
+        "ogUrl": "https://varadmore.me/serving-explained/sandbox/",
+        "ogImage": "https://varadmore.me/serving-explained/og/sandbox.png",
+        "ogImageStatus": 200,
+        "ogImageSize": [1200, 630],
+        "twitterCard": "summary_large_image",
+        "twitterImage": "https://varadmore.me/serving-explained/og/sandbox.png",
+        "lang": "en"
+      },
+      "glossary": {
+        "status": 200,
+        "title": "Glossary – serving-explained",
+        "description": "Every term the chapters use, defined in one place.",
+        "canonical": "https://varadmore.me/serving-explained/glossary/",
+        "ogTitle": "Glossary – serving-explained",
+        "ogUrl": "https://varadmore.me/serving-explained/glossary/",
+        "ogImage": "https://varadmore.me/serving-explained/og/glossary.png",
+        "ogImageStatus": 200,
+        "ogImageSize": [1200, 630],
+        "twitterCard": "summary_large_image",
+        "twitterImage": "https://varadmore.me/serving-explained/og/glossary.png",
+        "lang": "en"
+      },
+      "notFound": {
+        "status": 404,
+        "title": "Page not found – serving-explained",
+        "noindex": true,
+        "noSlash": [301, "https://varadmore.me/serving-explained/kv-cache/"],
+        "deep": 404,
+        "asset": 404
+      }
+    },
+    "no-js": {
+      "landing": {
+        "status": 200,
+        "title": "serving-explained",
+        "text": ""
+      },
+      "kv-cache": {
+        "status": 200,
+        "title": "The KV cache – serving-explained",
+        "text": ""
+      },
+      "paged-attention": {
+        "status": 200,
+        "title": "Paged attention – serving-explained",
+        "text": ""
+      },
+      "continuous-batching": {
+        "status": 200,
+        "title": "Continuous batching – serving-explained",
+        "text": ""
+      },
+      "prefix-caching": {
+        "status": 200,
+        "title": "Prefix caching – serving-explained",
+        "text": ""
+      },
+      "sandbox": {
+        "status": 200,
+        "title": "Sandbox – serving-explained",
+        "text": ""
+      },
+      "glossary": {
+        "status": 200,
+        "title": "Glossary – serving-explained",
+        "text": ""
+      },
+      "not-found": {
+        "status": 404,
+        "title": "Page not found – serving-explained",
+        "text": ""
+      },
+      "sandbox-ab": {
+        "status": 200,
+        "title": "Sandbox – serving-explained",
+        "text": ""
+      }
+    },
+    "worker-chromium": {
+      "blocked": {
+        "status": "running",
+        "text": "Run\n0 of 0 requests done, 0.0 s simulated simulated\nCancel\nGPU memory: the weights, the KV pool, and what vLLM leaves unused (1 − GPU memory fraction)\nWeights 15.0 GiB\nKV pool 5.7 GiB (47,040 tokens) computed\nKV in use at the playhead 0.0 GiB simulated\nLeft unused or outside the budget\n\nWhole run si",
+        "errors": []
+      },
+      "noWorker": {
+        "status": "waiting",
+        "text": "Sandbox\n\nCombine all four mechanisms on one workload. Predict which matters most, then run it. Run results come from the toy engine on this page, not from a GPU simulated. Memory sizes come from llmsize's data computed. SIM.md §9 lists what the engine leaves out.\n\nCompare A and B\nStart from a preset\n(custom)\nchatbot\nrag\nbatch-summarize\nagent-loop\npaged-vs-contiguous\nbatching-basics\nlong-prompt-sta",
+        "errors": ["Worker is not a constructor"]
+      }
+    },
+    "worker-firefox": {
+      "blocked": {
+        "status": "running",
+        "text": "Run\n0 of 0 requests done, 0.0 s simulated simulated\nCancel\nGPU memory: the weights, the KV pool, and what vLLM leaves unused (1 − GPU memory fraction)\nWeights 15.0 GiB\nKV pool 5.7 GiB (47,040 tokens) computed\nKV in use at the playhead 0.0 GiB simulated\nLeft unused or outside the budget\n\nWhole run si",
+        "errors": []
+      },
+      "noWorker": {
+        "status": "waiting",
+        "text": "Sandbox\n\nCombine all four mechanisms on one workload. Predict which matters most, then run it. Run results come from the toy engine on this page, not from a GPU simulated. Memory sizes come from llmsize's data computed. SIM.md §9 lists what the engine leaves out.\n\nCompare A and B\nStart from a preset\nHardware and model\nGPU\n\ndefault A10G 24GB\nReset\nWhat is this?\n(GPU)\n\nModel\n\ndefault Llama-3.1-8B\nRe",
+        "errors": ["Worker is not a constructor"]
+      }
+    },
+    "worker-webkit": {
+      "blocked": {
+        "status": "running",
+        "text": "Run\n0 of 0 requests done, 0.0 s simulated simulated\nCancel\nGPU memory: the weights, the KV pool, and what vLLM leaves unused (1 − GPU memory fraction)\nWeights 15.0 GiB\nKV pool 5.7 GiB (47,040 tokens) computed\nKV in use at the playhead 0.0 GiB simulated\nLeft unused or outside the budget\n\nWhole run si",
+        "errors": []
+      },
+      "noWorker": {
+        "status": "waiting",
+        "text": "Sandbox\n\nCombine all four mechanisms on one workload. Predict which matters most, then run it. Run results come from the toy engine on this page, not from a GPUsimulated. Memory sizes come from llmsize's data computed. SIM.md §9 lists what the engine leaves out.\n\nCompare A and B\nStart from a preset(custom)\nchatbot\nrag\nbatch-summarize\nagent-loop\npaged-vs-contiguous\nbatching-basics\nlong-prompt-stall",
+        "errors": [
+          "undefined is not a constructor (evaluating 'new Worker(new URL(`/serving-explained/assets/sim.worker-CPMUv1xs.js`,``+import.meta.url),{type:`module`})')"
+        ]
+      }
+    }
+  },
+  "inSiteLinks": {
+    "checked": 27,
+    "broken": [],
+    "external": [
+      "https://aclanthology.org/2023.emnlp-main.298/",
+      "https://arxiv.org/abs/2308.16369",
+      "https://doi.org/10.1145/3600006.3613165",
+      "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/benchmarks/runner.py#L433",
+      "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/engines/base_client.py#L116-L132",
+      "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L15",
+      "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L16",
+      "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L36",
+      "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L48",
+      "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L53",
+      "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L7",
+      "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L94",
+      "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/results_concurrency64/llama-3-1-8b-instruct/throughput_ramp_extended_sglang_1776488646.json",
+      "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/results_concurrency64/llama-3-1-8b-instruct/throughput_ramp_extended_vllm_1776486559.json",
+      "https://github.com/varad-more/inference-engine-benchmark-system/tree/1c964318addd2c742b53b0f0cf4a2cad791cace9",
+      "https://github.com/varad-more/kv-transfer-tax/blob/56b5ab5df85d5881d9dad76eb6f2d44bf833a40c/README.md#L113-L115",
+      "https://github.com/varad-more/kv-transfer-tax/blob/56b5ab5df85d5881d9dad76eb6f2d44bf833a40c/proxy/replica_lb.py#L56-L75",
+      "https://github.com/varad-more/kv-transfer-tax/tree/56b5ab5df85d5881d9dad76eb6f2d44bf833a40c",
+      "https://github.com/varad-more/llm-calculator/blob/5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf/docs/MATH.md",
+      "https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md#3-data-structures",
+      "https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md#4-the-step-loop",
+      "https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md#5-cost-model-roofline-per-step",
+      "https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md#7-workloads-presets-cli",
+      "https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md#9-simplifications-what-this-leaves-out",
+      "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/docs/design/paged_attention.md",
+      "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/docs/design/prefix_caching.md",
+      "https://github.com/vllm-project/vllm/tree/cfd54ca8819de923dcf555807298eaca34dd342d",
+      "https://proceedings.neurips.cc/paper_files/paper/2024/hash/724be4472168f31ba1c9ac630f15dec8-Abstract-Conference.html",
+      "https://www.usenix.org/conference/osdi22/presentation/yu",
+      "https://www.usenix.org/conference/osdi24/presentation/agrawal"
+    ]
+  },
+  "externalLinks": [
+    {
+      "url": "https://aclanthology.org/2023.emnlp-main.298/",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "docs/SOURCES.md",
+        "src/data/sources.json",
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://arxiv.org/abs/2204.02311",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["src/data/roofline-ref.json"]
+    },
+    {
+      "url": "https://arxiv.org/abs/2305.13245",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SOURCES.md", "src/data/sources.json"]
+    },
+    {
+      "url": "https://arxiv.org/abs/2308.16369",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "docs/SOURCES.md",
+        "src/data/sources.json",
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://arxiv.org/abs/2309.06180",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SOURCES.md", "src/data/sources.json"]
+    },
+    {
+      "url": "https://arxiv.org/abs/2312.07104",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SOURCES.md", "src/data/sources.json"]
+    },
+    {
+      "url": "https://arxiv.org/abs/2403.02310",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SOURCES.md", "src/data/sources.json"]
+    },
+    {
+      "url": "https://arxiv.org/abs/2502.05317",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["src/data/gpus.json"]
+    },
+    {
+      "url": "https://d1.awsstatic.com/product-marketing/ec2/NVIDIA_AWS_A10G_DataSheet_FINAL_02_17_2022.pdf",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/AUDIT.md", "src/data/gpus.json"]
+    },
+    {
+      "url": "https://developer.apple.com/forums/thread/732035",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["src/data/gpus.json"]
+    },
+    {
+      "url": "https://docs.aws.amazon.com/ec2/latest/instancetypes/ac.html",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["src/data/gpus.json"]
+    },
+    {
+      "url": "https://docs.vllm.ai/en/latest/design/paged_attention/",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SOURCES.md", "src/data/sources.json"]
+    },
+    {
+      "url": "https://docs.vllm.ai/en/latest/design/prefix_caching/",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SOURCES.md", "src/data/sources.json"]
+    },
+    {
+      "url": "https://doi.org/10.1145/3600006.3613165",
+      "status": 403,
+      "verdict": "challenge",
+      "from": [
+        "docs/AUDIT.md",
+        "docs/SOURCES.md",
+        "src/data/sources.json",
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/inference-engine-benchmark-system",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["PRODUCT.md"]
+    },
+    {
+      "url": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["src/chapters/continuous-batching/index.mdx"]
+    },
+    {
+      "url": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/benchmarks/runner.py#L433",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/engines/base_client.py#L116-L132",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["src/pages/KitchenSink.tsx"]
+    },
+    {
+      "url": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L15",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L16",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L36",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L48",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L53",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L7",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L94",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/results_concurrency64/llama-3-1-8b-instruct/throughput_ramp_extended_sglang_1776488646.json",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/results_concurrency64/llama-3-1-8b-instruct/throughput_ramp_extended_vllm_1776486559.json",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/inference-engine-benchmark-system/tree/1c964318addd2c742b53b0f0cf4a2cad791cace9",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "docs/SOURCES.md",
+        "src/data/sources.json",
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/kv-transfer-tax",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["PRODUCT.md"]
+    },
+    {
+      "url": "https://github.com/varad-more/kv-transfer-tax/blob/56b5ab5df85d5881d9dad76eb6f2d44bf833a40c",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["src/chapters/prefix-caching/index.mdx"]
+    },
+    {
+      "url": "https://github.com/varad-more/kv-transfer-tax/blob/56b5ab5df85d5881d9dad76eb6f2d44bf833a40c/proxy/replica_lb.py#L56-L75",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/kv-transfer-tax/blob/56b5ab5df85d5881d9dad76eb6f2d44bf833a40c/README.md#L113-L115",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/kv-transfer-tax/tree/56b5ab5df85d5881d9dad76eb6f2d44bf833a40c",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "docs/SOURCES.md",
+        "src/data/sources.json",
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/llm-calculator",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "PRODUCT.md",
+        "src/data/gpus.json",
+        "src/data/kv-ref.json",
+        "src/data/models.json",
+        "src/data/roofline-ref.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/llm-calculator/blob/5d5d0298c03dc8f466ccf469bb17840c7ea8ecdf/docs/MATH.md",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "docs/SOURCES.md",
+        "src/data/gpus.json",
+        "src/data/kv-ref.json",
+        "src/data/models.json",
+        "src/data/roofline-ref.json",
+        "src/data/sources.json",
+        "src/viz/sandbox/build.ts",
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/serving-explained.git",
+      "status": 404,
+      "verdict": "fail",
+      "from": ["tasks/todo.md"]
+    },
+    {
+      "url": "https://github.com/varad-more/serving-explained/actions/runs/37086269474",
+      "status": 404,
+      "verdict": "fail",
+      "from": ["tasks/todo.md"]
+    },
+    {
+      "url": "https://github.com/varad-more/serving-explained/actions/runs/37086424863",
+      "status": 404,
+      "verdict": "fail",
+      "from": ["tasks/todo.md"]
+    },
+    {
+      "url": "https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md",
+      "status": 404,
+      "verdict": "fail",
+      "from": [
+        "src/chapters/continuous-batching/index.mdx",
+        "src/chapters/prefix-caching/index.mdx",
+        "src/viz/sandbox/Controls.tsx"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md#3-data-structures",
+      "status": 404,
+      "verdict": "fail",
+      "from": [
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md#4-the-step-loop",
+      "status": 404,
+      "verdict": "fail",
+      "from": [
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md#5-cost-model-roofline-per-step",
+      "status": 404,
+      "verdict": "fail",
+      "from": [
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md#7-workloads-presets-cli",
+      "status": 404,
+      "verdict": "fail",
+      "from": [
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/varad-more/serving-explained/blob/main/docs/SIM.md#9-simplifications-what-this-leaves-out",
+      "status": 404,
+      "verdict": "fail",
+      "from": [
+        "src/chapters/kv-cache/index.mdx",
+        "src/chapters/paged-attention/index.mdx",
+        "src/viz/sandbox/Sandbox.tsx",
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm-metal",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["PRODUCT.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm-metal/pull/549",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["PRODUCT.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm-metal/pull/550",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["PRODUCT.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/docs/design/paged_attention.md",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "docs/SOURCES.md",
+        "src/data/sources.json",
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/docs/design/prefix_caching.md",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "docs/SOURCES.md",
+        "src/data/sources.json",
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/docs/usage/v1_guide.md#L160-L186",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/config/cache.py#L71-L157",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/config/scheduler.py#L42-L202",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/engine/arg_utils.py#L2837-L3113",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/v1/core/block_pool.py#L184-L188",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/v1/core/block_pool.py#L669-L753",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/v1/core/block_pool.py#L777-L808",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/v1/core/kv_cache_manager.py#L253-L262",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/v1/core/kv_cache_manager.py#L264-L321",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/v1/core/kv_cache_manager.py#L500-L541",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/v1/core/kv_cache_manager.py#L603-L612",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/v1/core/kv_cache_utils.py#L685-L715",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/v1/core/sched/async_scheduler.py#L14-L78",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/v1/core/sched/scheduler.py#L1114-L1232",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/v1/core/sched/scheduler.py#L1540-L1583",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/v1/core/sched/scheduler.py#L563-L684",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/v1/core/sched/scheduler.py#L746-L818",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/v1/core/sched/scheduler.py#L873-L895",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/v1/core/single_type_kv_cache_manager.py#L178-L268",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/v1/core/single_type_kv_cache_manager.py#L581-L589",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/blob/cfd54ca8819de923dcf555807298eaca34dd342d/vllm/v1/core/single_type_kv_cache_manager.py#L747-L843",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["docs/SIM.md"]
+    },
+    {
+      "url": "https://github.com/vllm-project/vllm/tree/cfd54ca8819de923dcf555807298eaca34dd342d",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "docs/SOURCES.md",
+        "src/data/sources.json",
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://proceedings.neurips.cc/paper_files/paper/2024/hash/724be4472168f31ba1c9ac630f15dec8-Abstract-Conference.html",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "docs/SOURCES.md",
+        "src/data/sources.json",
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://resources.nvidia.com/en-us-l4/l4-datasheet",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["src/data/gpus.json"]
+    },
+    {
+      "url": "https://resources.nvidia.com/en-us-l40s/l40s-datasheet-28413",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["src/data/gpus.json"]
+    },
+    {
+      "url": "https://resources.nvidia.com/en-us-tensor-core/nvidia-tensor-core-gpu-datasheet",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["src/data/gpus.json"]
+    },
+    {
+      "url": "https://varadmore.me/",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["tasks/todo.md"]
+    },
+    {
+      "url": "https://varadmore.me/llm-calculator/",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["PRODUCT.md", "src/chapters/kv-cache/MemoryBudget.tsx"]
+    },
+    {
+      "url": "https://varadmore.me/serving-explained/",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["README.md", "docs/AUDIT.md", "tasks/todo.md"]
+    },
+    {
+      "url": "https://varadmore.me/Serving-Explainer/",
+      "status": 404,
+      "verdict": "fail",
+      "from": ["docs/AUDIT.md"]
+    },
+    {
+      "url": "https://www.apple.com/newsroom/2024/10/apple-introduces-m4-pro-and-m4-max/",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["src/data/gpus.json"]
+    },
+    {
+      "url": "https://www.databricks.com/blog/llm-inference-performance-engineering-best-practices",
+      "status": 200,
+      "verdict": "ok",
+      "from": ["src/data/roofline-ref.json"]
+    },
+    {
+      "url": "https://www.usenix.org/conference/osdi22/presentation/yu",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "docs/SOURCES.md",
+        "src/data/sources.json",
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    },
+    {
+      "url": "https://www.usenix.org/conference/osdi24/presentation/agrawal",
+      "status": 200,
+      "verdict": "ok",
+      "from": [
+        "docs/SOURCES.md",
+        "src/data/sources.json",
+        "/private/tmp/claude-502/-Users-varad-workspace-personal-Serving-Explainer/86c4838c-6ed8-4c4a-a14c-4aa99a9318a2/scratchpad/rendered-external.json"
+      ]
+    }
+  ],
+  "lighthouse": [
+    {
+      "page": "landing",
+      "form": "mobile",
+      "version": "13.5.0",
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 1213,
+      "fcpMs": 1213,
+      "cls": 0,
+      "tbtMs": 0,
+      "totalKB": 76,
+      "scriptKB": 71
+    },
+    {
+      "page": "landing",
+      "form": "desktop",
+      "version": "13.5.0",
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 310,
+      "fcpMs": 310,
+      "cls": 0,
+      "tbtMs": 0,
+      "totalKB": 76,
+      "scriptKB": 71
+    },
+    {
+      "page": "kv-cache",
+      "form": "mobile",
+      "version": "13.5.0",
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 1400,
+      "fcpMs": 1290,
+      "cls": 0,
+      "tbtMs": 2,
+      "totalKB": 112,
+      "scriptKB": 106
+    },
+    {
+      "page": "kv-cache",
+      "form": "desktop",
+      "version": "13.5.0",
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 348,
+      "fcpMs": 304,
+      "cls": 0,
+      "tbtMs": 0,
+      "totalKB": 112,
+      "scriptKB": 105
+    },
+    {
+      "page": "paged-attention",
+      "form": "mobile",
+      "version": "13.5.0",
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 1417,
+      "fcpMs": 1224,
+      "cls": 0,
+      "tbtMs": 71,
+      "totalKB": 120,
+      "scriptKB": 113
+    },
+    {
+      "page": "paged-attention",
+      "form": "desktop",
+      "version": "13.5.0",
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 332,
+      "fcpMs": 284,
+      "cls": 0,
+      "tbtMs": 0,
+      "totalKB": 120,
+      "scriptKB": 113
+    },
+    {
+      "page": "continuous-batching",
+      "form": "mobile",
+      "version": "13.5.0",
+      "performance": 73,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 1629,
+      "fcpMs": 1312,
+      "cls": 0,
+      "tbtMs": 1694,
+      "totalKB": 127,
+      "scriptKB": 121
+    },
+    {
+      "page": "continuous-batching",
+      "form": "desktop",
+      "version": "13.5.0",
+      "performance": 83,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 339,
+      "fcpMs": 294,
+      "cls": 0,
+      "tbtMs": 383,
+      "totalKB": 127,
+      "scriptKB": 121
+    },
+    {
+      "page": "prefix-caching",
+      "form": "mobile",
+      "version": "13.5.0",
+      "performance": 82,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 1546,
+      "fcpMs": 1208,
+      "cls": 0,
+      "tbtMs": 715,
+      "totalKB": 123,
+      "scriptKB": 116
+    },
+    {
+      "page": "prefix-caching",
+      "form": "desktop",
+      "version": "13.5.0",
+      "performance": 98,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 347,
+      "fcpMs": 300,
+      "cls": 0,
+      "tbtMs": 131,
+      "totalKB": 123,
+      "scriptKB": 116
+    },
+    {
+      "page": "sandbox",
+      "form": "mobile",
+      "version": "13.5.0",
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 1546,
+      "fcpMs": 1212,
+      "cls": 0,
+      "tbtMs": 2,
+      "totalKB": 135,
+      "scriptKB": 126
+    },
+    {
+      "page": "sandbox",
+      "form": "desktop",
+      "version": "13.5.0",
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 381,
+      "fcpMs": 292,
+      "cls": 0,
+      "tbtMs": 0,
+      "totalKB": 135,
+      "scriptKB": 126
+    },
+    {
+      "page": "glossary",
+      "form": "mobile",
+      "version": "13.5.0",
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 1226,
+      "fcpMs": 1205,
+      "cls": 0,
+      "tbtMs": 0,
+      "totalKB": 84,
+      "scriptKB": 79
+    },
+    {
+      "page": "glossary",
+      "form": "desktop",
+      "version": "13.5.0",
+      "performance": 100,
+      "accessibility": 100,
+      "bestPractices": 100,
+      "seo": 100,
+      "lcpMs": 336,
+      "fcpMs": 313,
+      "cls": 0,
+      "tbtMs": 0,
+      "totalKB": 84,
+      "scriptKB": 79
+    }
+  ]
+}

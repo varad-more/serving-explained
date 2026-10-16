@@ -2788,6 +2788,42 @@ the chapters, so they stay.
 - [ ] After the build (Build 6), run the whole audit again and record before
       and after numbers.
 
+### Audit 2 (2026-10-15): plan
+
+Audit only, on the live site. No site code changes; only audit tooling
+(axe, link check, Lighthouse, trace scripts). Same categories, severities,
+and method as audit 1. Stop after the report; fix nothing before approval.
+
+- [x] Tooling: `playwright.audit.config.ts` runs `e2e/*.audit.ts` against the
+      live site in Chromium, WebKit, and Firefox. CI never runs them.
+      `scripts/link-check.ts` (m2, with `tests/linkCheck.test.ts`) and
+      `scripts/lighthouse.ts`.
+- [x] 0. Build state: every route live; B1 resolved; the repo is private
+      again (G1).
+- [x] 1. Correctness: three fresh sub-agents checked every claim, every
+      measured number against bench-ieb at its pinned commit, and computed
+      numbers against llmsize. I re-checked each major against its source.
+- [x] 2. Accessibility: axe (108 runs), Tab walks, live-region rate,
+      reduced motion, contrast, and the palette validator.
+- [x] 3. Mobile and browsers: 162 size/theme runs, touch, sticky, workers.
+- [x] 4. Performance: Lighthouse on all 7 routes; JS per route; `@perf`
+      against the live site; old-vs-new build comparison for P2.
+- [x] 5. Resilience: 84 external links, 27 in-site links, requests, no-JS,
+      worker failure, 404, metadata.
+- [x] Rewrite docs/AUDIT.md as audit 2. Evidence in docs/audit/2/.
+- [ ] STOP: the author approves the fix order before anything is fixed.
+
+### Audit 2: results
+
+- 0 blockers, 10 majors, 54 minors (docs/AUDIT.md, "Summary").
+- Majors: G1 (repo private), C1-1, C2-1, C3-1, C3-2, C4-1 (wording and
+  citations), C2-2 (color-only summary strip), P1 (chapters 3–4 block the
+  main thread on load), R1 (blank without JavaScript), R2 (worker failure
+  hangs the sandbox).
+- Checks run for the tooling itself: `pnpm test` (349 pass), `pnpm
+  typecheck`, `pnpm lint`, and `pnpm build` all pass. The live interaction
+  suites: 322 passed, 74 skipped, none failed.
+
 ## Prompt 9: launch kit (PLAN; decisions 1, 3, 4, and 7 approved 2026-10-02)
 
 Drafts only. I post nothing, publish nothing, message no one, and change no

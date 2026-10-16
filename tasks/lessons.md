@@ -4,6 +4,19 @@ Mistakes, corrections, and surprises. Newest first.
 
 ## 2026-10-15
 
+- **A decision about outside state can undo itself.** Audit 1 recorded the
+  repo as public; by audit 2 it was private, and 39 SIM.md links were 404s
+  for readers. Rule: every audit re-checks repo visibility and links to it
+  anonymously, not through an authenticated `gh`.
+- **Post-load perf tests miss load-time work.** Every `@perf` spec passed,
+  but chapter 3 runs its sims when its module is imported: a 1.2 s task at
+  4× CPU. Lighthouse's TBT caught it. Rule: check long tasks on load too.
+- **Playwright wipes its outputDir at the start of every run.** The default
+  config's outputDir is `test-results`, so a run there deletes results
+  other configs wrote below it. Pass `--output` or back up first.
+- **Firefox keeps `activeElement` on the last control** when Tab moves focus
+  into the browser chrome. A Tab walk ends when the same element repeats.
+
 - **A reused component carries its scale assumptions.** BlockGrid's summary
   strip drew one SVG rect per block, fine for chapter pools. The sandbox's
   378,492-block pool made playback 150 ms per frame. Rule: when reusing a

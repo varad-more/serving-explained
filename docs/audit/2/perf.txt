@@ -1,0 +1,21 @@
+continuous-batching perf {"throttle":1,"eventEntries":144,"eventMax":24,"eventP95":24,"frames":300,"frameP50":16.699999999999818,"frameP95":16.799999999999272,"frameMax":16.800000000000182}
+continuous-batching perf {"throttle":4,"eventEntries":82,"eventMax":40,"eventP95":24,"frames":278,"frameP50":16.69999999999891,"frameP95":33.29999999999927,"frameMax":33.400000000001455}
+kv-cache perf {"throttle":1,"eventEntries":90,"eventMax":24,"eventP95":24,"frames":300,"frameP50":16.699999999999818,"frameP95":16.700000000000728,"frameMax":16.800000000000182}
+kv-cache perf {"throttle":4,"eventEntries":93,"eventMax":24,"eventP95":24,"frames":301,"frameP50":16.699999999999818,"frameP95":16.799999999999272,"frameMax":16.80000000000109}
+paged-attention perf {"throttle":1,"eventEntries":93,"eventMax":24,"eventP95":24,"frames":300,"frameP50":16.699999999999818,"frameP95":16.700000000000728,"frameMax":16.800000000000182}
+paged-attention perf {"throttle":4,"eventEntries":63,"eventMax":32,"eventP95":24,"frames":300,"frameP50":16.699999999999818,"frameP95":16.800000000000182,"frameMax":16.80000000000109}
+prefix-caching perf {"throttle":1,"eventEntries":123,"eventMax":24,"eventP95":24,"frames":301,"frameP50":16.699999999999818,"frameP95":16.700000000000728,"frameMax":16.800000000000182}
+prefix-caching perf {"throttle":4,"eventEntries":136,"eventMax":32,"eventP95":24,"frames":299,"frameP50":16.69999999999891,"frameP95":16.799999999999272,"frameMax":33.400000000001455}
+sandbox perf {"throttle":1,"presses":20,"runMs":2908,"inputsOver16msDuration":27,"maxInputDelay":0.6000000238418579,"frames":174,"frameP50":16.699999999999818,"frameP95":16.799999999999955,"frameMax":16.800000000000182}
+sandbox perf {"throttle":4,"presses":16,"runMs":3312,"inputsOver16msDuration":37,"maxInputDelay":6.799999952316284,"frames":195,"frameP50":16.699999999999818,"frameP95":16.799999999999955,"frameMax":33.40000000000009}
+sandbox A/B perf {"playback":{"inputsOver16msDuration":19,"maxInputDelay":1.4000000953674316,"frames":305,"frameP50":16.699999999999818,"frameP95":16.700000000000728,"frameMax":16.800000000000182},"change":{"inputsOver16msDuration":31,"maxInputDelay":0.5,"frames":50,"frameP50":16.699999999999818,"frameP95":16.700000000000728,"frameMax":16.800000000000182}}
+
+# Reruns of continuous-batching at 4x CPU (frames p50/p95/max, ms), load average 3.9-4.4:
+# live site, runs 2 and 3:            16.7/33.3/33.4, 16.7/33.3/33.4  (fail: p95 > 18)
+# local preview, pre-sandbox 848623f: 16.7/16.8/33.4 (pass), 16.7/33.3/33.4 (fail)
+# local preview, current 7cdf3bc:     16.7/33.3/33.4 (fail), 16.7/16.8/33.4 (pass)
+
+# Long tasks on load (PerformanceObserver "longtask", Chromium, 412 px, live site):
+# continuous-batching 1x [302]   4x [1206, 55]
+# prefix-caching      1x [137]   4x [515, 51, 58]
+# kv-cache            1x []      4x [91]

@@ -1,385 +1,490 @@
 # Launch audit
 
-Status: **audit 1, before the build. The author decided every open item on
-2026-10-02, and the doc fixes are applied** (see "Resolution log"). The audit
-was run on 2026-10-01. The audit as written is commit `48d0d4b`.
+Status: **audit 2, on the live site, 2026-10-15.** It audits
+https://varadmore.me/serving-explained/ as deployed from `7cdf3bc` (tag
+`v0.8-sandbox`, CI run 38852776686). Nothing is fixed yet; the fix order at
+the end waits for the author's approval.
 
-## Scope: the site does not exist yet
+Audit 1 ran on 2026-10-01, before the build. It is in git at `48d0d4b`, with
+its resolution log at `f7feb35`. Every audit 1 item appears below with its
+before and after.
 
-The prompt audits a built site. This repo holds only documents and plans:
+## Method
 
-- `git ls-files` lists 8 files: CLAUDE.md, DESIGN.md, PRODUCT.md,
-  docs/CHAPTER_DOD.md, docs/SIM.md, docs/SOURCES.md, tasks/lessons.md, and
-  tasks/todo.md.
-- There is no `package.json`, no `src/`, no tests, and no workflow.
-- Both candidate site URLs return 404 (curl, 2026-10-01).
+Same categories, severities, and method as audit 1. Severity: **blocker**
+stops launch, **major** must be fixed before launch, and **minor** is the
+author's call.
 
-So this pass checks only what exists, and says how:
+Pages: the 7 routes, the not-found page, and an A/B sandbox link
+(`?v=1&a.sc=static&b.p=chatbot`).
 
-- **Correctness of the planned claims:** a sub-agent read the four chapter plans
-  against the source texts.
-- **Every external link** in the docs.
-- **Contrast** of every design-token pair, and color-blind separation of the
-  request palettes.
-- **Measured numbers:** recomputed from the raw benchmark files.
-- **Author claims** in PRODUCT.md.
+Tooling added for this audit (CI never runs it):
+- `playwright.audit.config.ts` runs `e2e/*.audit.ts` against the live site in
+  Chromium, WebKit, and Firefox:
+  - `text.audit.ts`: the rendered text of every page, for the correctness review
+  - `a11y.audit.ts`: axe, a Tab walk, live-region rate, and reduced motion
+  - `layout.audit.ts`: sizes, themes, touch, sticky, workers, and hover-only styles
+  - `network.audit.ts`: requests, JS bytes, no-JS, worker failure, 404,
+    metadata, and in-site links
+- `scripts/link-check.ts`: every external link (audit 1 m2), with a unit test
+- `scripts/lighthouse.ts`: Lighthouse 13.5.0 on every route, mobile and desktop
+- The existing `@perf` specs, with Chromium traces, pointed at the live site
 
-Everything that needs running code is listed under "Not run" with the reason.
-No number here is estimated or simulated in place of a measurement.
+Evidence:
+- `docs/audit/2/results.json` holds every run's results.
+- `perf.txt`, `contrast.txt`, and `palette.txt` hold the raw numbers.
+- The three `review-*.md` files are the sub-agent reports.
+- The full raw output stays in `test-results/audit-2/`, which is not
+  committed.
 
-Severity: **blocker** stops launch, **major** must be fixed before launch, and
-**minor** is the author's call.
+Reproduce:
+
+```sh
+pnpm exec playwright test -c playwright.audit.config.ts
+node scripts/link-check.ts
+node scripts/lighthouse.ts
+SMOKE_BASE_URL=https://varadmore.me/serving-explained/ PERF=1 \
+  pnpm exec playwright test --grep @perf --project=chromium --workers=1
+```
+
+Limits of this pass:
+- Touch ran on emulated phones (Pixel 7 in Chromium, iPhone 13 in WebKit),
+  not real devices.
+- Live regions were checked as DOM changes, not with a running screen reader.
+- The machine's load average was 3.4–4.4 throughout. That matters for the
+  4× CPU numbers (P2).
 
 ## Summary
 
 | category | blocker | major | minor | not run |
 |---|---|---|---|---|
-| 0. Build state | 2 | 0 | 0 | — |
-| 1. Correctness | 0 | 6 | 17 | 2 items |
-| 2. Accessibility | 0 | 3 | 1 | 4 items |
-| 3. Mobile and browsers | 0 | 0 | 0 | 3 items |
-| 4. Performance | 0 | 0 | 0 | 4 items |
-| 5. Resilience | 0 | 0 | 1 | 3 items |
+| 0. Build state | 0 | 1 | 0 | — |
+| 1. Correctness | 0 | 5 | 46 | 0 |
+| 2. Accessibility | 0 | 1 | 5 | 0 |
+| 3. Mobile and browsers | 0 | 0 | 2 | 0 |
+| 4. Performance | 0 | 1 | 1 | 0 |
+| 5. Resilience | 0 | 2 | 0 | 0 |
+| **total** | **0** | **10** | **54** | **0** |
 
-These are the counts as audited. After 2026-10-02, B2 is resolved. Every
-major and minor has its doc fix, except two build tasks: M9's fix lands in
-llmsize in Build 1, and m2 in the link-check script. B1 remains.
-
-## Resolution log (2026-10-02)
-
-| item | status | where |
-|---|---|---|
-| B1 | open | the build, in the order in tasks/todo.md ("Build order") |
-| B2 | resolved | all seven decisions, listed under B2 below |
-| M1 | fixed | DESIGN.md: A is deleted; B light slot 8 `#0a8a5f` → `#0a865d`, so white labels reach 4.58:1. Label ink is listed per slot. The palette validator was re-run, and every check passes. |
-| M2 | fixed | DESIGN.md: B dark hatch `#5c6066` → `#6a6e75` (3.38:1 on `--surface`) |
-| M3 | fixed | DESIGN.md: every request mark keeps its pattern and glyph at every size; the under-14 px rule is gone. Render test in Prompt 1 step 6. |
-| M4 | fixed | tasks/todo.md chapter 2, SOURCES.md kwon2023: "DNNs that are not LLMs" |
-| M5 | fixed | tasks/todo.md chapters 2–4 and sandbox, SIM.md §8 and §12.1: "on GPUs under 70 GB" |
-| M6 | fixed | SIM.md Q8 decided (follow the code). Chapter 4 cites vllm-src `block_pool.py` L777–808 for the free order. SOURCES.md note 9. |
-| M7 | fixed | test `longer-prefix-saves-more`, claimed in chapter 4 step 3. PRODUCT.md's knob now compares with caching off, which is what the test checks. |
-| M8 | fixed | PRODUCT.md chapter 4 and sandbox; sandbox decision 7 |
-| M9 | approved | llmsize takes the datasheet's dense figures in Build 1, before gen-data (tasks/todo.md, Prompt 1 step 4). Chapter 3 numbers recomputed at 70 TFLOPS. SOURCES.md note 12. |
-| m1 | fixed | DESIGN.md rule; test in Prompt 1 step 6 |
-| m2 | open | a build task: the link-check script (Prompt 9 tests) |
-| m3 | fixed | chapter 1 step 1 marks the count as our reasoning; CHAPTER_DOD.md item 2 sets the convention |
-| m4 | fixed | chapter 1 step 3: "vLLM stores", with SGLang's one-token pages noted |
-| m5 | fixed | chapter 1 step 6: "usually" |
-| m6 | fixed | chapter 2: §3.1 and §6.1 |
-| m7 | fixed | chapter 2 step 2 and SIM.md §8: kwon2023 §3.1 and §6.1 "Max" |
-| m8 | fixed | chapter 2 step 6: "work well" |
-| m9 | fixed | chapter 3, "What the sources say" |
-| m10 | fixed | chapter 3 decision 5 and its widget note; SIM.md §7, §8, and §12.1 |
-| m11 | fixed | chapter 3 measured callout: "from 1 to 64" |
-| m12 | fixed | chapter 4: vllm-src `kv_cache_manager.py` L289–295 |
-| m13 | fixed | chapter 4 step 5: "unkeyed" |
-| m14 | fixed | chapter 4 sources and decision 1: marked as our inference |
-| m15 | fixed, another way | chapter 2 decision 5 defines preemption where it first appears, so the forward reference to chapter 3 is gone |
-| m16 | fixed | with M9 |
-| m17 | fixed | "What this leaves out" in chapters 2–4; SIM.md §9.19 added; chapter 4's "hit rate as in vLLM" line removed |
-| m18 | fixed | chapter 2: `frames-match-snapshots` moves to `tests/viz/`, and the CheckYourself answer is asserted. Chapter 3: `chunking-spreads-stalls` placed in step 5, misconception id `bigger-batches-cost-latency`, and an assertion for `no-free-setting`. Chapter 4: `caching-lowers-ttft-and-prefill` placed in step 3. |
-| m19 | fixed | SOURCES.md "cited for" column; the new line references were checked at the pinned commits |
-| §3 note | fixed | CHAPTER_DOD.md items 7, 11, 17, and 18: 768 px, WebKit, Firefox, and 44 px targets |
+Every item audit 1 marked "not run" ran this time (see "Before and after").
 
 ## 0. Build state
 
-**B1 (blocker): no site has been built.** Evidence:
-- `git ls-files` (above).
-- `curl` returns 404 for https://varadmore.me/serving-explained/ and
-  https://varadmore.me/Serving-Explainer/.
-- Every runtime check in §2–§5 is blocked by this.
-- Fix: carry out the approved plans in tasks/todo.md:
-  1. Prompt 1 steps 1–4
-  2. the engine
-  3. Prompt 1 steps 5–9
-  4. chapters 1–4
-  5. the sandbox
-  6. this audit, run again
+**B1 is resolved.** All 7 routes return 200 with their own HTML. The 404 page
+and the metadata are in §5.
 
-**B2 (blocker, resolved 2026-10-02): open decisions gated the build.** Each is
-recorded in tasks/todo.md or docs/SIM.md:
-1. **Design direction**, A or B. Every token fix in §2 depends on it.
-   - **Resolved: B (Signal Box).** A is deleted from DESIGN.md.
-2. **Repo visibility.** `gh repo view` showed `varad-more/Serving-Explainer` as
-   PRIVATE. Pages from a private repo needs a paid plan.
-   - **Resolved: public.**
-3. **Rename the repo** to `serving-explained` to get the planned URL.
-   - **Resolved: renamed.** `SITE_URL` is
-     `https://varadmore.me/serving-explained/`.
-4. **Permissions:**
-   - `corepack enable`
-   - clone llm-calculator to `../llm-calculator`
-   - push to `main`
-   - enable Pages
-   - `brew install ffmpeg` for the launch captures
-   - **Resolved: all granted.**
-5. **SIM.md approval** and Q1–Q8. Q8 is a disagreement between sources that
-   needs the author's sign-off.
-   - **Resolved: approved, with the §2 API frozen.** Q8: follow the code. All
-     answers are in SIM.md §11.
-6. **Chapter decisions:** chapter 1 (5), chapter 2 (6), chapter 3 (10),
-   chapter 4 (6), and sandbox (9). These include the DESIGN.md rule changes
-   for slot assignment, phase encoding, and prefix-cache states.
-   - **Resolved: every recommendation accepted,** with the author's answers
-     for chapter 1 decision 5, chapter 3 decision 8 (b), and chapter 3
-     decision 9 recorded in tasks/todo.md.
-7. **M9:** whether to correct llmsize's A10G compute figures upstream before
-   gen-data runs.
-   - **Resolved: approved.** The fix happens in Build 1, before gen-data runs.
+**G1 (major): the GitHub repo is private again.** Audit 1 recorded decision
+B2.2 as "public, done 2026-10-02". Now:
+- `gh repo view varad-more/serving-explained` reports `"visibility":"PRIVATE"`.
+- Anonymous requests to the repo and to `docs/SIM.md` return 404.
+- Effect: every "SIM.md §…" link on the site is a 404 for readers. That is 39
+  citations, including every chapter's "What this leaves out" pointer to
+  §9, and 5 on the sandbox.
+- The link check fails 6 SIM.md URLs (§3, §4, §5, §7, §9, and the file).
+- Pages keeps serving the site, so nothing else on it breaks.
+- Fix (the author's call; I change no GitHub settings): make the repo public.
+  Or serve SIM.md from the site and point the links there.
 
 ## 1. Correctness
 
-**Method.** A sub-agent checked every technical claim planned in tasks/todo.md
-(chapters 1–4 and the sandbox) against the source texts. It confirmed the
-pinned commits: vLLM `cfd54ca8`, llmsize `51b9746`, bench-ieb `1c96431`. I
-re-checked M5 and M9 myself, and m15 against vLLM `arg_utils.py` L3079–3089 and
-`scheduler.py` L316–327. There are no blockers.
+**Method.** Three sub-agents that did not write the chapters checked every
+claim against its source, on the live rendered text:
+- chapters 1–2
+- chapters 3–4
+- the sandbox, landing, glossary, all measured and computed numbers, and
+  SOURCES.md
 
-| chapter | supported | partly | not supported | no source |
+They read the papers' PDF text (pypdf) and vLLM at `cfd54ca8`. bench-ieb and
+bench-kvtt were fetched fresh at their pinned commits, and llmsize read at
+`5d5d029`. I re-checked each major against its source myself. Their reports
+are `docs/audit/2/review-*.md`.
+
+| page | supported | partly | not supported | no source |
 |---|---|---|---|---|
-| 1 KV cache | 10 | 2 | 0 | 0 |
-| 2 Paged attention | 15 | 4 | 0 | 0 |
-| 3 Continuous batching | 13 | 3 | 0 | 1 |
-| 4 Prefix caching | 15 | 3 | 0 | 1 |
-| Sandbox | 2 | 2 | 1 | 0 |
-
-**M4 (major): kwon2023 §8 is stretched.** The chapter 2 plan says "paging can
-hurt when a workload is compute-bound."
-- §8 says this about serving DNNs *that are not LLMs* (2309.06180.txt
-  L1557–1562).
-- Fix: say "for non-LLM workloads", or drop it.
-
-**M5 (major): "vLLM's default `max_num_seqs` is 256" is missing its condition.**
-- It appears in the chapter 2, chapter 3, and sandbox plans.
-- `arg_utils.py` L2876–2885 sets 1024 on GPUs with at least 70 GB that are not
-  A100s, which includes the h100-sxm-80 we list. 256 applies only in the
-  `else` branch (L2886–2895).
-- Fix: add "on GPUs under 70 GB" everywhere, as chapter 1 and SIM.md already
-  do.
-
-**M6 (major): chapter 4's eviction step cites the doc that contradicts its prose.**
-- The prose says unkeyed freed blocks go to the front of the free queue
-  (vllm-src `block_pool.py` L795–806). The cited vllm-apc-doc L198 says all go
-  to the tail.
-- That conflict is SOURCES.md note 9, then pending as SIM.md Q8 (decided
-  2026-10-02: follow the code).
-- Fix: cite vllm-src for that step, after the author signs off on Q8.
-
-**M7 (major): chapter 4's knob to predict has no test.** PRODUCT.md L14–15
-requires one. The knob: a longer shared prefix means fewer prefill tokens and a
-shorter TTFT.
-- Fix: a test `longer-prefix-saves-more`, sweeping the prefix length on
-  `shared-system-prompt`.
-
-**M8 (major): PRODUCT.md states absolutes the chapter 4 plan contradicts.**
-- L66–68 ("nothing … for unique prompts") and L75–77 ("saves nothing when prompts
-  share no prefix") are absolute.
-- The plan's `self-hit-after-preemption` shows the one exception
-  (`scheduler.py` L1558, `block_pool.py` L795–801).
-- Fix: add "except a preempted request reusing its own blocks" to PRODUCT.md and
-  the sandbox text.
-
-**M9 (major, two sources disagree, so I stop and ask): llmsize's A10G compute
-figures do not match the datasheet it cites.**
-- llmsize `data/gpus.json` gives `a10g-24` bf16 at 125 TFLOPS, fp32 31.5, and
-  tf32 62.5. Its `source_url` is AWS's datasheet:
-  https://d1.awsstatic.com/product-marketing/ec2/NVIDIA_AWS_A10G_DataSheet_FINAL_02_17_2022.pdf
-- That datasheet (read with pypdf) says: BF16 70 TF dense (140 with sparsity),
-  FP32 35 TF, TF32 35 TF dense. llmsize's values match the A10, not the A10G.
-- Bandwidth (600 GB/s) matches.
-- **Effect:** every compute-bound time on the A10G, our main hardware, comes out
-  1.8× too fast. That covers chapter 3's prefill times and the crossover (about
-  135 → 76 tokens per step), and the preset estimates built on them.
-- Decode times are memory-bound and unaffected, and so is the SIM.md §10
-  cross-check.
-- The fix belongs in llmsize, the author's repo, before gen-data runs.
-- The other three NVIDIA GPUs' bf16 figures equal half their sparsity figures,
-  the usual dense value. I did not fetch those datasheets in this pass. gen-data
-  should record each figure's source page.
-
-**Minor** (wording and coverage; the fix is in parentheses):
-- m3: `no-cache-work` is our inference from kwon2023 §2.2, which never
-  describes the no-cache case. (Mark it as reasoning.)
-- m4: "engines store whole blocks of 16" is not true of every engine. SGLang
-  uses one-token pages. (Say "vLLM stores".)
-- m5: "memory, not compute, caps the batch" is stated flatly. kwon2023 also
-  shows a compute-bound exception. (Say "usually", as PRODUCT.md does.)
-- m6: buddy-allocation gaps are attributed to Fig. 3. (Cite §3.1 and §6.1.)
-- m7: yu2022 §4.2 does not support *contiguous* max-length regions. Orca reserves
-  each request's own max tokens. (Cite kwon2023 §3.1 and §6.1 "Max".)
-- m8: "did best" for block sizes 16 and 32 on Alpaca. (The paper says "work
-  well".)
-- m9: "decodes first, as vLLM V1 does" overstates V1, which has no phases.
-  Decodes come first through admission order. (Reword.)
-- m10: "raised to `max_model_len`, as vLLM does" holds only when the budget is
-  unset. An explicit smaller budget is a `ValueError`. (Add "when unset" in the
-  chapter 3 and sandbox plans and SIM.md §12.)
-- m11: "throughput climbs with concurrency, and so does TTFT" is not true at
-  every level. vLLM's p50 TTFT goes 99.6 → 91.2 ms from 4 to 8. (Say "from 1
-  to 64".)
-- m12: the full-hit cap cites "SIM.md §8", which is not a source id. (Cite
-  vllm-src `kv_cache_manager.py` L289–295.)
-- m13: "never-keyed" should be "unkeyed". A block that was evicted and then
-  partly refilled is also unkeyed.
-- m14: the replica teaser's "each keeps its own cache" is inferred, not stated by
-  bench-kvtt. (Mark it as reasoning.)
-- m15: chapter 2 says preemption is "explained in chapter 3", but chapter 3 has
-  no preemption step. (Add a short step to chapter 3, or point to SIM.md.)
-- m16: chapter 3 uses llmsize's A10G TFLOPS (see M9).
-- m17: "What this leaves out" is missing SIM.md §9 items:
-  - chapter 2: §9.1, §9.2, and §9.10
-  - chapter 3: §9.2, §9.6, and §9.17. Its "no batching timeout" should be added
-    to §9.
-  - chapter 4: §9.9 and §9.12. Its "hit rate as in vLLM" line is not a
-    simplification and should go.
-- m18: claim ids and tests do not match:
-  - chapter 2: `frames-match-snapshots` has no claim, so the meta-test would
-    fail. The CheckYourself answer "drops to 1" is untested.
-  - chapter 3: `chunking-spreads-stalls` is in no step. The misconception claim
-    has no id. `no-free-setting` has no assertion.
-  - chapter 4: `caching-lowers-ttft-and-prefill` is in no step.
-- m19: SOURCES.md's "cited for" column is missing sections the plans cite:
-  - kwon2023: §2.2, §4.1 with its footnote, §4.4, §1/Fig. 1
-  - agrawal2024: §1, §2.4, §3.1/Fig. 5, §3.3, §4.3
-  - zheng2024: one-token pages, the shared pool
-  - vllm-apc-doc: L3, L146, Note 2
-  - vllm-src: `torch_utils.py`
+| 1 KV cache | 29 | 3 | 0 | 1 |
+| 2 Paged attention | 42 | 4 | 1 | 0 |
+| 3 Continuous batching (page + glossary popovers) | 50 | 13 | 0 | 1 |
+| 4 Prefix caching (page + glossary popovers) | 57 | 4 | 1 | 1 |
 
 **Passes:**
-- Every planned claim has a source, except the two flagged.
-- The measured callout's numbers match the raw files.
-- No "What this leaves out" line contradicts SIM.md.
-- llmsize's usable VRAM for the A10G (22.5 GiB = 23,040 MiB) matches the
-  23,028 MiB that nvidia-smi reported in bench-ieb's log (`:7`), within 0.05%.
+- **Measured numbers.** Every `measured` number matches its raw file. The
+  reviewer re-derived each one with their own script from bench-ieb at
+  `1c964318`:
+  - vLLM throughput 30.2 → 1,279.5 tok/s, 42×
+  - p50 TTFT 41.2 → 162.8 ms (vLLM) and 69.9 → 156.1 ms (SGLang)
+  - SGLang 42×, 150 requests per level, 4 prompts of 13–18 words
+
+  The vendored copies are byte-identical to the pinned files (blob ids). Every
+  badge URL resolves anonymously at the pinned commit.
+- **Computed numbers.** The sampled values match llmsize `5d5d029`:
+  - KV bytes per token for 6 models, including GQA, MHA, and fp8
+  - weights, and usable VRAM (A10G 22.50 GiB, H100 79.68 GiB)
+  - chapter 1's concurrency stops
+  - chapter 3's roofline: prefill 0.531 s, memory 38.8 ms, crossover 76
+    tokens, 25.8 tok/s
+- **The A10G is 70 TFLOPS** everywhere on the site (M9).
+- **Claim tests.** `pnpm test`: 42 files, 349 tests pass. That includes
+  every claim id and the meta-tests. Each test asserts what its prose says,
+  except C2-9, C3-11, and C4-8.
+- **No near-copy paraphrase**, except C4-5. No simulated or computed number
+  is presented as real-world performance.
+- **Author claims.** vllm-metal #549 merged 2026-07-25 and #550 on
+  2026-07-28. The site makes no credibility claim (D-9).
+
+**Majors** (each re-checked against the source):
+
+- **C1-1:** chapter 1's "What this leaves out" says sliding-window attention
+  stores "less KV per token" (`kv-cache/index.mdx:165`). The cited llmsize
+  MATH.md "KV per token" section says the opposite: "A sliding-window layer
+  has the same per-token cost; it just stores fewer tokens." Fix: say it
+  stores fewer tokens.
+- **C2-1:** "The paper calls the whole design PagedAttention: a block
+  manager … and an attention kernel" (`paged-attention/index.mdx:72`, and the
+  glossary's `pagedattention`). kwon2023 calls PagedAttention "an attention
+  algorithm" (§1, §4: kwon2023.txt L174, L461–481). It builds vLLM's block
+  manager on top. Fix: PagedAttention is the attention algorithm; vLLM adds
+  the block manager.
+- **C3-1:** chapter 3's measured callout says "as more requests run at once,
+  throughput and median TTFT both rise" (`continuous-batching/index.mdx:187`,
+  and L181). The raw files disagree in the middle levels. Median TTFT at 1,
+  4, 8, 16, 32, and 64 requests (recomputed here):
+  - vLLM: 41.2, 99.6, **91.2**, 93.7, 124.3, 162.8 ms
+  - SGLang: 69.9, **68.8, 64.0**, 87.1, 125.7, 156.1 ms
+
+  Audit 1's m11 fix reached only the sentence with the numbers. Fix: "from 1
+  to 64" in both sentences. No number changes.
+- **C3-2:** "Once admitted again, it computes its prompt and every token…
+  vLLM V1 recomputes this way" (`continuous-batching/index.mdx:102–103`, and
+  the glossary's `preemption`). vLLM turns prefix caching on by default
+  (`config/cache.py` L140; `arg_utils.py` L2964). A re-admitted request then
+  reuses its own cached blocks, which is what chapter 4 says (M8). The two
+  chapters contradict each other. Chapter 3's runs have caching off, but the
+  page never says so. Fix: state the condition, and add a "What this leaves
+  out" line.
+- **C4-1:** the glossary's "Admission" cites `scheduler.py L563–684`
+  (`glossary.ts:532`). That range is `schedule()`'s start and the loop over
+  running requests (L629). Waiting requests start at L873 ("Next, schedule
+  the WAITING requests"), and admission happens by L1294. Fix: cite
+  L873–1294.
+
+**Minor.** Each has its location, evidence, and fix in the review file named.
+
+Chapter 1 (`review-ch1-ch2.md`):
+- C1-2: "Not all of that gap is GQA" misleads; the KV-head ratio alone (4×) exceeds the 3.4× gap.
+- C1-3: "one token per step" (`index.mdx:21`); the prompt is read in one parallel step.
+- C1-4: "Real requests are often shorter than the maximum context" has no citation (kwon2023 §1 supports it).
+- C1-5: the 256-request cap line leaves out vLLM's 1,024 default on H100-class GPUs.
+- C1-6: `MemoryBudget`'s "Fits…" heading and bar labels, and three prose sentences, carry no badge of their own.
+
+Chapter 2 (`review-ch1-ch2.md`):
+- C2-3: "The paper measured real systems on real workloads"; its Orca baselines were reimplementations, its workloads synthesized.
+- C2-4: "reads … through its table" cites §4.1; the table is §4.3.
+- C2-5: "Against Orca (Max), vLLM ran 4.3× more" has no citation of its own (§6.2, Fig. 13a).
+- C2-6: "no per-request reservation"; the engine does reserve a region per request.
+- C2-7: "need 64 to 376 slots" is one too many; KV peaks at length − 1.
+- C2-8: "never preempts" comes one sentence before preemption is defined (audit 1 m15, partly fixed).
+- C2-9: the `max-model-len-hurts-contiguous-only` test checks one setting; the prose says "every setting".
+- C2-10: "two requests" and "reference count of 2" are typed by hand, not through `<Num>`.
+
+Chapter 3 (`review-ch3-ch4.md`):
+- C3-3: "running requests first, then waiting ones" cites L563–684; the waiting loop is L873 (audit 1 m9).
+- C3-4: the token budget cites agrawal2024 §4.1; it is defined in §4.2 (also in the glossary).
+- C3-5: three different `arg_utils.py` ranges across chapters 3–4, the sandbox, and SOURCES.md for the same default. The code says 70 GiB, not GB, and an A100-80GB also gets 256 (audit 1 M5).
+- C3-6: "computes some prompt tokens or makes one output token" cites Orca; partial prompts are chunked prefill.
+- C3-7: the glossary's "roofline" cites MATH.md for max(compute, memory); that is agrawal2024 §3.1 and SIM.md §5.
+- C3-8: the 0.45 and 0.65 utilizations are not in the cited MATH.md section; they come from llmsize's data.
+- C3-9: `runner.py L433` supports "words" only; "reused in turn" is L535.
+- C3-10: "Each level's throughput includes the time its last requests took to finish" has no source.
+- C3-11: "the budget matters only when prompts are long" is broader than its test.
+- C3-12: "What this leaves out" calls only Figure 3.4's pool a toy; Figures 3.2–3.3 and 3.5–3.7 also differ from vLLM's pool.
+- C3-13: the head-of-line-blocking line implies it is our simplification; vLLM's default FCFS blocks too.
+
+Chapter 4 (`review-ch3-ch4.md`):
+- C4-2: "cascade attention … can share those reads" is not in the cited `config/model.py` L284–290.
+- C4-3: "asynchronous scheduling, which shifts TTFT" has no source.
+- C4-4: "A large service runs several replicas" has no source.
+- C4-5: the system-prompt sentence is a near-copy of zheng2024 §3.
+- C4-6: 64, 4, 8, and 16 are typed by hand inside a `<Claim>`.
+- C4-7: the glossary's "free queue" cites the free path for allocation, which is `block_pool.py` L669–703.
+- C4-8: the `refcount-counts-sharers` test asserts at least 4; the page shows 8.
+
+Data, sandbox, glossary, and SOURCES.md (`review-sandbox-data.md`):
+- D-3: throughput badges link one log line; each number spans a range (L53–L56).
+- D-4: bench-ieb's TTFT clock starts when the client sends, so it excludes client-side waiting. The glossary's TTFT includes queueing.
+- D-5: the image tags rest on the log's pull-check lines; the pinned script has the image variables commented out.
+- D-7: llmsize PR #1 (the A10G fix) is still open, so the pin is off llmsize's `main`. The live llmsize app, which chapter 1 links, still shows 125 TFLOPS. PR #2's dead GPU `source_url`s are also open.
+- D-8: llmsize's M4 Max bf16 figure (11.6 TFLOPS) is not in its `source_url`.
+- D-9: there is no About page, though PRODUCT.md puts credibility there. The author is never named.
+- D-10: SIM.md links point at `main`, not a pinned commit.
+- S-2: vllm-src links open the repo root; labels like "config/cache.py" omit `vllm/`.
+- S-5: the glossary's "cache hit" cites L146–147; the lookup is L143.
+- S-7: the glossary's "usable memory" calls the driver reserve an assumption; for the A10G, L4, and L40S, llmsize derives it from ECC.
+- S-8: the glossary's "block size" cites only kwon2023; add `config/cache.py` L71.
+- S-9: the glossary's "free memory" and "gap" say "In this chapter" on the glossary page.
+- S-10: the glossary's "serving engine … or SGLang" cites the vLLM paper, which predates SGLang.
+- S-11: the sandbox's "Weights 15.0 GiB" has no badge of its own.
+- SOURCES.md's kwon2023 row misdescribes the §4.1 footnote (`review-ch1-ch2.md`, end).
 
 ## 2. Accessibility
 
-Contrast was computed with the WCAG 2.x formula for every token pair in
-DESIGN.md, in both directions and both themes. Color-blind separation was
-checked with the dataviz palette validator (OKLab ΔE, deutan, protan, and tritan
-simulation).
+**axe** (axe-core via `@axe-core/playwright`). It ran on 9 pages × light and
+dark × 375 and 1440 px × 3 browsers, which is 108 runs. At 1440 px it also
+scanned every chapter step's figure in Chromium. The only violation is A1.
 
-**Passes:**
-- **Body text:** `--ink` and `--ink-2` on `--bg`, `--surface`, `--surface-2`, and
-  `--block-free` are at least 4.5:1 everywhere. The lowest is 5.58:1 (A light,
-  `--ink-2` on `--block-free`).
-- **Focus ring:** at least 11.44:1 against `--bg` and `--surface`.
-- **Block edges:** free-block edges are at least 5.58:1.
-- **Request colors** are at least 3.73:1 against `--surface` (A light, slot 5).
-- **Neighboring request slots** pass color-blind separation in all four themes,
-  with a worst neighbor ΔE of 13.5.
+**Tab walk** (every page, 3 browsers, 1440 px). Each walk starts at "Skip to
+content" and leaves the page after the last control:
+- landing 15 stops, kv-cache 75, paged-attention 85, continuous-batching 101
+- prefix-caching 71, sandbox 98, sandbox A/B 121, glossary 80, not-found 10
 
-**M1 (major): id labels fail 4.5:1 on two request colors.** WCAG 1.4.3.
-- A light slot 3 (`#2389b5`): the best label color reaches 4.35:1.
-- B light slot 8 (`#0a8a5f`): the best reaches 4.36:1.
-- Every other slot passes with white or dark ink (minimum 4.56:1).
-- Fix: darken those two hues until a label reaches 4.5:1, then re-run the
-  palette validator. Or draw labels on a `--surface` chip.
+Every stop shows a focus ring, and none is visited twice. In Chromium and
+Firefox every stop is scrolled into view; for WebKit see B2. The existing
+interaction suites cover arrow keys, Enter, and Space in every widget; their
+live run is under "Before and after".
 
-**M2 (major): the waste hatch fails 3:1 in both dark themes.** WCAG 1.4.11.
-- A dark: hatch `#6b665c` on `--surface` is 2.82:1.
-- B dark: hatch `#5c6066` is 2.73:1.
-- The hatch is the only visual cue for wasted slots in chapter 2.
-- Fix: lighten the hatch ink to at least 3:1. Checked: `#77726a` on A dark
-  `--surface` is 3.37:1, and `#6a6e75` on B dark `--surface` is 3.38:1.
+**Live regions** (Chromium, every step's figure at 1440 px). The test played
+for 3 s and then pressed Step 3 times:
+- Chapters 1–3 and the sandbox announce nothing during play.
+- On Step, a chapter readout announces 0.3–1 times per step.
 
-**M3 (major): request hue cannot carry identity, because all pairs fail.**
-- `--pairs all` fails color-blind separation in every theme. The worst pairs:
-  - B light moss vs. amber: ΔE 0.2 (protan)
-  - A dark olive vs. vermilion: ΔE 1.2 (deutan)
-- It also fails the normal-vision floor (all below 15):
-  - A dark cerulean vs. cobalt: 5.9
-  - B light green vs. moss: 7.5
-- This matters more now. The slot rule changed in the chapter 3 plan: requests
-  take the lowest free slot, so non-neighboring slots appear together all the
-  time.
-- DESIGN.md already makes glyphs and patterns required. One gap remains:
-  direction B says blocks narrower than 14 px "drop the glyph", which leaves
-  those blocks with hue only.
-- Fix:
-  - Every request mark carries its pattern, and its glyph or id label, at every
-    size.
-  - Cells never go below the size that fits a glyph (the plans already set
-    28 px on desktop and 40 px on mobile).
-  - Add a render test: every request mark has a pattern and a glyph or label.
+**Reduced motion** (9 pages × 375 and 1440 px × 3 browsers):
+- No autoplay.
+- No running animation at any step.
+- No element with a transition or animation.
+- Every Play button is disabled.
 
-**m1 (minor): `--ink` on `--highlight` is 1.35:1 in B dark.** B dark's highlight
-is `#ffcc00`, so normal ink on it is unreadable. The `--on-highlight` token
-exists for this.
-- Fix: a lint rule and test that `--highlight` backgrounds always use
-  `--on-highlight` text.
+**Contrast and color** (WCAG 2.x from `src/viz/tokens.css`, both themes, and
+the dataviz palette validator; `docs/audit/2/contrast.txt`,
+`palette.txt`):
+- Body text is at least 6.27:1, and id labels at least 4.56:1 (M1).
+- The waste hatch on `--surface` is at least 3.38:1 (M2).
+- The focus ring is at least 9.95:1.
+- Request colors on `--surface` are at least 3.75:1.
+- Neighboring request slots pass color-blind separation: worst ΔE 14.4
+  light and 14.7 dark (deutan).
+- All-pairs still fails, as audit 1 found. Glyphs and patterns carry
+  identity (M3).
 
-**Not run (B1):**
-- axe on every route in both themes
-- the keyboard walkthrough
-- `aria-live` summaries at a polite rate
-- `prefers-reduced-motion` behavior
+**C2-2 (major): the block grids' summary strip shows request identity by
+color only.** Below each block grid on mobile, held blocks are filled with
+their slot color (`BlockGrid.tsx:592–603`, `summary--slot-N`). There is no
+pattern or glyph. That breaks CLAUDE.md ("Color is never the only encoding")
+and DESIGN.md's request-mark rule; it is what remains of audit 1 M3. Fix: one
+neutral `summary--held` fill. The grid above carries identity.
 
-The plans specify each one in docs/CHAPTER_DOD.md items 7–14.
+**Minor:**
+- A1: the landing page has two `nav` landmarks named "Chapters" (`App.tsx:47`, `Landing.tsx:18`). axe's `landmark-unique` (moderate) fires in all 12 landing runs.
+- A2: chapter 4's lookup readout (`cache__lookup`) is a polite live region that speaks during play: 4 announcements in 3 s at steps 3–10. CHAPTER_DOD item 8 and the chapter 4 plan keep readouts quiet while playing.
+- A3: Step announces nothing in two places: the sandbox, where "KV in use at the playhead" and the event list change silently, and the figures at chapter 2 steps 1–2. Every other figure announces on Step.
+- A4: `--highlight` is the only cue for several states in the light theme: the current nav item, the active step number, the active strip block, bar, and band, and the selected sandbox tab. Yellow on `--surface` is 1.51:1, under WCAG 1.4.11's 3:1. Dark is 11.44:1.
+- A5: in the summary strip, waste next to free blocks is 2.85:1 in light and 2.82:1 in dark, under 3:1.
 
 ## 3. Mobile and browsers
 
-**Not run (B1):**
-- Chromium, WebKit, and Firefox at 375, 768, and 1440 px
-- touch: thumb-sized sliders, no hover-only paths, 44 px targets
-- Safari: sticky, SVG text, workers
+**Sizes and themes.** 9 pages × 375, 768, and 1440 px × light and dark × 3
+browsers, 162 runs. On the wide board, every chapter step was checked too:
+- horizontal overflow: 0 everywhere
+- clipped SVG labels: none
+- targets under 44 px at 375 and 768 px: none
 
-Note for the build: CHAPTER_DOD.md tested 375 and 1440 px in Chromium only. This
-audit adds 768 px, WebKit, Firefox, and 44 px targets. CHAPTER_DOD.md gained
-them on 2026-10-02 (items 7, 11, 17, and 18).
+**Touch** (Pixel 7 in Chromium and iPhone 13 in WebKit, every page):
+- no target under 44 px, and no overflow
+- every enabled Step tap advances its playhead, and every slider moves on a
+  tap
+- Range inputs are 44 px tall.
+
+**Hover-only styles.** No `:hover` rule reveals content. **Safari and
+WebKit:**
+- **Sticky board:** WebKit, like Chromium and Firefox, keeps it 24 px from
+  the top through every step.
+- **Short screens:** below 560 px tall it stops being sticky and shows "Show
+  in figure" (6–10 per chapter).
+- **SVG text:** no clipped labels.
+- **Workers:** the A/B sandbox finishes both runs in all 3 browsers in under
+  1 s.
+
+**Minor:**
+- B1: a provenance badge's meaning is only in its `title` tooltip ("Produced by the toy engine on this page. Not a measurement."), so touch and keyboard readers can't reach it. The visible word ("simulated") carries the main point (`ProvenanceBadge.tsx:47`).
+- B2: in WebKit only, Tab focuses two sandbox inputs without scrolling them into view at 1440 px: "GPU memory fraction" (A/B) and "Prompt length: max". This may be WebKit's scroll timing; confirm by hand.
 
 ## 4. Performance
 
-**Not run (B1):**
-- Lighthouse on every route
-- JS per route under 200 KB gzipped
-- LCP on simulated 4G and layout shift
-- per-widget frame times
+**Lighthouse 13.5.0** (mobile: simulated slow 4G and 4× CPU; desktop preset):
 
-There are no measured or estimated numbers here.
+| page | form | perf | a11y | best pr. | SEO | LCP | CLS | TBT | JS KB |
+|---|---|---|---|---|---|---|---|---|---|
+| landing | mobile | 100 | 100 | 100 | 100 | 1.21 s | 0 | 0 ms | 71 |
+| landing | desktop | 100 | 100 | 100 | 100 | 0.31 s | 0 | 0 ms | 71 |
+| kv-cache | mobile | 100 | 100 | 100 | 100 | 1.40 s | 0 | 2 ms | 106 |
+| kv-cache | desktop | 100 | 100 | 100 | 100 | 0.35 s | 0 | 0 ms | 105 |
+| paged-attention | mobile | 100 | 100 | 100 | 100 | 1.42 s | 0 | 71 ms | 113 |
+| paged-attention | desktop | 100 | 100 | 100 | 100 | 0.33 s | 0 | 0 ms | 113 |
+| continuous-batching | mobile | **73** | 100 | 100 | 100 | 1.63 s | 0 | **1,694 ms** | 121 |
+| continuous-batching | desktop | **83** | 100 | 100 | 100 | 0.34 s | 0 | **383 ms** | 121 |
+| prefix-caching | mobile | **82** | 100 | 100 | 100 | 1.55 s | 0 | **715 ms** | 116 |
+| prefix-caching | desktop | 98 | 100 | 100 | 100 | 0.35 s | 0 | 131 ms | 116 |
+| sandbox | mobile | 100 | 100 | 100 | 100 | 1.55 s | 0 | 2 ms | 126 |
+| sandbox | desktop | 100 | 100 | 100 | 100 | 0.38 s | 0 | 0 ms | 126 |
+| glossary | mobile | 100 | 100 | 100 | 100 | 1.23 s | 0 | 0 ms | 79 |
+| glossary | desktop | 100 | 100 | 100 | 100 | 0.34 s | 0 | 0 ms | 79 |
+
+**JS per route** (as served, from the network log):
+- The largest is the A/B sandbox: 125 KB with its worker (156 KB at gzip -9).
+- Every route is under 200 KB.
+
+**Per-widget frames** (`@perf` specs, Chromium, live site;
+`docs/audit/2/perf.txt`):
+- Every chapter at 1×: input max 24 ms, frames p95 16.8 ms, max 16.8 ms.
+- At 4×: kv-cache, paged-attention, and prefix-caching pass (input max 32
+  ms, frame p95 16.8 ms, max 33.4 ms).
+- The sandbox's 5,000-request run passes: input delay 0.6 ms at 1× and
+  6.8 ms at 4×.
+- A/B playback passes: 305 frames in 5 s, max 16.8 ms.
+
+**P1 (major): chapters 3 and 4 block the main thread on load.** Their
+figure modules run the chapter's simulations when they are imported
+(`continuous-batching/figures.tsx:115`, `export const F`). Longest task on
+load (PerformanceObserver, Chromium, live):
+- continuous-batching: 302 ms at 1×, 1,206 ms at 4×
+- prefix-caching: 137 ms at 1×, 515 ms at 4×
+- kv-cache: none at 1×, 91 ms at 4×
+
+During that time a tap or key press waits. Lighthouse scores chapter 3 at 73
+mobile and 83 desktop (TBT 1,694 and 383 ms), and chapter 4 at 82 mobile.
+Fix: compute the figures' numbers at build time (like `src/data`), or after
+first paint.
+
+**P2 (minor): chapter 3's Figure 3.6 at 4× CPU sits at the edge of the 18 ms
+p95 rule.** It failed on the live site 3 times in 3 (p95 33.3 ms, max 33.4).
+Locally, the pre-sandbox build `848623f` failed 1 run in 2, and the current
+build 1 in 2, under the same load. So it is not a regression; one frame in 20
+takes two vsyncs. No frame is over 50 ms.
 
 ## 5. Resilience
 
-**Links.** 48 unique external URLs appear in the docs. 43 return 200. The other
-5:
-- **The two site URLs return 404:** the site is not deployed (B1).
-- **Three return 403 to scripts:** https://doi.org/10.1145/3600006.3613165 and
-  the two USENIX pages.
-  - Each response carries `cf-mitigated: challenge` (a Cloudflare bot check).
-  - The DOI itself resolves: 302 to dl.acm.org.
-  - These are reachable for readers.
+**Links** (`scripts/link-check.ts`). It found 84 unique external URLs in the
+repo's text, the site's source, and the rendered pages:
+- 73 return 2xx.
+- 1 is a Cloudflare challenge (the ACM DOI), now counted as reachable (m2).
+- 10 fail:
+  - the 6 SIM.md URLs and 3 repo URLs in tasks/todo.md (G1)
+  - the old `/Serving-Explainer/` URL, which audit 1 quotes
+- The two USENIX pages that audit 1 saw challenged now return 200.
 
-**m2 (minor): the link check in CI must treat Cloudflare challenges as
-reachable.** Otherwise it fails on three good links. Fix: in the link-check
-script, accept a 403 that carries `cf-mitigated: challenge`, and list such
-hosts in the report.
+All 27 in-site links and anchors resolve, for example the sandbox's "Learn"
+links to chapter sections.
 
-**Not run (B1):**
-- no network requests after load
-- the no-JS and worker-failure fallbacks
-- the 404 page and per-route metadata
+**Requests:**
+- No page makes a third-party request in any browser, before or after load.
+- No page sets a cookie. localStorage holds only `theme`.
+- After the load event, the only requests are the page's own route chunks,
+  their CSS, and the sandbox worker.
 
-## Checks that passed
+**404 and metadata:**
+- `/no-such-page/` returns 404 with "Page not found" and `noindex`.
+- `/kv-cache/no-such-page/` and missing assets return 404.
+- `/kv-cache` redirects (301) to `/kv-cache/`.
+- Every route's raw HTML has its own title, description, canonical URL,
+  `og:*`, `twitter:card` `summary_large_image`, and `lang="en"`. Its
+  preview image returns 200 at 1200 × 630.
 
-- **Measured numbers** (chapter 3's planned callout). I recomputed them from
-  `results_concurrency64/…/throughput_ramp_extended_{vllm_1776486559,sglang_1776488646}.json`
-  and `logs/phase2_resume_20260418T042547.log` (bench-ieb at `1c964318`).
-  - Median TTFT: 41.2 → 162.8 ms (vLLM) and 69.9 → 156.1 ms (SGLang).
-  - Output throughput: 30.2 → 1,279.6 and 30.2 → 1,271.1 tok/s, from the log's
-    timestamps.
-  - All match the plan.
-  - The log records the GPU (`:7`), the image tags (`:15–16`), and the model
-    (`:36`).
-- **Author claims** (PRODUCT.md): `gh pr view` shows vllm-metal #549 merged
-  2026-07-25 and #550 merged 2026-07-28. Both match "merged July 2026".
+**R1 (major): without JavaScript every page is blank.** With JavaScript off,
+every route returns 200 with its title, but the body's text is empty. There
+is no `<noscript>` message. Readers with scripts blocked see a white page with
+no explanation. Fix: a `<noscript>` line in `index.html`. Prerendering the
+prose is the larger option.
 
-## Fix order after approval
+**R2 (major): a sandbox worker that fails to load hangs the run, with no
+error.**
+- If the worker script fails to load (blocked here with a route abort), the
+  run stays at "Run, 0 of 0 requests done" indefinitely. `useRun.ts` has no
+  `onerror` handler on the worker.
+- This happens in practice when a deploy replaces the hashed worker file
+  while a reader's tab is open.
+- With no `Worker` at all, the page throws "Worker is not a constructor"
+  (uncaught), and runs stay "waiting".
+- Fix: handle the worker's `error` event and a failed constructor, and show
+  the error state with a reload hint.
 
-1. **Now, in docs only** (done 2026-10-02):
-   - M1–M3 and m1 in DESIGN.md, once a direction is chosen (B was chosen)
-   - M4–M8 and m3–m19 in tasks/todo.md, PRODUCT.md, SIM.md, and SOURCES.md.
-     M6 waited for Q8, and M9 for the author; both are now decided.
-   - add 768 px, WebKit, Firefox, and 44 px targets to CHAPTER_DOD.md
-2. **After the B2 decisions:** build in the B1 order.
-3. **After the build:** run this whole audit again, and update this file with
-   before and after numbers for every item.
+## Before and after: audit 1 items
+
+| item | audit 1 (2026-10-01) | audit 2 (2026-10-15) |
+|---|---|---|
+| B1 | blocker: no site | **resolved:** live, all routes 200, CI and deploy green |
+| B2.1 design | open | resolved: B (Signal Box) is what ships |
+| B2.2 visibility | open → "public" | **regressed: private again (G1)** |
+| B2.3 rename | open | resolved: the site is at `/serving-explained/` |
+| B2.4–B2.7 | open | resolved and built; M9's llmsize PR is still open (D-7) |
+| M1 label contrast | 4.35 and 4.36:1 | **fixed:** lowest 4.56:1 (slot 2, light) |
+| M2 waste hatch | 2.73:1 (dark) | **fixed:** 3.38:1 dark, 3.47:1 light; the strip is A5 |
+| M3 hue-only identity | glyphs dropped under 14 px | **partly:** marks, cells, strips, and timeline comply; the summary strip does not (C2-2) |
+| M4 kwon2023 §8 | stretched | fixed |
+| M5 `max_num_seqs` 256 | condition missing | fixed; line ranges and GiB disagree (C3-5) |
+| M6 free-order cite | contradicting doc | fixed: cites `block_pool.py` L777–808 |
+| M7 knob untested | no test | fixed: `longer-prefix-saves-more` asserts both trends |
+| M8 absolute "nothing" | absolute | fixed in chapter 4 and PRODUCT.md; chapter 3 contradicts it (C3-2) |
+| M9 A10G TFLOPS | 125 | fixed on the site (70); llmsize PR #1 open (D-7) |
+| m1 ink on highlight | 1.35:1 possible | fixed: a test forbids it (`tests/viz/css.test.ts`); still 1.35:1 if used |
+| m2 link check | needed | **fixed in this audit:** `scripts/link-check.ts` |
+| m3–m8 | wording | fixed |
+| m9 decodes first | overstated | fixed; the line range misses the waiting loop (C3-3) |
+| m10 "when unset" | missing | fixed |
+| m11 "from 1 to 64" | missing | **partly:** two sentences still unscoped (C3-1) |
+| m12–m14 | cites and wording | fixed |
+| m15 preemption | forward reference | **partly:** "never preempts" before the definition (C2-8) |
+| m16 A10G in chapter 3 | 125 | fixed: crossover 76 |
+| m17 leaves-out gaps | gaps | fixed; C3-12 and C3-13 are framing |
+| m18 claim ids | mismatched | fixed: all placed and asserted |
+| m19 SOURCES "cited for" | gaps | fixed; one footnote misdescribed, line refs differ (D-6 in C3-5) |
+| §3 note: 768 px, WebKit, Firefox, 44 px | added to the DoD | checked: all pass (§3) |
+| Body text contrast | at least 5.58:1 (direction A) | at least 6.27:1 (B) |
+| Focus ring | at least 11.44:1 | at least 9.95:1 (now including `--surface-2`) |
+| Request colors vs surface | at least 3.73:1 | at least 3.75:1 |
+| Neighbor ΔE (worst) | 13.5 | 14.4 light, 14.7 dark |
+| Links | 48 URLs: 43 ok, 2 site 404, 3 challenged | 84 URLs: 73 ok, 1 challenged, 10 fail (G1) |
+| Measured callout | matched the plan | matches the raw files again, and the live page |
+| Author claims | #549, #550 merged | unchanged |
+| **Not run in audit 1** | | |
+| Correctness, 2 items | not named | claim tests and rendered numbers both checked (§1) |
+| axe, every route, both themes | not run | 1 violation, minor (A1) |
+| Keyboard walkthrough | not run | Tab walks pass in 3 browsers; WebKit B2 |
+| `aria-live` at a polite rate | not run | quiet during play except A2; silent Step in A3 |
+| Reduced motion | not run | passes everywhere |
+| 3 browsers × 375, 768, 1440 | not run | passes everywhere |
+| Touch | not run | passes; badge tooltip B1 |
+| Safari: sticky, SVG text, workers | not run | passes |
+| Lighthouse on every route | not run | 100 everywhere except P1 |
+| JS per route under 200 KB | not run | at most 125 KB served |
+| LCP on simulated 4G, layout shift | not run | LCP at most 1.63 s; CLS 0 everywhere |
+| Per-widget frame times | not run | pass at 1×; P2 at 4× |
+| No requests after load | not run | none third-party; own chunks only |
+| No-JS and worker-failure fallbacks | not run | **R1, R2** |
+| 404 page, per-route metadata | not run | pass |
+
+Audit 1 counted 2 correctness items as not run but did not name them. I read
+them as the two checks that needed code: claims about the simulation, and
+numbers as rendered. Both ran.
+
+The live interaction suites (smoke, the four chapters, and the sandbox) ran
+in all three browsers as part of this audit: 322 passed, 74 skipped (the
+screenshot and perf tests), and none failed.
+
+## Fix order (proposed; waiting for approval)
+
+1. **G1:** the author decides on repo visibility. If it stays private, move
+   SIM.md onto the site. This is a setting, not code, and unblocks 39 links.
+2. **Correctness majors** C1-1, C2-1, C3-1, C3-2, C4-1: wording and
+   citations only. No number, preset, or sim API changes, and each keeps its
+   claim test.
+3. **R2:** worker error handling in `useRun.ts`, with an e2e test that blocks
+   the worker.
+4. **R1:** a `<noscript>` message, checked by a no-JS smoke test.
+5. **C2-2:** a neutral summary-strip fill, checked by a render test.
+6. **P1:** move chapter 3's and chapter 4's figure numbers off the load
+   path: build-time data, the same generator pattern as `src/data`. Gate:
+   Lighthouse 100 and no task over 50 ms at 1×.
+7. **Minors**, grouped by file, in one pass per chapter: citations and line
+   ranges first (C3-3–C3-5, C4-7, S-5, S-8, D-6), then wording, then the
+   accessibility and test gaps. Some are the author's call: D-5, D-7, D-8,
+   D-9, A4, B1, P2.
+8. **Then run this audit again** with the same commands, and update this
+   file.
