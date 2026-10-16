@@ -1986,7 +1986,8 @@ as worded; no test is loosened.
     test use the engine's own keys
 - [x] DESIGN.md: the cached, shared, and selected-chain block states (approved
       2026-10-02).
-- [ ] The chapter (Build 4).
+- [x] The chapter (Build 4). All 22 DoD items below are ticked. Live on
+      2026-10-15, tagged v0.7-ch4.
 
 ### What the sources say
 
@@ -2441,6 +2442,15 @@ Requests per decode step are 6.0 vs 4.5.
 - Ten steps instead of seven (splits after the review).
 - BlockGrid gained optional props; chapter 2 is unchanged (its baselines
   pass).
+
+### Landing (2026-10-15)
+
+- Rebased onto v0.6-ch3. Baselines run 38840114869 (the other 24 Linux
+  files, chapter 2's included, were byte-identical); branch CI green on
+  9d73c95.
+- main fast-forwarded to 9d73c95; CI and deploy run 38841634233 succeeded.
+- Live: smoke plus all four chapter specs, 243 tests in three browsers,
+  pass. og/prefix-caching.png returns 200.
 
 
 ## Prompt 7: sandbox (PLAN, approved 2026-10-02)
