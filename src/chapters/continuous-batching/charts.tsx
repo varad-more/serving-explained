@@ -285,6 +285,8 @@ export interface HistRow {
   count: number;
   p50: number;
   p99: number;
+  /** Bin counts already made (the sandbox's worker): values are then unused. */
+  counts?: readonly number[];
 }
 
 /** Each bin's count over the first n values, for every n; cached per list. */
@@ -343,12 +345,16 @@ export function Histogram({
     PAD.left +
     ((Math.log10(Math.min(Math.max(v, 10 ** lo), 10 ** hi)) - lo) / (hi - lo)) *
       (W - PAD.left - PAD.right);
-  const counts = rows.map((r) => [
-    ...binCounts(r.values, edges).subarray(
-      r.count * bins,
-      (r.count + 1) * bins,
-    ),
-  ]);
+  const counts = rows.map((r) =>
+    r.counts
+      ? [...r.counts]
+      : [
+          ...binCounts(r.values, edges).subarray(
+            r.count * bins,
+            (r.count + 1) * bins,
+          ),
+        ],
+  );
   const top = Math.max(1, ...counts.flat());
   const binText = (b: number) =>
     `${secs(edges[b] ?? 0)} to ${secs(edges[b + 1] ?? 0)}`;

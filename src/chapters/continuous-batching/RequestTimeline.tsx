@@ -215,6 +215,7 @@ export function RequestTimeline({ mode }: { mode: Mode }) {
             </div>
             <Lanes
               tl={r.tl}
+              cap={r.tl.config.scheduler.maxNumSeqs}
               time={ph.time}
               window={desktop ? 30 : 12}
               name={r.name}
@@ -485,15 +486,26 @@ const AXIS = 22;
 const TAB = 16;
 const CHIP = 34;
 
-/** The slots as lanes, the queue above them, and long steps as bands. */
-function Lanes({
+/** What the lanes draw: chapter 3's Timeline, or the sandbox's columns. */
+export type LaneData = Pick<Timeline, "segments" | "steps" | "queued">;
+
+/** At most this many lanes are drawn (DESIGN.md's 8 request hues). */
+export const MAX_LANES = 8;
+
+/**
+ * The slots as lanes, the queue above them, and long steps as bands. Above
+ * eight slots, lanes 1–8 are drawn (the sandbox says so).
+ */
+export function Lanes({
   tl,
+  cap: slots,
   time,
   window: span,
   name,
   dashed,
 }: {
-  tl: Timeline;
+  tl: LaneData;
+  cap: number;
   time: number;
   window: number;
   name: string;
@@ -501,14 +513,14 @@ function Lanes({
 }) {
   const [ref, W] = useWidth<SVGSVGElement>(640);
   const ids = useId();
-  const cap = tl.config.scheduler.maxNumSeqs;
+  const cap = Math.min(slots, MAX_LANES);
   const H = QUEUE + cap * (LANE + GAP) + AXIS;
   const view0 = Math.max(0, time - (2 * span) / 3);
   const view1 = view0 + span;
   const x = (t: number) => ((t - view0) / span) * W;
   const laneY = (slot: number) => QUEUE + (slot - 1) * (LANE + GAP);
   const visible = tl.segments.filter(
-    (s) => s.t1 > view0 && s.t0 <= time && s.t0 < view1,
+    (s) => s.slot <= cap && s.t1 > view0 && s.t0 <= time && s.t0 < view1,
   );
   const bands = tl.steps.filter((s) => s.stall && s.t1 > view0 && s.t0 <= time);
   const waiting = queueAt(tl, time);
@@ -534,7 +546,7 @@ function Lanes({
       viewBox={`0 0 ${String(W)} ${String(H)}`}
       height={H}
       role="img"
-      aria-label={`${name} at ${time.toFixed(2)} s: ${String(running.length)} of ${String(cap)} batch slots held${bubbles > 0 ? `, ${String(bubbles)} by finished requests` : ""}; ${String(waiting.length)} waiting.`}
+      aria-label={`${name} at ${time.toFixed(2)} s: ${String(running.length)} of ${String(cap)} batch slots held${slots > cap ? ` (lanes 1–${String(cap)} of ${String(slots)})` : ""}${bubbles > 0 ? `, ${String(bubbles)} by finished requests` : ""}; ${String(waiting.length)} waiting.`}
       data-dashed={dashed}
     >
       <defs>
@@ -680,7 +692,8 @@ function Lanes({
         <text
           key={t}
           className="chart__tick"
-          x={x(t)}
+          // Edge labels sit 2 px in: Firefox measures text a pixel wider.
+          x={Math.min(W - 2, Math.max(2, x(t)))}
           y={H - 6}
           textAnchor={x(t) < 20 ? "start" : x(t) > W - 20 ? "end" : "middle"}
         >

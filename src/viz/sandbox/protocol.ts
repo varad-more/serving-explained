@@ -3,6 +3,7 @@
  * 7, "Architecture"). Bulk data travels as typed arrays, transferred, not
  * copied. The full event log never leaves the worker.
  */
+import { logEdges } from "../../chapters/continuous-batching/charts.tsx";
 import type { SimMetrics } from "../../sim/index.ts";
 import type { SandboxConfig } from "./params.ts";
 
@@ -21,6 +22,8 @@ export interface Series {
   allocated: Float64Array;
   tokens: Float64Array;
   cached: Float64Array;
+  /** Contiguous only: free slots too small for a region. */
+  unusable: Float64Array;
 }
 
 /** Timeline lanes, one row per segment (ch3's timeline, as columns). */
@@ -136,3 +139,7 @@ export type FromWorker =
     }
   | { type: "events"; t0: number; t1: number; columns: EventColumns }
   | { type: "error"; code: string; message: string };
+
+/** Histogram bins, shared by the worker and the page's placeholders. */
+export const TTFT_EDGES = logEdges(0.01, 1000, 4);
+export const ITL_EDGES = logEdges(0.001, 100, 4);

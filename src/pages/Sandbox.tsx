@@ -1,8 +1,3 @@
-export default function Sandbox() {
-  return (
-    <>
-      <h1>Sandbox</h1>
-      <p>The sandbox is not built yet.</p>
-    </>
-  );
-}
+import { Sandbox } from "../viz/sandbox/Sandbox.tsx";
+
+export default Sandbox;

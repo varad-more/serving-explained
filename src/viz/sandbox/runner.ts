@@ -15,11 +15,12 @@ import {
   type SimEvent,
 } from "../../sim/index.ts";
 import { buildLanes } from "../../chapters/continuous-batching/timeline.ts";
-import { logEdges } from "../../chapters/continuous-batching/charts.tsx";
 import { buildConfig } from "./build.ts";
 import { LIMITS } from "./params.ts";
 import {
   EVENT_TYPES,
+  ITL_EDGES,
+  TTFT_EDGES,
   type EventColumns,
   type FromWorker,
   type Histogram,
@@ -32,8 +33,6 @@ export type Post = (msg: FromWorker, transfer?: Transferable[]) => void;
 
 const SLICE_MS = 50;
 const EVENT_CAP = 50_000;
-export const TTFT_EDGES = logEdges(0.01, 1000, 4);
-export const ITL_EDGES = logEdges(0.001, 100, 4);
 
 /** A clock and a yield, swappable so tests run without timers. */
 export interface Env {
@@ -206,10 +205,7 @@ export function createRunner(post: Post, env: Env = defaultEnv) {
       t: Float64Array.from(picked, (e) => e.t),
       step: Uint32Array.from(picked, (e) => e.step),
       type: Uint8Array.from(picked, (e) =>
-        Math.max(
-          0,
-          EVENT_TYPES.indexOf(e.type),
-        ),
+        Math.max(0, EVENT_TYPES.indexOf(e.type)),
       ),
       req: Int32Array.from(picked, (e) => ("req" in e ? e.req : -1)),
       value: Float64Array.from(picked, valueOf),
@@ -276,6 +272,7 @@ function seriesOf(events: readonly SimEvent[], from: number): Series {
     allocated: Float64Array.from(ends, (e) => e.kv.allocated),
     tokens: Float64Array.from(ends, (e) => e.kv.tokens),
     cached: Float64Array.from(ends, (e) => e.kv.cached),
+    unusable: Float64Array.from(ends, (e) => e.kv.unusable),
   };
 }
 

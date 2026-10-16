@@ -9,7 +9,12 @@ import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import gpus from "../../src/data/gpus.json" with { type: "json" };
 import models from "../../src/data/models.json" with { type: "json" };
-import { createSim, hashEvents, type LengthDist } from "../../src/sim/index.ts";
+import {
+  createSim,
+  hashEvents,
+  PRESETS,
+  type LengthDist,
+} from "../../src/sim/index.ts";
 import { presetConfig, type SimData } from "../../src/simConfig.ts";
 import { buildConfig } from "../../src/viz/sandbox/build.ts";
 import {
@@ -197,6 +202,35 @@ describe("share links", () => {
       }),
       { numRuns: 300 },
     );
+  });
+
+  it("a link made before a preset changes keeps its meaning (self-contained)", () => {
+    const query = encodeLink({
+      a: presetSandbox("rag"),
+      b: null,
+      h: null,
+      hb: null,
+    });
+    const before = parseLink(query).a;
+    const hash = hashOf(before);
+    const preset = PRESETS.rag as {
+      workload: (typeof PRESETS)["rag"]["workload"];
+    };
+    const saved = preset.workload;
+    // Retune the preset, as a later version might.
+    preset.workload = {
+      ...saved,
+      count: 7,
+      arrival: { kind: "poisson", ratePerS: 9 },
+    };
+    try {
+      expect(presetSandbox("rag").n).toBe(7);
+      const after = parseLink(query).a;
+      expect(after).toEqual(before);
+      expect(hashOf(after)).toBe(hash);
+    } finally {
+      preset.workload = saved;
+    }
   });
 
   it("notices name what was dropped", () => {

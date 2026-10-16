@@ -97,6 +97,8 @@ export function cellText(
   if (cell.kind === "free") return `${name}: free.`;
   if (cell.kind === "gap")
     return `${name}: gap, free space too small for a region.`;
+  if (cell.kind === "used")
+    return `${name}: r${String(cell.req)}'s logical block ${String(cell.logical)}. ${String(cell.fill)} of ${String(B)} slots hold KV.`;
   if (cell.kind === "cached")
     return `${name}: cached. No request holds it, and it keeps its key. Eviction order ${String(cell.rank)} (1 goes next).`;
   if (cell.kind === "shared")
@@ -110,7 +112,8 @@ export function cellText(
 /** The selected request's logical index for this cell, or null. */
 function chainIndex(c: Cell | undefined, selected: number | null) {
   if (selected === null || !c) return null;
-  if (c.kind === "held") return c.req === selected ? c.logical : null;
+  if (c.kind === "held" || c.kind === "used")
+    return c.req === selected ? c.logical : null;
   if (c.kind === "shared") {
     const i = c.reqs.indexOf(selected);
     return i >= 0 ? (c.logical[i] ?? null) : null;
@@ -309,7 +312,9 @@ export function BlockGrid({
             ? `shared.${String(c.reqs.length)}`
             : c?.kind === "cached"
               ? `cached.${String(c.rank)}`
-              : (c?.kind ?? "free"),
+              : c?.kind === "used"
+                ? `used.${String(c.fill)}`
+                : (c?.kind ?? "free"),
         labelGap,
         chain,
         marked?.has(i) ?? false,
@@ -341,6 +346,16 @@ export function BlockGrid({
         // Above the chain number's tab when this block is in the selected chain.
         const badgeY = chain !== null && showLogical ? y + 9 : y + cell / 2;
         ctx.fillText(`×${String(c.reqs.length)}`, x + cell / 2, badgeY);
+      } else if (c.kind === "used") {
+        // Held, by state: solid --ink-2; the empty part of the newest block
+        // keeps the waste hatch.
+        if (c.fill < B) hatch(x, y);
+        ctx.fillStyle = colors.ink2;
+        const share = c.fill / B;
+        ctx.fillRect(x, y + cell * (1 - share), cell, cell * share);
+        ctx.strokeStyle = colors.ink2;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x + 0.5, y + 0.5, cell - 1, cell - 1);
       } else if (c.kind === "cached") {
         // Cached: a dotted --ink-2 fill and its eviction order (DESIGN.md).
         dots(x, y);
@@ -607,7 +622,9 @@ function Summary({
                   ? "summary--shared"
                   : c.kind === "cached"
                     ? "summary--cached"
-                    : "summary--free"
+                    : c.kind === "used"
+                      ? "summary--shared"
+                      : "summary--free"
           }
         />
       ))}

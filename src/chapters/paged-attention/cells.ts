@@ -17,7 +17,12 @@ export type Cell =
    */
   | { kind: "shared"; reqs: number[]; logical: number[] }
   /** Chapter 4: no request holds it, but it keeps its key. 1 = next to evict. */
-  | { kind: "cached"; rank: number };
+  | { kind: "cached"; rank: number }
+  /**
+   * The sandbox, above 8 running requests: held, drawn by state, not by
+   * request (DESIGN.md, "More than 8 running requests").
+   */
+  | { kind: "used"; req: number; fill: number; logical: number };
 
 export interface GridSpec {
   allocator: Allocator;

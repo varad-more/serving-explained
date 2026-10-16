@@ -1,0 +1,327 @@
+/* The sandbox page. Controls sit in a left column from 1024 px, and above
+   the views below that. */
+
+.sandbox__lede {
+  max-width: 64ch;
+}
+
+.sandbox__layout {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 1024px) {
+  .sandbox__layout {
+    grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.sandbox__views {
+  min-width: 0;
+}
+
+.sb-ab,
+.sb-share {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.sb-tabs {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.sb-tab {
+  min-width: var(--target);
+  min-height: var(--target);
+  border: 2px solid var(--rule-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sb-tab[aria-selected="true"] {
+  background: var(--highlight);
+  color: var(--on-highlight);
+}
+
+.sb-group {
+  margin: var(--space-2) 0;
+  border-top: 2px solid var(--rule-strong);
+}
+
+.sb-group > summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--target);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sb-row {
+  margin: var(--space-2) 0 var(--space-3);
+}
+
+.sb-row__input {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.sb-row__meta,
+.sb-row__help,
+.sb-note,
+.sb-legend,
+.sb-sub {
+  margin: var(--space-1) 0;
+  font-size: var(--step--2);
+  color: var(--ink-2);
+}
+
+.sb-row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-2);
+}
+
+.sb-sub {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.sb-number,
+.sb-select {
+  min-height: var(--target);
+  min-width: 7rem;
+  max-width: 100%;
+  padding: 0 var(--space-2);
+  border: 2px solid var(--rule-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+.sb-reset,
+.sb-learn {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target);
+  min-width: var(--target);
+  padding: 0 var(--space-1);
+  font-size: var(--step--2);
+}
+
+.sb-reset {
+  border: 1.5px solid var(--rule-strong);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.sb-reset:disabled {
+  color: var(--ink-2);
+  border-color: var(--rule);
+  cursor: default;
+}
+
+.sb-inline,
+.sb-dist {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sb-dist__field {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--step--1);
+}
+
+.sb-dist__field .sb-number {
+  min-width: 5.5rem;
+  width: 6rem;
+}
+
+.sb-mixture__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.sb-preset {
+  max-width: 40rem;
+  font-size: var(--step--1);
+}
+
+.sb-notices,
+.sb-error {
+  margin: var(--space-3) 0;
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--rule-strong);
+  background: var(--surface-2);
+}
+
+.sb-verify {
+  padding: var(--space-2) var(--space-3);
+  border-left: 6px solid var(--highlight);
+  background: var(--surface-2);
+}
+
+.sb-copy {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+  font-size: var(--step--1);
+}
+
+.sb-copy input {
+  min-height: var(--target);
+  font: inherit;
+}
+
+.sb-pair {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 1280px) {
+  .sb-pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.sb-run {
+  min-width: 0;
+  margin: var(--space-3) 0;
+}
+
+.sb-run__name {
+  margin: 0 0 var(--space-2);
+  font-size: var(--step-1);
+}
+
+.sb-progress {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--step--1);
+}
+
+.sb-progress[data-hidden="true"] {
+  visibility: hidden;
+}
+
+.sb-bar {
+  display: flex;
+  height: 24px;
+  border: 2px solid var(--rule-strong);
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--block-waste) 0 1.5px,
+    var(--surface) 1.5px 5px
+  );
+}
+
+.sb-bar__weights {
+  background: var(--ink);
+}
+
+.sb-bar__kv {
+  position: relative;
+  background: var(--block-free);
+  border-left: 2px solid var(--surface);
+}
+
+.sb-bar__used {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--ink-2);
+}
+
+.sb-summary {
+  margin: var(--space-3) 0;
+}
+
+.sb-summary dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  font-size: var(--step--1);
+}
+
+.sb-summary dt {
+  color: var(--ink-2);
+}
+
+.sb-summary dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+/* A fixed layout: values arriving never move the columns (CLS 0). */
+.sb-diff {
+  width: 100%;
+  table-layout: fixed;
+  margin: var(--space-3) 0;
+  border-collapse: collapse;
+  font-size: var(--step--1);
+}
+
+.sb-diff caption {
+  text-align: left;
+  font-weight: 700;
+}
+
+/* Left-aligned: a value replacing "–" keeps its start, so nothing shifts. */
+.sb-diff th,
+.sb-diff td {
+  padding: var(--space-1) var(--space-2);
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+}
+
+.sb-diff th[scope="row"] {
+  text-align: left;
+  font-weight: 400;
+}
+
+.sb-charts {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.sb-status {
+  min-height: calc(var(--target) + var(--space-2));
+}
+
+.sb-grid > .sb-sub {
+  min-height: 1.6em;
+}
+
+.sb-events__list {
+  height: 16rem;
+  overflow-y: auto;
+  margin: 0;
+  padding-left: var(--space-4);
+  font-size: var(--step--2);
+}
+
+.sb-diff th:nth-child(1) {
+  width: 34%;
+}
+
+.sb-diff th:nth-child(4) {
+  width: 22%;
+}
