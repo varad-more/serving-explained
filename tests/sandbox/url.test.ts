@@ -138,14 +138,17 @@ describe("share links", () => {
     )
     .map((c) => clampConfig(c));
 
-  it("random valid configs round-trip to an equal config and hash", () => {
+  // An equal built engine config means an equal log hash: the engine is
+  // deterministic (tests/sim/properties.test.ts, invariant 6). Running the
+  // sims here made some random configs take 30 s on CI.
+  it("random valid configs round-trip to an equal config and engine config", () => {
     fc.assert(
       fc.property(config, (c) => {
         const parsed = parseLink(encodeLink({ a: c, b: c, h: null, hb: null }));
         expect(parsed.notices).toEqual([]);
         expect(parsed.a).toEqual(c);
         expect(parsed.b).toEqual(c);
-        expect(hashOf(parsed.a)).toBe(hashOf(c));
+        expect(buildConfig(parsed.a)).toEqual(buildConfig(c));
       }),
       { numRuns: 40 },
     );
