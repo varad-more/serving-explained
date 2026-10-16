@@ -1,0 +1,46 @@
+name: Bug report
+description: Something on the site looks broken or behaves wrongly.
+title: "Bug: "
+labels: ["bug"]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: The address of the page, and the figure if it is one.
+      placeholder: https://varadmore.me/serving-explained/continuous-batching/ — Figure 3.6
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and OS
+      placeholder: Safari 26 on iOS 26
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open …
+        2. Press Play …
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: input
+    id: share-link
+    attributes:
+      label: Sandbox share link
+      description: If it happened in the sandbox, paste its link from "Copy link". The link reproduces the run exactly.

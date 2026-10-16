@@ -2,13 +2,14 @@ serving-explained: license for text and media
 
 Copyright 2026 Varad More
 
-The code in this repository is licensed under the Apache License 2.0
-(see LICENSE). The text and media are licensed under the Creative Commons
-Attribution 4.0 International license (CC BY 4.0), reproduced below:
+The text and media listed below are licensed under the Creative Commons
+Attribution 4.0 International license (CC BY 4.0), reproduced below.
+Everything else in this repository is licensed under the Apache License 2.0
+(see LICENSE).
 
-- chapter and page text: src/chapters/**/*.mdx and src/chapters/glossary.ts
-- figures, captures, and preview images: media/, public/og/, and
-  docs/launch/*.png
+- chapter and glossary text: src/chapters/**/*.mdx and
+  src/chapters/glossary.ts
+- captures and preview images: media/, public/og/, and docs/launch/*.png
 
 Attribution: "serving-explained by Varad More,
 https://varadmore.me/serving-explained/, CC BY 4.0".

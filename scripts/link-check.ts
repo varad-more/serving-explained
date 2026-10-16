@@ -27,7 +27,7 @@ export function verdict(status: number, headers: Headers): Verdict {
   return "fail";
 }
 
-interface Result {
+export interface Result {
   url: string;
   status: number;
   final: string;
@@ -61,6 +61,19 @@ async function check(url: string): Promise<Result> {
   return last;
 }
 
+/** Checks URLs eight at a time; results in URL order. */
+export async function checkUrls(urls: readonly string[]): Promise<Result[]> {
+  const results: Result[] = [];
+  const queue = [...urls];
+  await Promise.all(
+    Array.from({ length: 8 }, async () => {
+      for (let u = queue.shift(); u; u = queue.shift())
+        results.push(await check(u));
+    }),
+  );
+  return results.sort((a, b) => a.url.localeCompare(b.url));
+}
+
 async function main() {
   const files = execFileSync(
     "git",
@@ -86,15 +99,7 @@ async function main() {
     for (const u of JSON.parse(readFileSync(f, "utf8")) as string[]) add(u, f);
 
   const urls = [...where.keys()].sort();
-  const results: Result[] = [];
-  const queue = [...urls];
-  await Promise.all(
-    Array.from({ length: 8 }, async () => {
-      for (let u = queue.shift(); u; u = queue.shift())
-        results.push(await check(u));
-    }),
-  );
-  results.sort((a, b) => a.url.localeCompare(b.url));
+  const results = await checkUrls(urls);
   const report = results.map((r) => ({
     ...r,
     from: [...(where.get(r.url) ?? [])],

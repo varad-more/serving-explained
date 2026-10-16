@@ -4,6 +4,15 @@ Mistakes, corrections, and surprises. Newest first.
 
 ## 2026-10-16
 
+- **`spawn("pnpm", ["exec", "vite", …])` leaves vite running after
+  `kill()`.** Only the pnpm wrapper dies. Preview servers from Oct 2, 9,
+  and 15 still held ports 4173–4177, and a new server with `--strictPort`
+  quietly failed, so a script screenshotted the wrong build. Rule: spawn the
+  binary itself, pick a port nothing uses, and check the page is the build
+  you expect.
+- **Show HN calls "reading material" off topic.** An explainer can read as
+  one. Rule: lead with what people can do on the page.
+
 - **Moving work off load can move it into mount.** Chapter 3's figures
   reused runs its module had already made. With the numbers built ahead of
   time, the inline figures at 412 px ran the sweep on mount: still 114 ms.

@@ -1,0 +1,38 @@
+name: Technical error
+description: A claim or number on the site that its source does not support, or that is wrong.
+title: "Technical error: "
+labels: ["technical-error"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you. Corrections are fixed first, get a test, and are credited in CHANGELOG.md.
+  - type: textarea
+    id: claim
+    attributes:
+      label: The claim
+      description: Quote the sentence or number exactly as the site shows it.
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Where it appears
+      description: The page and section, for example "Paged attention, step 3" or "Figure 3.6".
+      placeholder: https://varadmore.me/serving-explained/paged-attention/ — step 3
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Your source
+      description: A link to a paper, official docs, or source code at a commit, with the section or lines.
+      placeholder: https://github.com/vllm-project/vllm/blob/<commit>/vllm/v1/core/block_pool.py#L777-L808
+    validations:
+      required: true
+  - type: textarea
+    id: correct
+    attributes:
+      label: What you think is correct
+      description: Optional.

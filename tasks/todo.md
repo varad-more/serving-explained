@@ -3084,6 +3084,62 @@ All captures are recorded from the production build (`vite preview`) by
 - **Links:** every link in README.md and `docs/launch/` resolves, through the
   link-check script from AUDIT.md m2.
 
+### Build log (Build 7, 2026-10-16)
+
+- [x] Community rules re-read 2026-10-16 by a sub-agent: HN guidelines,
+      Show HN, dang's tips, docs.x.com, LinkedIn a528176, and GitHub docs
+      confirmed. Show HN calls "reading material" off topic, so the fact
+      sheet says to lead with what people can do. A moderator states the
+      80-character limit (item 48210728). Reddit blocked every read and the
+      Wayback Machine rate limited, so both subreddits' rules are marked
+      unverified, from the 2026-10-01 check.
+- [x] Previews: `/og-cards/` (VITE_OG=1, `pnpm build:og`) and `gen-og`:
+      7 cards at 1200×630 and the 1280×640 social preview (210 KB).
+- [x] Captures from the live site (`CAPTURE_BASE`), each 8.0–9.0 s and
+      looping: kv-cache 354 KB, paged-attention 2.55 MB, continuous-batching
+      1.87 MB, prefix-caching 1.31 MB; heroes 2.48 MB (paged) and 1.89 MB
+      (batching), both 600×1092.
+- [x] Hero frame-strip test: a fresh sub-agent saw 6-frame strips with no
+      caption. It read the paged candidate correctly at frame 1, with high
+      confidence ("Waste 84%" against "Waste 3%"). It read the batching
+      candidate correctly at frame 4, with medium-high confidence; its
+      numbers sit in small tables. **Recommended: `media/hero-paged.gif`**,
+      which the README and LinkedIn use. The author picks.
+- [x] Files: README, CONTRIBUTING, CHANGELOG, four issue forms, and
+      docs/launch/ (repo-settings, show-hn, reddit-localllama,
+      reddit-machinelearning, x-thread, linkedin, checklist).
+- [x] `tests/launch.test.ts`: 45 tests. The link check runs with
+      `pnpm test:links`.
+- [x] Fresh-eyes review by a sub-agent that wrote none of the texts: 4
+      must-fix, 15 should-fix, 19 nits. All fixed except the optional
+      calibration line for r/MachineLearning. Main fixes:
+      - X post 2 no longer says the weights don't set the limit
+      - simulated numbers are labeled, and static is called a teaching
+        baseline
+      - the test claims are narrowed to tagged claims about the sim
+      - Show HN's "non-trivial" rule is quoted, with how the site was built
+      - the measured callout has its model, image, run count, TTFT and file
+      - posts sit in `text` blocks, ready to paste
+      - `v1.0.0-rc` exists once tagged; CHANGELOG and CONTRIBUTING links are
+        now link-checked
+
+### Deviations from the plan (reported)
+
+- Captures come from the live site, not a local `vite preview`, per the
+  author's prompt. The live build matches local `dist` (same asset hashes).
+- The link test is opt-in (`pnpm test:links`), so `pnpm test` and CI never
+  fail on another site's outage. It passed on 2026-10-16.
+- The writing-rules test also covers CHANGELOG.md, and a test checks that
+  CONTRIBUTING quotes the truth rules exactly as CLAUDE.md states them.
+- The two hero candidates share the taller figure's size (600×1092).
+- Cards: the landing card shows the hero's widget. The sandbox card frames
+  the real A/B page. The glossary card lists terms, as it has no widget.
+- r/LocalLLaMA's rule 3, as recorded on 2026-10-01, bans primarily
+  LLM-generated "copy, code". The fact sheet flags that this repo's commits
+  are co-authored by an AI assistant, for the author to decide.
+- GitHub documents no 350-character limit for descriptions;
+  repo-settings.md says so. The description is 131 characters.
+
 ### Report after writing
 
 - every file written
