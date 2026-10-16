@@ -4,6 +4,7 @@ import models from "../../data/models.json" with { type: "json" };
 import { href } from "../../router.ts";
 import type { BaseLengthDist, LengthDist } from "../../sim/index.ts";
 import { modelName } from "./build.ts";
+import { SourceLink } from "../ui/SourceLink.tsx";
 import { PresetDescription } from "./presets.tsx";
 import {
   BLOCK_SIZES,
@@ -501,7 +502,13 @@ export function Controls({
           label="GPU memory fraction"
           config={c}
           set={set}
-          help="vLLM's gpu_memory_utilization: the share of memory it may use."
+          help={
+            <>
+              vLLM&apos;s gpu_memory_utilization: the share of GPU memory it may
+              use (<SourceLink id="vllm-src" at="config/cache.py L101" />
+              ).
+            </>
+          }
         >
           {(id) => (
             <NumberInput
@@ -638,7 +645,14 @@ export function Controls({
           label="max_num_seqs"
           config={c}
           set={set}
-          help="vLLM's default is 256 on GPUs under 70 GB, and 1,024 on larger GPUs other than A100s."
+          help={
+            <>
+              vLLM&apos;s default is 256 on GPUs under 70 GB, and 1,024 on
+              larger GPUs other than A100s (
+              <SourceLink id="vllm-src" at="engine/arg_utils.py L2866–2895" />
+              ).
+            </>
+          }
         >
           {(id) => (
             <NumberInput
@@ -658,9 +672,16 @@ export function Controls({
           config={c}
           set={set}
           help={
-            c.cp
-              ? "vLLM's default for vllm serve is 2,048 on GPUs under 70 GB."
-              : `Chunked prefill is off, so the budget is raised to max_model_len (${top < c.ml ? String(top) : String(c.ml)}), as vLLM does when no budget is set.`
+            c.cp ? (
+              <>
+                vLLM&apos;s default for vllm serve is 2,048 on GPUs under 70 GB
+                (
+                <SourceLink id="vllm-src" at="engine/arg_utils.py L2866–2895" />
+                ).
+              </>
+            ) : (
+              `Chunked prefill is off, so the budget is raised to max_model_len (${top < c.ml ? String(top) : String(c.ml)}), as vLLM does when no budget is set.`
+            )
           }
         >
           {(id) => (
