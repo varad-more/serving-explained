@@ -3,9 +3,14 @@
  * Playwright drives a scripted interaction on the built site, 600 CSS px wide
  * at 2×; Chromium's screencast records it, and ffmpeg writes
  * media/<slug>.mp4 (H.264, 2×) and media/<slug>.gif (12 fps, 600 px).
- * Fails if the clip is outside 6–10 s or the GIF is 3 MB or larger.
+ * Each clip loops: a script ends in its start state, or its last 0.4 s
+ * cross-fades to its first frame. Fails if the clip is outside 6–10 s, a
+ * chapter GIF is 3 MB or larger, or a hero GIF is 5 MB or larger.
  *
  *   pnpm capture kv-cache
+ *   CAPTURE_BASE=https://varadmore.me/serving-explained/ pnpm capture hero-paged
+ *
+ * With CAPTURE_BASE set, it records that deployed site instead of dist.
  */
 import { spawn, spawnSync } from "node:child_process";
 import {
@@ -19,10 +24,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { chromium, type Locator, type Page } from "@playwright/test";
 
-const PORT = 4175;
+// Not 4173–4177: other preview servers may hold those.
+const PORT = 4185;
 const WIDTH = 600;
 const SCALE = 2;
 const MAX_GIF_BYTES = 3_000_000;
+const MAX_HERO_BYTES = 5_000_000;
+/** The last 0.4 s of a playback clip fades back to its first frame. */
+const FADE_S = 0.4;
 const CLIP = { min: 6, max: 10 };
 
 interface Scene {
@@ -34,6 +43,8 @@ interface Scene {
   setup: (fig: Locator, page: Page) => Promise<void>;
   /** The recorded interaction. */
   run: (fig: Locator, page: Page) => Promise<void>;
+  /** "script" ends in its start state; "fade" cross-fades back to it. */
+  loop: "script" | "fade";
 }
 
 const pause = (page: Page, ms: number) => page.waitForTimeout(ms);
@@ -69,8 +80,18 @@ const SCENES: Record<string, Scene> = {
       await pause(page, 900);
       await fig.getByLabel("Requests at once").focus();
       await keys(page, "ArrowRight", 4, 550); // 1 → 2 → 3 → 4 → 6
-      await pause(page, 900);
+      await pause(page, 700);
+      // Then back to the start state, so the clip loops.
+      await page.keyboard.press("Home"); // 1 request
+      await pause(page, 300);
+      await fig.getByLabel("bf16, 2 bytes").check();
+      await pause(page, 300);
+      await fig.getByLabel("Context length").focus();
+      await page.keyboard.press("Home");
+      await keys(page, "ArrowRight", 4, 0); // 1K
+      await pause(page, 600);
     },
+    loop: "script",
   },
   // Compare mode at 2× from t = 0: the same requests on both allocators.
   "paged-attention": {
@@ -86,6 +107,7 @@ const SCENES: Record<string, Scene> = {
       await fig.getByRole("button", { name: "Play" }).click();
       await pause(page, 8000);
     },
+    loop: "fade",
   },
   // Caching off vs. on at 2× from t = 0: the same requests, both caches.
   "prefix-caching": {
@@ -101,6 +123,7 @@ const SCENES: Record<string, Scene> = {
       await fig.getByRole("button", { name: "Play" }).click();
       await pause(page, 8000);
     },
+    loop: "fade",
   },
   // Static vs. continuous at 2× from t = 0: the same requests, both schedulers.
   "continuous-batching": {
@@ -115,8 +138,20 @@ const SCENES: Record<string, Scene> = {
       await fig.getByRole("button", { name: "Play" }).click();
       await pause(page, 8000);
     },
+    loop: "fade",
   },
 };
+
+// Prompt 9 decision 2: the two hero candidates, the same length and size.
+const HEROES = {
+  "hero-paged": "paged-attention",
+  "hero-batching": "continuous-batching",
+} as const;
+for (const [hero, slug] of Object.entries(HEROES)) {
+  const scene = SCENES[slug];
+  if (scene) SCENES[hero] = scene;
+}
+const isHero = (slug: string): slug is keyof typeof HEROES => slug in HEROES;
 
 function run(cmd: string, args: string[]) {
   const r = spawnSync(cmd, args, { stdio: ["ignore", "pipe", "pipe"] });
@@ -151,33 +186,51 @@ async function main() {
     console.error("ffmpeg is missing. Install it with: brew install ffmpeg");
     process.exit(1);
   }
-  if (!existsSync(`dist/${slug}/index.html`)) {
-    console.error(`dist/${slug}/index.html is missing. Run pnpm build first.`);
+  const page_ = isHero(slug) ? HEROES[slug] : slug;
+  const live = process.env.CAPTURE_BASE;
+  if (!live && !existsSync(`dist/${page_}/index.html`)) {
+    console.error(`dist/${page_}/index.html is missing. Run pnpm build first.`);
     process.exit(1);
   }
 
-  const server = spawn(
-    "pnpm",
-    ["exec", "vite", "preview", "--port", String(PORT), "--strictPort"],
-    { stdio: "ignore" },
-  );
+  // The vite binary itself, not `pnpm exec`, so kill() stops the server.
+  const server = live
+    ? null
+    : spawn(
+        "node_modules/.bin/vite",
+        ["preview", "--port", String(PORT), "--strictPort"],
+        { stdio: "ignore" },
+      );
   const browser = await chromium.launch();
   try {
-    const root = `http://localhost:${String(PORT)}/serving-explained/`;
+    const root = live ?? `http://localhost:${String(PORT)}/serving-explained/`;
     await waitFor(root);
 
-    // Size the frame to the figure, measured with the capture layout.
-    const probe = await browser.newPage({
-      viewport: { width: WIDTH, height: 900 },
-    });
-    await probe.goto(`${root}${slug}/`);
-    await probe.addStyleTag({ content: scene.css });
-    const height = Math.ceil(
-      await probe
-        .locator(".figure", { hasText: `Fig. ${scene.figure}` })
-        .evaluate((el) => el.getBoundingClientRect().height),
-    );
-    await probe.close();
+    // Size the frame to the figure, measured with the capture layout. Both
+    // hero candidates take the taller one's height, so they match.
+    const measure = async (path: string, s: Scene) => {
+      const probe = await browser.newPage({
+        viewport: { width: WIDTH, height: 900 },
+      });
+      await probe.goto(`${root}${path}/`);
+      await probe.addStyleTag({ content: s.css });
+      const h = await probe
+        .locator(".figure", { hasText: `Fig. ${s.figure}` })
+        .evaluate((el) => el.getBoundingClientRect().height);
+      await probe.close();
+      return Math.ceil(h);
+    };
+    const height = isHero(slug)
+      ? Math.max(
+          ...(await Promise.all(
+            Object.values(HEROES).map((p) => {
+              const s = SCENES[p];
+              if (!s) throw new Error(`no scene ${p}`);
+              return measure(p, s);
+            }),
+          )),
+        )
+      : await measure(page_, scene);
 
     const dir = mkdtempSync(join(tmpdir(), "capture-"));
     const context = await browser.newContext({
@@ -186,7 +239,7 @@ async function main() {
       colorScheme: "light",
     });
     const page = await context.newPage();
-    await page.goto(`${root}${slug}/`);
+    await page.goto(`${root}${page_}/`);
     await page.addStyleTag({ content: scene.css });
     await page.evaluate(() => document.fonts.ready);
     const fig = page.locator(".figure", {
@@ -235,6 +288,7 @@ async function main() {
     mkdirSync("media", { recursive: true });
     const mp4 = `media/${slug}.mp4`;
     const gif = `media/${slug}.gif`;
+    const raw = join(dir, "raw.mp4");
     run("ffmpeg", [
       "-y",
       "-f",
@@ -255,8 +309,47 @@ async function main() {
       "yuv420p",
       "-movflags",
       "+faststart",
-      mp4,
+      scene.loop === "fade" ? raw : mp4,
     ]);
+    if (scene.loop === "fade") {
+      // The last FADE_S seconds cross-fade into the first frame, so the GIF
+      // loops without a jump; the clip keeps its length.
+      const rawSeconds = Number(
+        run("ffprobe", [
+          "-v",
+          "error",
+          "-show_entries",
+          "format=duration",
+          "-of",
+          "csv=p=0",
+          raw,
+        ]).trim(),
+      );
+      run("ffmpeg", [
+        "-y",
+        "-i",
+        raw,
+        "-loop",
+        "1",
+        "-framerate",
+        "30",
+        "-t",
+        String(FADE_S),
+        "-i",
+        frames[0]?.file ?? "",
+        "-filter_complex",
+        `[1:v]fps=30,format=yuv420p,setsar=1,settb=AVTB[s];[0:v]fps=30,format=yuv420p,setsar=1,settb=AVTB[v];[v][s]xfade=transition=fade:duration=${String(FADE_S)}:offset=${(rawSeconds - FADE_S).toFixed(3)},format=yuv420p`,
+        "-c:v",
+        "libx264",
+        "-crf",
+        "28",
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
+        mp4,
+      ]);
+    }
     run("ffmpeg", [
       "-y",
       "-i",
@@ -286,13 +379,14 @@ async function main() {
       throw new Error(
         `clip is ${seconds.toFixed(2)} s; it must be ${String(CLIP.min)}–${String(CLIP.max)} s`,
       );
-    if (gifBytes >= MAX_GIF_BYTES)
+    const max = isHero(slug) ? MAX_HERO_BYTES : MAX_GIF_BYTES;
+    if (gifBytes >= max)
       throw new Error(
-        `GIF is ${String(gifBytes)} bytes; it must be under 3 MB`,
+        `GIF is ${String(gifBytes)} bytes; it must be under ${String(max / 1e6)} MB`,
       );
   } finally {
     await browser.close();
-    server.kill();
+    server?.kill();
   }
 }
 
