@@ -227,6 +227,39 @@ test.describe("sandbox: runs and links", () => {
     await waitDone(page);
   });
 
+  test("a worker that fails to load shows the error, not a run that never ends (AUDIT.md R2)", async ({
+    page,
+  }) => {
+    const errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    // As after a deploy replaces the hashed worker file under an open tab.
+    await page.route(/sim\.worker.*\.(js|ts)/, (r) => r.abort());
+    await open(page, 1440);
+    const run = page.locator("section.sb-run");
+    await expect(run).toHaveAttribute("data-status", "error", {
+      timeout: 10_000,
+    });
+    await expect(run.getByRole("alert")).toHaveText(
+      /worker failed to load or stopped\. Reload the page/,
+    );
+    expect(errors).toEqual([]);
+  });
+
+  test("without web workers, the run explains why it cannot start (AUDIT.md R2)", async ({
+    page,
+  }) => {
+    const errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    await page.addInitScript(() => {
+      (window as unknown as { Worker: undefined }).Worker = undefined;
+    });
+    await open(page, 1440);
+    const run = page.locator("section.sb-run");
+    await expect(run).toHaveAttribute("data-status", "error");
+    await expect(run.getByRole("alert")).toHaveText(/blocks web workers/);
+    expect(errors).toEqual([]);
+  });
+
   test("A/B: changing B's scheduler updates the diff table", async ({
     page,
   }) => {

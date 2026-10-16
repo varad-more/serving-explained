@@ -32,6 +32,12 @@ export interface RunState {
 
 const DEBOUNCE_MS = 150;
 
+/** Shown when the worker cannot start, or fails to load or crashes. */
+export const WORKER_FAILED =
+  "The engine could not run: its worker failed to load or stopped. Reload the page to try again.";
+export const NO_WORKER =
+  "The engine could not start: this browser blocks web workers here.";
+
 const empty = (): Series => ({
   t: new Float64Array(0),
   duration: new Float64Array(0),
@@ -135,8 +141,31 @@ export function useRun(config: SandboxConfig | null) {
     halt();
     if (!config) return;
     const timer = setTimeout(() => {
-      const w = startWorker();
+      const failed = (message: string): RunState => ({
+        key,
+        status: "error",
+        progress: null,
+        series: empty(),
+        done: null,
+        error: { code: "worker", message },
+        startedAt: 0,
+      });
+      let w: Worker;
+      try {
+        w = startWorker();
+      } catch {
+        setState(failed(NO_WORKER));
+        return;
+      }
       worker.current = w;
+      // A script that fails to load (a deploy replaced it, or it is
+      // blocked) or an uncaught error inside the worker ends the run.
+      w.onerror = (e) => {
+        e.preventDefault();
+        if (worker.current !== w) return;
+        halt();
+        setState(failed(WORKER_FAILED));
+      };
       setFrame(null);
       setEvents(null);
       rows.current = new Growing();
