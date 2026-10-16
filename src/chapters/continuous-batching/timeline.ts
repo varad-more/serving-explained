@@ -170,6 +170,37 @@ export function buildTimeline(
   events: readonly SimEvent[],
   config: SimConfig,
 ): Timeline {
+  const tl = lanes(events, config, true);
+  return {
+    ...tl,
+    ttft: prefixStats(tl.firsts.map((f) => f.ttft)),
+    itl: prefixStats(tl.gaps.map((g) => g.itl)),
+    m: metrics(events, config),
+  };
+}
+
+/** The timeline's lanes, steps, and queue only: what the sandbox draws. */
+export type Lanes = Omit<
+  Timeline,
+  "m" | "ttft" | "itl" | "firsts" | "gaps" | "tokens"
+>;
+
+/**
+ * Lanes without the per-token lists, for runs of thousands of requests: the
+ * sandbox's worker builds these, and computes TTFT and ITL from metrics().
+ */
+export function buildLanes(
+  events: readonly SimEvent[],
+  config: SimConfig,
+): Lanes {
+  return lanes(events, config, false);
+}
+
+function lanes(
+  events: readonly SimEvent[],
+  config: SimConfig,
+  perToken: boolean,
+): Omit<Timeline, "m" | "ttft" | "itl"> {
   const outputLen = new Map(config.requests.map((r) => [r.id, r.outputLen]));
   const arrival = new Map(config.requests.map((r) => [r.id, r.arrival]));
   const slots = new Map<number, number>();
@@ -244,6 +275,7 @@ export function buildTimeline(
       if (x.type === "DecodeToken") {
         if (!work.has(x.req)) work.set(x.req, "decode");
         generated.set(x.req, x.index + 1);
+        if (!perToken) continue;
         tl.tokens.push({ t: x.t });
         if (x.index === 0) {
           tl.firsts.push({
@@ -315,18 +347,11 @@ export function buildTimeline(
   const medianStep = durations[Math.floor((durations.length - 1) / 2)] ?? 0;
   for (const s of tl.steps) s.stall = s.t1 - s.t0 > STALL_FACTOR * medianStep;
   tl.segments.sort((a, b) => a.t0 - b.t0 || a.slot - b.slot);
-  return {
-    ...tl,
-    ttft: prefixStats(tl.firsts.map((f) => f.ttft)),
-    itl: prefixStats(tl.gaps.map((g) => g.itl)),
-    m: metrics(events, config),
-    medianStep,
-    duration: events.at(-1)?.t ?? 0,
-  };
+  return { ...tl, medianStep, duration: events.at(-1)?.t ?? 0 };
 }
 
 /** Requests waiting in the queue at time t, in queue order. */
-export function queueAt(tl: Timeline, t: number): number[] {
+export function queueAt(tl: Pick<Timeline, "queued">, t: number): number[] {
   return tl.queued
     .filter((q) => q.from <= t && t < q.to)
     .sort((a, b) => a.from - b.from || a.req - b.req)
