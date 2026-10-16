@@ -2811,7 +2811,20 @@ and method as audit 1. Stop after the report; fix nothing before approval.
 - [x] 5. Resilience: 84 external links, 27 in-site links, requests, no-JS,
       worker failure, 404, metadata.
 - [x] Rewrite docs/AUDIT.md as audit 2. Evidence in docs/audit/2/.
-- [ ] STOP: the author approves the fix order before anything is fixed.
+- [x] STOP: the author approved the fix order and the four claim changes
+      (C1-1, C2-1, C3-1, C3-2) on 2026-10-16; G1 the author fixed.
+
+### Audit 2: fixes (2026-10-16)
+
+- [x] G1: the repo is public again (the author). Link check: 0 failed.
+- [x] C1-1, C2-1, C3-1, C3-2, C4-1 (`a8bfa11`, `0e3189e`); a fresh
+      sub-agent re-checked each against its source.
+- [x] R2 (`7fc7f0b`), R1 (`1f081e2`), C2-2 (`115ce11`), P1 (`c484fd2`).
+- [x] CI flake in tests/sandbox/url.test.ts (`d325dbc`); Linux baselines
+      (`c905b47`); CI and deploy run 38875722282.
+- [x] Rerun the audit on the live site and record it in AUDIT.md ("Live,
+      after the fixes"): 0 blockers, 0 majors, 55 minors (P3 new). Tag
+      `v0.9-audited` on this commit; the minors go to the author.
 
 ### Audit 2: results
 

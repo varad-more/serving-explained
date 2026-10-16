@@ -37,7 +37,9 @@ interface Result {
 
 async function check(url: string): Promise<Result> {
   let last: Result = { url, status: 0, final: url, verdict: "fail" };
-  for (let attempt = 0; attempt < 2; attempt++) {
+  // GitHub answers bursts with brief 503s: wait and retry before failing.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await new Promise((r) => setTimeout(r, 3000 * attempt));
     try {
       const res = await fetch(url, {
         redirect: "follow",

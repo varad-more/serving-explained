@@ -1,0 +1,20 @@
+continuous-batching perf {"throttle":1,"eventEntries":126,"eventMax":24,"eventP95":24,"frames":300,"frameP50":16.699999999999818,"frameP95":16.700000000000728,"frameMax":16.800000000000182}
+continuous-batching perf {"throttle":4,"eventEntries":87,"eventMax":40,"eventP95":32,"frames":269,"frameP50":16.69999999999891,"frameP95":33.29999999999927,"frameMax":33.400000000001455}
+kv-cache perf {"throttle":1,"eventEntries":99,"eventMax":24,"eventP95":24,"frames":300,"frameP50":16.699999999999818,"frameP95":16.700000000000728,"frameMax":16.800000000000182}
+kv-cache perf {"throttle":4,"eventEntries":109,"eventMax":32,"eventP95":24,"frames":301,"frameP50":16.699999999999818,"frameP95":16.799999999999272,"frameMax":16.80000000000109}
+paged-attention perf {"throttle":1,"eventEntries":90,"eventMax":32,"eventP95":32,"frames":300,"frameP50":16.699999999999818,"frameP95":16.700000000000728,"frameMax":16.800000000000182}
+paged-attention perf {"throttle":4,"eventEntries":94,"eventMax":32,"eventP95":32,"frames":301,"frameP50":16.699999999999818,"frameP95":16.700000000000728,"frameMax":16.80000000000109}
+prefix-caching perf {"throttle":1,"eventEntries":113,"eventMax":32,"eventP95":24,"frames":300,"frameP50":16.699999999999818,"frameP95":16.700000000000728,"frameMax":16.800000000000182}
+prefix-caching perf {"throttle":4,"eventEntries":131,"eventMax":32,"eventP95":32,"frames":297,"frameP50":16.69999999999891,"frameP95":16.800000000000182,"frameMax":33.30000000000018}
+sandbox perf {"throttle":1,"presses":17,"runMs":2559,"inputsOver16msDuration":22,"maxInputDelay":0.8000000715255737,"frames":154,"frameP50":16.699999999999818,"frameP95":16.799999999999727,"frameMax":16.800000000000182}
+sandbox perf {"throttle":4,"presses":15,"runMs":3368,"inputsOver16msDuration":32,"maxInputDelay":8.799999952316284,"frames":193,"frameP50":16.699999999999818,"frameP95":16.800000000000182,"frameMax":66.79999999999973}
+sandbox A/B perf {"playback":{"inputsOver16msDuration":19,"maxInputDelay":0.8999999761581421,"frames":305,"frameP50":16.699999999999818,"frameP95":16.700000000000273,"frameMax":16.800000000000182},"change":{"inputsOver16msDuration":31,"maxInputDelay":0.6000000238418579,"frames":50,"frameP50":16.699999999999818,"frameP95":16.700000000000728,"frameMax":16.800000000000182}}
+
+# Long tasks on load (live, c905b47, Chromium):
+# kv-cache 412 1x [54] 4x [101]; 1440 1x [] 4x []
+# paged-attention 412 1x [] 4x [103,57]; 1440 1x [] 4x [109]
+# continuous-batching 412 1x [] 4x [52,70,63,64]; 1440 1x [] 4x [77]
+# prefix-caching 412 1x [] 4x [56,64,88,56,63]; 1440 1x [] 4x [72]
+# sandbox 412 and 1440, 1x and 4x: []
+
+# Lighthouse mobile reruns (perf, TBT): continuous-batching 99/121 ms, 99/117 ms; prefix-caching 100/90 ms, 99/94 ms

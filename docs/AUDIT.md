@@ -1,9 +1,10 @@
 # Launch audit
 
-Status: **audit 2, on the live site, 2026-10-15.** It audits
-https://varadmore.me/serving-explained/ as deployed from `7cdf3bc` (tag
-`v0.8-sandbox`, CI run 38852776686). Nothing is fixed yet; the fix order at
-the end waits for the author's approval.
+Status: **audit 2, on the live site, 2026-10-15; every major fixed on
+2026-10-16.** It audits https://varadmore.me/serving-explained/ as deployed
+from `7cdf3bc` (tag `v0.8-sandbox`, CI run 38852776686). The author approved
+the fix order; "Fixes" below records each fix and the rerun of the check
+that found it. The minors are open for the author to decide.
 
 Audit 1 ran on 2026-10-01, before the build. It is in git at `48d0d4b`, with
 its resolution log at `f7feb35`. Every audit 1 item appears below with its
@@ -62,18 +63,93 @@ Limits of this pass:
 | 1. Correctness | 0 | 5 | 46 | 0 |
 | 2. Accessibility | 0 | 1 | 5 | 0 |
 | 3. Mobile and browsers | 0 | 0 | 2 | 0 |
-| 4. Performance | 0 | 1 | 1 | 0 |
+| 4. Performance | 0 | 1 | 1 (+1 after fixes: P3) | 0 |
 | 5. Resilience | 0 | 2 | 0 | 0 |
 | **total** | **0** | **10** | **54** | **0** |
 
 Every item audit 1 marked "not run" ran this time (see "Before and after").
+After the fixes (2026-10-16): **0 blockers, 0 majors, 55 minors** (P3 is
+new: what P1 leaves on mobile).
+
+## Fixes (2026-10-16)
+
+Each major, in the approved order, with the check that found it, rerun.
+"Local" ran on the production build (`vite preview`); "live" ran on the
+site after CI run 38875722282 deployed `c905b47`.
+
+| item | fix | commit | check rerun | result |
+|---|---|---|---|---|
+| G1 | the author made the repo public | — | `scripts/link-check.ts`, anonymous `curl` | 85 links: 84 ok, 1 Cloudflare challenge (ACM DOI), 0 failed; SIM.md 200 |
+| C1-1 | sliding-window keeps fewer tokens | `a8bfa11` | fresh sub-agent against MATH.md L151 | fixed |
+| C2-1 | PagedAttention is the algorithm; vLLM's block manager hands out blocks | `a8bfa11` | fresh sub-agent against kwon2023 §1, §4 | fixed |
+| C3-1 | "from 1 to 64", and the trend is not at every level | `a8bfa11` | fresh sub-agent recomputed the medians from the raw JSONs | fixed |
+| C3-2 | states caching is off here and on by default in vLLM; new claim `caching-off-here` | `a8bfa11`, `0e3189e` | fresh sub-agent; `pnpm test` | partly at first: two cites incomplete, glossary overclaimed. Fixed in `0e3189e`. |
+| C4-1 | admission cites `scheduler.py` L873–1294 | `a8bfa11` | fresh sub-agent | fixed |
+| R2 | `useRun` handles the worker's `error` event and a failed constructor | `7fc7f0b` | `network.audit.ts` "worker failure", 3 browsers; two new e2e tests | blocked worker and no `Worker` both show the error, no page error; the tests fail on the old code |
+| R1 | a `<noscript>` message on every route | `1f081e2` | `network.audit.ts` "no JavaScript"; a new smoke test | every page shows "serving-explained needs JavaScript…" |
+| C2-2 | one neutral fill for held blocks in the summary strip | `115ce11` | a new render test; screenshots | 8 slots give 1 class; the 375 and 768 px diffs sit on the strip |
+| P1 | chapters 3–4 read prose numbers from generated JSON (`pnpm gen:figures`); Figure 3.7 reads its sweep points | `c484fd2` | long tasks on load; Lighthouse | live, 1× CPU: no task over 50 ms on chapters 3–4 at 412 or 1440 px (was 296–314 and 131–137 ms). Lighthouse mobile 99 and 99–100 (TBT 117–121 and 90–102 ms; was 73 and 82, TBT 1,694 and 715 ms). Desktop 100. The proposed gate was 100 on mobile: P3. |
+
+Changes beyond the fixes, each needed for the checks to pass:
+- The approved C3-1 sentence was 25 words, one over the writing rule; it
+  now reads "raised throughput and median TTFT". The claim is the same.
+- C3-2's re-check made two further changes, each to match its source. It
+  added `config/model.py` L2228–2230 and `scheduler.py` L930–938, and changed
+  the glossary's "any of its blocks" to "its leading blocks". The cache
+  lookup stops at the first miss.
+- `tests/sandbox/url.test.ts`: the random-config round trip compares built
+  engine configs instead of simulating each one twice. CI run 38870280620
+  failed when that took 32 s; the engine's determinism has its own test.
+- The audit scripts take `AUDIT_OUT` for their output folder.
+- Screenshot baselines: 22 Mac and 22 Linux (run 38874325842) changed,
+  the same 22 on each. The other 20 Linux baselines are byte-identical.
+- `scripts/link-check.ts` waits 3 s and 6 s before its retries: GitHub
+  answered one burst with a 503 that a second later was a 200.
+
+### Live, after the fixes
+
+The whole audit, rerun on the live site at `c905b47` with the same commands
+(`AUDIT_OUT=test-results/audit-2b`). Evidence:
+`docs/audit/2/results-after-fixes.json` and `perf-after-fixes.txt`.
+
+- **Audit suite** (3 browsers): 402 passed, 20 failed, 43 skipped. The 20
+  are open minors: A1 (axe `landmark-unique`, 12 landing runs) and the touch
+  check's known false positives (8). One counts a playhead that moved less
+  than one scrub step; the other, sliders already at their maximum.
+- **axe:** 108 runs; only A1.
+- **Tab walks:** every page in 3 browsers ends cleanly with a ring on every
+  stop. WebKit still shows B2.
+- **Live regions:** unchanged; A2 and A3 remain.
+- **Reduced motion:** passes everywhere.
+- **Sizes and themes:** 162 runs; overflow 0, no clipped labels, no small
+  targets.
+- **R1:** every page shows the no-JavaScript message.
+- **R2:** a blocked worker and a missing `Worker` both show the error, with
+  no page error, in all 3 browsers.
+- **Requests:** no third-party request and no cookie on any page.
+  - JS as served: at most 125 KB (sandbox).
+  - Chapter 3 is now 120 KB (was 121).
+- **404 and metadata:** unchanged, pass.
+- **In-site links:** 27, none broken.
+- **External links:** 85; 84 ok and 1 Cloudflare challenge.
+- **Lighthouse:** 100 on every route and form, except chapter 3 mobile 99
+  and chapter 4 mobile 99–100.
+- **Long tasks on load at 1×:** none on chapters 2–4 or the sandbox.
+  Chapter 1, unchanged, showed one 54 ms task at 412 px under load average 5;
+  audit 2 saw none there.
+- **Interaction suites** (smoke, 4 chapters, sandbox; 3 browsers): 331
+  passed, 74 skipped, 0 failed.
+- **`@perf`** (load average 12): 10 of 11 pass; chapter 3 at 4× fails as
+  before (P2).
+- **Checks:** `pnpm test` 355 passed; `pnpm typecheck`, `pnpm lint`, and
+  `pnpm build` pass. CI and deploy run 38875722282 passed.
 
 ## 0. Build state
 
 **B1 is resolved.** All 7 routes return 200 with their own HTML. The 404 page
 and the metadata are in §5.
 
-**G1 (major): the GitHub repo is private again.** Audit 1 recorded decision
+**G1 (major, fixed 2026-10-16 by the author): the GitHub repo is private again.** Audit 1 recorded decision
 B2.2 as "public, done 2026-10-02". Now:
 - `gh repo view varad-more/serving-explained` reports `"visibility":"PRIVATE"`.
 - Anonymous requests to the repo and to `docs/SIM.md` return 404.
@@ -133,18 +209,18 @@ are `docs/audit/2/review-*.md`.
 
 **Majors** (each re-checked against the source):
 
-- **C1-1:** chapter 1's "What this leaves out" says sliding-window attention
+- **C1-1:** *(fixed 2026-10-16)* chapter 1's "What this leaves out" says sliding-window attention
   stores "less KV per token" (`kv-cache/index.mdx:165`). The cited llmsize
   MATH.md "KV per token" section says the opposite: "A sliding-window layer
   has the same per-token cost; it just stores fewer tokens." Fix: say it
   stores fewer tokens.
-- **C2-1:** "The paper calls the whole design PagedAttention: a block
+- **C2-1:** *(fixed 2026-10-16)* "The paper calls the whole design PagedAttention: a block
   manager … and an attention kernel" (`paged-attention/index.mdx:72`, and the
   glossary's `pagedattention`). kwon2023 calls PagedAttention "an attention
   algorithm" (§1, §4: kwon2023.txt L174, L461–481). It builds vLLM's block
   manager on top. Fix: PagedAttention is the attention algorithm; vLLM adds
   the block manager.
-- **C3-1:** chapter 3's measured callout says "as more requests run at once,
+- **C3-1:** *(fixed 2026-10-16)* chapter 3's measured callout says "as more requests run at once,
   throughput and median TTFT both rise" (`continuous-batching/index.mdx:187`,
   and L181). The raw files disagree in the middle levels. Median TTFT at 1,
   4, 8, 16, 32, and 64 requests (recomputed here):
@@ -153,7 +229,7 @@ are `docs/audit/2/review-*.md`.
 
   Audit 1's m11 fix reached only the sentence with the numbers. Fix: "from 1
   to 64" in both sentences. No number changes.
-- **C3-2:** "Once admitted again, it computes its prompt and every token…
+- **C3-2:** *(fixed 2026-10-16)* "Once admitted again, it computes its prompt and every token…
   vLLM V1 recomputes this way" (`continuous-batching/index.mdx:102–103`, and
   the glossary's `preemption`). vLLM turns prefix caching on by default
   (`config/cache.py` L140; `arg_utils.py` L2964). A re-admitted request then
@@ -161,7 +237,7 @@ are `docs/audit/2/review-*.md`.
   chapters contradict each other. Chapter 3's runs have caching off, but the
   page never says so. Fix: state the condition, and add a "What this leaves
   out" line.
-- **C4-1:** the glossary's "Admission" cites `scheduler.py L563–684`
+- **C4-1:** *(fixed 2026-10-16)* the glossary's "Admission" cites `scheduler.py L563–684`
   (`glossary.ts:532`). That range is `schedule()`'s start and the loop over
   running requests (L629). Waiting requests start at L873 ("Next, schedule
   the WAITING requests"), and admission happens by L1294. Fix: cite
@@ -264,8 +340,8 @@ the dataviz palette validator; `docs/audit/2/contrast.txt`,
 - All-pairs still fails, as audit 1 found. Glyphs and patterns carry
   identity (M3).
 
-**C2-2 (major): the block grids' summary strip shows request identity by
-color only.** Below each block grid on mobile, held blocks are filled with
+**C2-2 (major, fixed 2026-10-16): the block grids' summary strip shows
+request identity by color only.** Below each block grid on mobile, held blocks are filled with
 their slot color (`BlockGrid.tsx:592–603`, `summary--slot-N`). There is no
 pattern or glyph. That breaks CLAUDE.md ("Color is never the only encoding")
 and DESIGN.md's request-mark rule; it is what remains of audit 1 M3. Fix: one
@@ -340,7 +416,8 @@ WebKit:**
   6.8 ms at 4×.
 - A/B playback passes: 305 frames in 5 s, max 16.8 ms.
 
-**P1 (major): chapters 3 and 4 block the main thread on load.** Their
+**P1 (major, fixed 2026-10-16; residual P3): chapters 3 and 4 block the
+main thread on load.** Their
 figure modules run the chapter's simulations when they are imported
 (`continuous-batching/figures.tsx:115`, `export const F`). Longest task on
 load (PerformanceObserver, Chromium, live):
@@ -352,6 +429,14 @@ During that time a tap or key press waits. Lighthouse scores chapter 3 at 73
 mobile and 83 desktop (TBT 1,694 and 383 ms), and chapter 4 at 82 mobile.
 Fix: compute the figures' numbers at build time (like `src/data`), or after
 first paint.
+
+**P3 (minor, added 2026-10-16): what P1 leaves on mobile.** At 412 px every
+inline figure mounts on load and runs its own simulations. That is 66–98 ms
+per figure at Lighthouse's 4× CPU, about a quarter of that at 1×. Lighthouse
+mobile: chapter 3 99 and chapter 4 99–100, against the gate of 100 proposed
+for P1. The fix would mount inline figures as they near the viewport. That
+touches the shared chapter layout, deep links, and the narrow-width tests,
+so it is the author's call.
 
 **P2 (minor): chapter 3's Figure 3.6 at 4× CPU sits at the edge of the 18 ms
 p95 rule.** It failed on the live site 3 times in 3 (p95 33.3 ms, max 33.4).
@@ -387,14 +472,14 @@ links to chapter sections.
   `og:*`, `twitter:card` `summary_large_image`, and `lang="en"`. Its
   preview image returns 200 at 1200 × 630.
 
-**R1 (major): without JavaScript every page is blank.** With JavaScript off,
+**R1 (major, fixed 2026-10-16): without JavaScript every page is blank.** With JavaScript off,
 every route returns 200 with its title, but the body's text is empty. There
 is no `<noscript>` message. Readers with scripts blocked see a white page with
 no explanation. Fix: a `<noscript>` line in `index.html`. Prerendering the
 prose is the larger option.
 
-**R2 (major): a sandbox worker that fails to load hangs the run, with no
-error.**
+**R2 (major, fixed 2026-10-16): a sandbox worker that fails to load hangs
+the run, with no error.**
 - If the worker script fails to load (blocked here with a route abort), the
   run stays at "Run, 0 of 0 requests done" indefinitely. `useRun.ts` has no
   `onerror` handler on the worker.
@@ -468,7 +553,7 @@ The live interaction suites (smoke, the four chapters, and the sandbox) ran
 in all three browsers as part of this audit: 322 passed, 74 skipped (the
 screenshot and perf tests), and none failed.
 
-## Fix order (proposed; waiting for approval)
+## Fix order (approved 2026-10-16; items 1–6 done, see "Fixes")
 
 1. **G1:** the author decides on repo visibility. If it stays private, move
    SIM.md onto the site. This is a setting, not code, and unblocks 39 links.

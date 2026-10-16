@@ -2,6 +2,20 @@
 
 Mistakes, corrections, and surprises. Newest first.
 
+## 2026-10-16
+
+- **Moving work off load can move it into mount.** Chapter 3's figures
+  reused runs its module had already made. With the numbers built ahead of
+  time, the inline figures at 412 px ran the sweep on mount: still 114 ms.
+  Rule: after moving work, measure at every layout, not only the wide one.
+- **A property test that runs the engine on random configs is a timing
+  lottery.** fast-check drew configs that took 32 s on CI. Rule: test what
+  the property is about (the link round trip) and lean on the engine's own
+  determinism test, instead of simulating every draw.
+- **Check an artifact's root before comparing it.** The baselines artifact
+  drops the `e2e/` prefix, so a byte compare against the wrong paths said
+  all 42 changed. Rule: confirm one known-unchanged file matches first.
+
 ## 2026-10-15
 
 - **A decision about outside state can undo itself.** Audit 1 recorded the
