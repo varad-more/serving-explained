@@ -54,13 +54,13 @@ reader is listed under "Fixed" and credits them, like this:
 - Chapter 3: continuous batching, with a measured callout from
   inference-engine-benchmark-system.
 
-## [0.5-ch2] - 2026-10-10
+## [0.5-ch2] - 2026-10-15
 
 ### Added
 
 - Chapter 2: paged attention.
 
-## [0.4-ch1] - 2026-10-02
+## [0.4-ch1] - 2026-10-04
 
 ### Added
 

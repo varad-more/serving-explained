@@ -1959,13 +1959,13 @@ as worded; no test is loosened.
 
 ### Landing (2026-10-15)
 
-- Rebased onto main 9cf86c5 (the re-dated chapter 2); dates left alone, as
+- Rebased onto main fcd2eb6 (the re-dated chapter 2); dates left alone, as
   the author asked.
 - Branch CI first failed on 1 px full-page height differences between Linux
   runs. Fixes: fixed SVG heights, then the screenshot test pins the page to
   a whole pixel (tasks/lessons.md). Baselines run 38823045279; branch CI
-  38823044900 green on e6a0d4a.
-- main fast-forwarded to e6a0d4a; CI and deploy run 38824231368 succeeded.
+  38823044900 green on c4a38bb.
+- main fast-forwarded to c4a38bb; CI and deploy run 38824231368 succeeded.
 - Live: `SMOKE_BASE_URL=https://varadmore.me/serving-explained/` smoke plus
   the kv-cache, paged-attention, and continuous-batching specs, 186 tests in
   three browsers, pass. og/continuous-batching.png returns 200.
@@ -2447,8 +2447,8 @@ Requests per decode step are 6.0 vs 4.5.
 
 - Rebased onto v0.6-ch3. Baselines run 38840114869 (the other 24 Linux
   files, chapter 2's included, were byte-identical); branch CI green on
-  9d73c95.
-- main fast-forwarded to 9d73c95; CI and deploy run 38841634233 succeeded.
+  484fdf4.
+- main fast-forwarded to 484fdf4; CI and deploy run 38841634233 succeeded.
 - Live: smoke plus all four chapter specs, 243 tests in three browsers,
   pass. og/prefix-caching.png returns 200.
 
@@ -2674,11 +2674,11 @@ covers it, a "What is this?" link to the chapter's anchor.
 
 ### Build log
 
-- [x] Step 1 (262f26e): the parameter table drives parsing, clamping,
+- [x] Step 1 (5ae84e1): the parameter table drives parsing, clamping,
   encoding, and notices; url.test checks it against SIM.md §12.1.
-- [x] Step 2 (821fa92): the worker, its message protocol, cancel by
+- [x] Step 2 (1a0876d): the worker, its message protocol, cancel by
   `terminate()`, and frames rebuilt by replaying events from keyframes.
-- [x] Steps 3 and 4 (de6fc79, 62c493f, ed9f711): controls, views, the A/B
+- [x] Steps 3 and 4 (fddb0d5, 2de5720, 9c40957): controls, views, the A/B
   diff, share links with hash checks, and the nine preset claims.
 - [x] Fresh-eyes review fixes (below), with new unit and e2e tests.
 - [x] Big pools: BlockGrid's summary strip drew one SVG rect per block
@@ -2757,8 +2757,8 @@ the chapters, so they stay.
 
 - Baselines run 38849111030: 12 new sandbox Linux files; the other 30,
   chapter 2's included, came back byte-identical. Branch CI green on
-  10403da (run 38849362725).
-- main fast-forwarded to 10403da; CI and deploy run 38850817535 succeeded.
+  d6f4340 (run 38849362725).
+- main fast-forwarded to d6f4340; CI and deploy run 38850817535 succeeded.
 - Live: smoke, all four chapter specs, and the sandbox spec, 322 tests in
   three browsers, pass.
 - Live share links, each "reproduced exactly" for A and B in all three
@@ -2817,11 +2817,11 @@ and method as audit 1. Stop after the report; fix nothing before approval.
 ### Audit 2: fixes (2026-10-16)
 
 - [x] G1: the repo is public again (the author). Link check: 0 failed.
-- [x] C1-1, C2-1, C3-1, C3-2, C4-1 (`a8bfa11`, `0e3189e`); a fresh
+- [x] C1-1, C2-1, C3-1, C3-2, C4-1 (`2400e25`, `101a314`); a fresh
       sub-agent re-checked each against its source.
-- [x] R2 (`7fc7f0b`), R1 (`1f081e2`), C2-2 (`115ce11`), P1 (`c484fd2`).
-- [x] CI flake in tests/sandbox/url.test.ts (`d325dbc`); Linux baselines
-      (`c905b47`); CI and deploy run 38875722282.
+- [x] R2 (`92948dd`), R1 (`f1974b9`), C2-2 (`c2f219d`), P1 (`b7ff702`).
+- [x] CI flake in tests/sandbox/url.test.ts (`6fef2fd`); Linux baselines
+      (`eb795c3`); CI and deploy run 38875722282.
 - [x] Rerun the audit on the live site and record it in AUDIT.md ("Live,
       after the fixes"): 0 blockers, 0 majors, 55 minors (P3 new). Tag
       `v0.9-audited` on this commit; the minors go to the author.
@@ -3147,6 +3147,41 @@ All captures are recorded from the production build (`vite preview`) by
 - the two hero candidates, so you can pick
 - what I need from you: the hero pick, your own text for HN and r/LocalLLaMA,
   and anything the rules check turns up
+
+## Commit re-dating (2026-10-16)
+
+The author asked to spread the commits after `v0.3-shell` across Oct 3–16,
+with commits on Oct 12 and 13. Only dates changed: every old and new commit
+has the same tree.
+
+- Chapter 1 moved to Oct 3–4; chapter 2 spread over Oct 5–13.
+- No commit sits earlier than a date its text records. So chapter 2's
+  revisions and chapter 4's STOP 1 moved to Oct 15.
+- Oct 11 and Oct 14 have no commits.
+- Tags `v0.4-ch1` to `v1.0.0-rc` moved to the new commits. `v0.0-decisions`
+  and `v0.3-shell` did not change.
+- docs/AUDIT.md and this file now cite the new SHAs. CI run pages and the raw
+  files in `docs/audit/2/` still show the old ones.
+
+Old to new:
+
+```text
+26db5db b176ca4  fba88e2 82d597e  fafec77 5d72961  99e1f42 b39c8bf
+a996c3e 9f140c3  54d6ee0 e2cb17f  31a579c 9f40910  e54f9cb b10194f
+dd5712e f358a80  51ea9d9 12c4c7a  1360b59 b2806b6  8f45f3c 607efd0
+6884c06 eb17b8e  29694da b49d312  82c6b97 ade2075  5cec6a5 2b8fa40
+71a941e 92294b2  9cf86c5 fcd2eb6  4ba3555 eb88a07  09f35ec 99a4636
+e68a537 38843cb  419fc6e 98b9196  202a6ef b906396  3b63ceb fa7f8c3
+9ae9a89 bf784d3  d590eff 88e5d38  8c4a825 6bc4de5  e6a0d4a c4a38bb
+a45be90 75c88ff  16c0c16 72f0da1  7dc4c67 4fd6b08  843b193 8bd5a31
+4fbbb36 42f5381  e005d9c a0b2639  9d73c95 484fdf4  848623f 246347f
+262f26e 5ae84e1  821fa92 1a0876d  de6fc79 fddb0d5  62c493f 2de5720
+ed9f711 9c40957  6582141 a5e1618  063b317 84f7291  10403da d6f4340
+7cdf3bc 27c8c45  b3b1dd7 bedd675  3aeeb1d de9d935  a8bfa11 2400e25
+7fc7f0b 92948dd  1f081e2 f1974b9  115ce11 c2f219d  0e3189e 101a314
+c484fd2 b7ff702  d325dbc 6fef2fd  c905b47 eb795c3  2bd1c32 6b051f9
+cf70cb8 ba79474  256fff6 0c4d7dd  b496d8a fd3cfaa
+```
 
 ## Backlog
 

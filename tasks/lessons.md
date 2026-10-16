@@ -251,3 +251,7 @@ Mistakes, corrections, and surprises. Newest first.
   step. Do not describe the "off" setting as the old V0 behavior.
 - **Eight hues cannot pass all-pairs CVD separation.** Only neighboring slots
   pass. Glyphs and patterns carry request identity; color is the third cue.
+- **Check dated text before re-dating commits.** The 2026-10-15 re-date put
+  chapter 2's revisions on Oct 10, though they record the author's Oct 15
+  answers. Rule: no commit moves earlier than a date its message or diff
+  records. Every cited SHA changes too, so update the docs that cite them.

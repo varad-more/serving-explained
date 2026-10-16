@@ -2,13 +2,16 @@
 
 Status: **audit 2, on the live site, 2026-10-15; every major fixed on
 2026-10-16.** It audits https://varadmore.me/serving-explained/ as deployed
-from `7cdf3bc` (tag `v0.8-sandbox`, CI run 38852776686). The author approved
+from `27c8c45` (tag `v0.8-sandbox`, CI run 38852776686). The author approved
 the fix order; "Fixes" below records each fix and the rerun of the check
 that found it. The minors are open for the author to decide.
 
 Audit 1 ran on 2026-10-01, before the build. It is in git at `48d0d4b`, with
 its resolution log at `f7feb35`. Every audit 1 item appears below with its
 before and after.
+
+Commits after `v0.3-shell` were re-dated on 2026-10-16. Raw files in
+`docs/audit/2/` cite the old SHAs; tasks/todo.md maps them.
 
 ## Method
 
@@ -75,20 +78,20 @@ new: what P1 leaves on mobile).
 
 Each major, in the approved order, with the check that found it, rerun.
 "Local" ran on the production build (`vite preview`); "live" ran on the
-site after CI run 38875722282 deployed `c905b47`.
+site after CI run 38875722282 deployed `eb795c3`.
 
 | item | fix | commit | check rerun | result |
 |---|---|---|---|---|
 | G1 | the author made the repo public | — | `scripts/link-check.ts`, anonymous `curl` | 85 links: 84 ok, 1 Cloudflare challenge (ACM DOI), 0 failed; SIM.md 200 |
-| C1-1 | sliding-window keeps fewer tokens | `a8bfa11` | fresh sub-agent against MATH.md L151 | fixed |
-| C2-1 | PagedAttention is the algorithm; vLLM's block manager hands out blocks | `a8bfa11` | fresh sub-agent against kwon2023 §1, §4 | fixed |
-| C3-1 | "from 1 to 64", and the trend is not at every level | `a8bfa11` | fresh sub-agent recomputed the medians from the raw JSONs | fixed |
-| C3-2 | states caching is off here and on by default in vLLM; new claim `caching-off-here` | `a8bfa11`, `0e3189e` | fresh sub-agent; `pnpm test` | partly at first: two cites incomplete, glossary overclaimed. Fixed in `0e3189e`. |
-| C4-1 | admission cites `scheduler.py` L873–1294 | `a8bfa11` | fresh sub-agent | fixed |
-| R2 | `useRun` handles the worker's `error` event and a failed constructor | `7fc7f0b` | `network.audit.ts` "worker failure", 3 browsers; two new e2e tests | blocked worker and no `Worker` both show the error, no page error; the tests fail on the old code |
-| R1 | a `<noscript>` message on every route | `1f081e2` | `network.audit.ts` "no JavaScript"; a new smoke test | every page shows "serving-explained needs JavaScript…" |
-| C2-2 | one neutral fill for held blocks in the summary strip | `115ce11` | a new render test; screenshots | 8 slots give 1 class; the 375 and 768 px diffs sit on the strip |
-| P1 | chapters 3–4 read prose numbers from generated JSON (`pnpm gen:figures`); Figure 3.7 reads its sweep points | `c484fd2` | long tasks on load; Lighthouse | live, 1× CPU: no task over 50 ms on chapters 3–4 at 412 or 1440 px (was 296–314 and 131–137 ms). Lighthouse mobile 99 and 99–100 (TBT 117–121 and 90–102 ms; was 73 and 82, TBT 1,694 and 715 ms). Desktop 100. The proposed gate was 100 on mobile: P3. |
+| C1-1 | sliding-window keeps fewer tokens | `2400e25` | fresh sub-agent against MATH.md L151 | fixed |
+| C2-1 | PagedAttention is the algorithm; vLLM's block manager hands out blocks | `2400e25` | fresh sub-agent against kwon2023 §1, §4 | fixed |
+| C3-1 | "from 1 to 64", and the trend is not at every level | `2400e25` | fresh sub-agent recomputed the medians from the raw JSONs | fixed |
+| C3-2 | states caching is off here and on by default in vLLM; new claim `caching-off-here` | `2400e25`, `101a314` | fresh sub-agent; `pnpm test` | partly at first: two cites incomplete, glossary overclaimed. Fixed in `101a314`. |
+| C4-1 | admission cites `scheduler.py` L873–1294 | `2400e25` | fresh sub-agent | fixed |
+| R2 | `useRun` handles the worker's `error` event and a failed constructor | `92948dd` | `network.audit.ts` "worker failure", 3 browsers; two new e2e tests | blocked worker and no `Worker` both show the error, no page error; the tests fail on the old code |
+| R1 | a `<noscript>` message on every route | `f1974b9` | `network.audit.ts` "no JavaScript"; a new smoke test | every page shows "serving-explained needs JavaScript…" |
+| C2-2 | one neutral fill for held blocks in the summary strip | `c2f219d` | a new render test; screenshots | 8 slots give 1 class; the 375 and 768 px diffs sit on the strip |
+| P1 | chapters 3–4 read prose numbers from generated JSON (`pnpm gen:figures`); Figure 3.7 reads its sweep points | `b7ff702` | long tasks on load; Lighthouse | live, 1× CPU: no task over 50 ms on chapters 3–4 at 412 or 1440 px (was 296–314 and 131–137 ms). Lighthouse mobile 99 and 99–100 (TBT 117–121 and 90–102 ms; was 73 and 82, TBT 1,694 and 715 ms). Desktop 100. The proposed gate was 100 on mobile: P3. |
 
 Changes beyond the fixes, each needed for the checks to pass:
 - The approved C3-1 sentence was 25 words, one over the writing rule; it
@@ -108,7 +111,7 @@ Changes beyond the fixes, each needed for the checks to pass:
 
 ### Live, after the fixes
 
-The whole audit, rerun on the live site at `c905b47` with the same commands
+The whole audit, rerun on the live site at `eb795c3` with the same commands
 (`AUDIT_OUT=test-results/audit-2b`). Evidence:
 `docs/audit/2/results-after-fixes.json` and `perf-after-fixes.txt`.
 
@@ -440,7 +443,7 @@ so it is the author's call.
 
 **P2 (minor): chapter 3's Figure 3.6 at 4× CPU sits at the edge of the 18 ms
 p95 rule.** It failed on the live site 3 times in 3 (p95 33.3 ms, max 33.4).
-Locally, the pre-sandbox build `848623f` failed 1 run in 2, and the current
+Locally, the pre-sandbox build `246347f` failed 1 run in 2, and the current
 build 1 in 2, under the same load. So it is not a regression; one frame in 20
 takes two vsyncs. No frame is over 50 ms.
 
