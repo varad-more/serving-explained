@@ -1,0 +1,254 @@
+{
+  "phase": {
+    "prompt": 1024,
+    "prefillCompute": 0.5308292501048889,
+    "prefillMemory": 0.03883102239893216,
+    "decodeCompute": 0.0005269180220952381,
+    "decodeMemory": 0.038831358480983444,
+    "decodeRate": 25.752382587637815,
+    "crossover": 76
+  },
+  "mbu": 0.65,
+  "mfu": 0.45,
+  "basics": {
+    "requests": 48,
+    "rate": 1.2,
+    "maxNumSeqs": 8,
+    "outputMedian": 80,
+    "sigma": 1,
+    "window": 20,
+    "bubbles": 49.25409707841163,
+    "lastArrival": 40.250679382062884,
+    "halfWindow": 20.125339691031442,
+    "queueFirstHalf": 2.697777628434591,
+    "queueSecondHalf": 8.247132038904558,
+    "queueStatic": 5.472454833669575,
+    "queueContinuous": 0,
+    "ttftStatic": {
+      "mean": 12.795775001629798,
+      "p50": 6.7857000823700275,
+      "p90": 35.426001560151335,
+      "p99": 40.539405779937454
+    },
+    "ttftContinuous": {
+      "mean": 0.10981286805685386,
+      "p50": 0.1068955059125205,
+      "p90": 0.15982833477003666,
+      "p99": 0.22703079669220472
+    },
+    "tputStatic": 53.49971360441139,
+    "tputContinuous": 85.25340940320997
+  },
+  "preempt": {
+    "blocks": 80,
+    "blockSize": 16,
+    "tokens": 1280,
+    "count": 7
+  },
+  "stall": {
+    "requests": 80,
+    "long": 14,
+    "longShare": 15,
+    "longFrom": 6000,
+    "longTo": 7500,
+    "budget": 2048,
+    "maxModelLen": 8192,
+    "offP50": 0.04134995737329206,
+    "offP99": 3.859970576709074,
+    "ratio": 93.34884052872638,
+    "offMax": 4.358346665398855,
+    "onP99": 1.2176784867067951,
+    "onMax": 1.2473219299555574,
+    "a2fOff": 3.8230087186250885,
+    "a2fOn": 4.026135239069316,
+    "ttftOff": 24.248460207917276,
+    "ttftOn": 23.980287986855732,
+    "sharedOn": {
+      "otherPrefill": 5144,
+      "decodes": 339
+    },
+    "sharedOff": {
+      "otherPrefill": 200,
+      "decodes": 89
+    }
+  },
+  "rare": {
+    "share": 2,
+    "long": 2,
+    "stepShareOff": 0.22701475595913734,
+    "stepShareOn": 0.7927519818799547,
+    "gapShareOff": 0.26472534745201853,
+    "gapShareOn": 0.9044782704610633,
+    "maxOff": 4.085810182111494,
+    "maxOn": 1.2178982049889555,
+    "p99Off": 0.1279778836805079,
+    "p99On": 0.13180104352914412
+  },
+  "sweep": {
+    "points": [
+      {
+        "budget": 64,
+        "throughput": 57.78056092945411,
+        "p99Itl": 0.042639168122008186,
+        "longTtft": 23.759843577135562
+      },
+      {
+        "budget": 128,
+        "throughput": 62.54417535447078,
+        "p99Itl": 0.07848965851428602,
+        "longTtft": 20.305258588984653
+      },
+      {
+        "budget": 256,
+        "throughput": 60.39880788244386,
+        "p99Itl": 0.15716135315098256,
+        "longTtft": 21.363940364096543
+      },
+      {
+        "budget": 512,
+        "throughput": 58.27929456891835,
+        "p99Itl": 0.31432194067505037,
+        "longTtft": 22.633855414492764
+      },
+      {
+        "budget": 1024,
+        "throughput": 56.94030619944543,
+        "p99Itl": 0.6169723649787926,
+        "longTtft": 23.414788847343164
+      },
+      {
+        "budget": 2048,
+        "throughput": 56.11936708155991,
+        "p99Itl": 1.2176784867067951,
+        "longTtft": 23.980287986855732
+      },
+      {
+        "budget": 4096,
+        "throughput": 55.61954515763397,
+        "p99Itl": 2.227694652204704,
+        "longTtft": 24.27009318337951
+      },
+      {
+        "budget": 8192,
+        "throughput": 55.39383232648376,
+        "p99Itl": 3.859970576709074,
+        "longTtft": 24.291997604548786
+      }
+    ],
+    "count": 8,
+    "smallest": 64,
+    "largest": 8192,
+    "smallestTput": 57.78056092945411,
+    "smallestTtft": 23.759843577135562,
+    "smallestP99": 0.042639168122008186,
+    "best": 128,
+    "bestTput": 62.54417535447078,
+    "bestTtft": 20.305258588984653,
+    "largestP99": 3.859970576709074,
+    "memLargest": 24.55446396831036,
+    "memBest": 13.979181054929878,
+    "from": 512,
+    "to": 8192,
+    "ttftFrom": {
+      "mean": 24.313212870195564,
+      "p50": 27.84900814053321,
+      "p90": 35.66736293091478,
+      "p99": 38.61731149412424
+    },
+    "ttftTo": {
+      "mean": 26.61563127635069,
+      "p50": 30.435671633975584,
+      "p90": 40.02830768623713,
+      "p99": 42.02076862285594
+    },
+    "p99From": 0.31432194067505037,
+    "p99To": 3.859970576709074
+  },
+  "check": {
+    "from": 0,
+    "to": 1.5,
+    "gapFrom": 2.0679698481364652,
+    "gapTo": 20.958691125693218,
+    "meanFrom": 80,
+    "meanTo": 101.77083333333333
+  },
+  "measured": {
+    "gpu": "NVIDIA A10G, 23028 MiB",
+    "gpuLine": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L7",
+    "model": "meta-llama/Llama-3.1-8B-Instruct",
+    "modelLine": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L36",
+    "vllm1": {
+      "concurrency": 1,
+      "requests": 150,
+      "outputTokens": 38400,
+      "p50TtftMs": 41.15106549994607,
+      "seconds": 1272.009,
+      "outputTokPerS": 30.18846564764872,
+      "logLines": [
+        48,
+        49
+      ],
+      "file": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/results_concurrency64/llama-3-1-8b-instruct/throughput_ramp_extended_vllm_1776486559.json",
+      "log": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L48",
+      "image": "vllm/vllm-openai:v0.18.0-cu130",
+      "imageLine": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L15"
+    },
+    "vllm64": {
+      "concurrency": 64,
+      "requests": 150,
+      "outputTokens": 38400,
+      "p50TtftMs": 162.82645599994794,
+      "seconds": 30.011,
+      "outputTokPerS": 1279.5308386924794,
+      "logLines": [
+        53,
+        56
+      ],
+      "file": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/results_concurrency64/llama-3-1-8b-instruct/throughput_ramp_extended_vllm_1776486559.json",
+      "log": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L53",
+      "image": "vllm/vllm-openai:v0.18.0-cu130",
+      "imageLine": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L15"
+    },
+    "sglang1": {
+      "concurrency": 1,
+      "requests": 150,
+      "outputTokens": 38400,
+      "p50TtftMs": 69.86916800019571,
+      "seconds": 1272.003,
+      "outputTokPerS": 30.188608045735744,
+      "logLines": [
+        89,
+        90
+      ],
+      "file": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/results_concurrency64/llama-3-1-8b-instruct/throughput_ramp_extended_sglang_1776488646.json",
+      "log": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L89",
+      "image": "lmsysorg/sglang:v0.5.10.post1-cu130",
+      "imageLine": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L16"
+    },
+    "sglang64": {
+      "concurrency": 64,
+      "requests": 150,
+      "outputTokens": 38400,
+      "p50TtftMs": 156.12180250036545,
+      "seconds": 30.21,
+      "outputTokPerS": 1271.1022840119165,
+      "logLines": [
+        94,
+        97
+      ],
+      "file": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/results_concurrency64/llama-3-1-8b-instruct/throughput_ramp_extended_sglang_1776488646.json",
+      "log": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L94",
+      "image": "lmsysorg/sglang:v0.5.10.post1-cu130",
+      "imageLine": "https://github.com/varad-more/inference-engine-benchmark-system/blob/1c964318addd2c742b53b0f0cf4a2cad791cace9/logs/phase2_resume_20260418T042547.log#L16"
+    },
+    "prompts": 4,
+    "promptWords": {
+      "min": 13,
+      "max": 18
+    },
+    "vllmTputX": 42.3847589217287,
+    "sglangTputX": 42.10536246276067,
+    "vllmTtftX": 3.9567980566666328,
+    "sglangTtftX": 2.2344877857988537
+  }
+}

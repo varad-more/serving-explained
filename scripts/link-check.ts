@@ -5,8 +5,8 @@
  *
  * Usage: node scripts/link-check.ts [more-urls.json …]
  * Each extra file holds a JSON array of URLs (the audit's in-site crawl
- * writes one). Writes test-results/audit-2/links/external.json; exits 1 if
- * any link fails.
+ * writes one). Writes $AUDIT_OUT/links/external.json (default
+ * test-results/audit-2) and exits 1 if any link fails.
  */
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -97,11 +97,9 @@ async function main() {
     ...r,
     from: [...(where.get(r.url) ?? [])],
   }));
-  mkdirSync("test-results/audit-2/links", { recursive: true });
-  writeFileSync(
-    "test-results/audit-2/links/external.json",
-    JSON.stringify(report, null, 2),
-  );
+  const out = `${process.env.AUDIT_OUT ?? "test-results/audit-2"}/links`;
+  mkdirSync(out, { recursive: true });
+  writeFileSync(`${out}/external.json`, JSON.stringify(report, null, 2));
   const count = (v: Verdict) => results.filter((r) => r.verdict === v);
   console.log(
     `${String(urls.length)} links: ${String(count("ok").length)} ok, ${String(count("challenge").length)} Cloudflare challenge, ${String(count("fail").length)} failed`,

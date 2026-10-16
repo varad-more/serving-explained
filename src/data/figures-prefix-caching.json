@@ -1,0 +1,176 @@
+{
+  "requests": 60,
+  "rate": 1.5,
+  "prefixLen": 600,
+  "fraction": 90,
+  "capacity": 4096,
+  "blocks": 256,
+  "blockSize": 16,
+  "maxNumSeqs": 8,
+  "promptTokens": 600,
+  "repeated": {
+    "sharers": 54,
+    "preempted": 9,
+    "times": 63,
+    "example": 9,
+    "tokens": 37800
+  },
+  "chain": {
+    "full": 37,
+    "partial": 8
+  },
+  "hit": {
+    "ttftOn": 1.8683108969672224,
+    "ttftOff": 17.32760022855495,
+    "prefillOn": 9109,
+    "prefillOff": 47671,
+    "perSharer": 592,
+    "mostSharers": 8,
+    "memOn": 24.011174306771345,
+    "memOff": 46.856445724211035,
+    "maxOn": 8,
+    "maxOff": 6,
+    "queueOn": 2.3667956491245885,
+    "queueOff": 13.219147747862598,
+    "prefixStops": [
+      0,
+      100,
+      250,
+      600,
+      1000
+    ],
+    "fractions": [
+      {
+        "fraction": 25,
+        "rate": 36.281920326864146
+      },
+      {
+        "fraction": 50,
+        "rate": 64.23146473779386
+      },
+      {
+        "fraction": 75,
+        "rate": 74.24255379791934
+      },
+      {
+        "fraction": 100,
+        "rate": 79.22876261767041
+      }
+    ],
+    "sweep": [
+      {
+        "prefixLen": 0,
+        "hits": 0,
+        "gap": 0
+      },
+      {
+        "prefixLen": 100,
+        "hits": 94.22222222222223,
+        "gap": 0.8936305010967014
+      },
+      {
+        "prefixLen": 250,
+        "hits": 235.55555555555554,
+        "gap": 2.5992058258496606
+      },
+      {
+        "prefixLen": 600,
+        "hits": 581.0370370370371,
+        "gap": 15.459289331587726
+      },
+      {
+        "prefixLen": 1000,
+        "hits": 973.6296296296297,
+        "gap": 30.25855248876972
+      }
+    ]
+  },
+  "partial": {
+    "rows": [
+      {
+        "B": 8,
+        "shared": 600
+      },
+      {
+        "B": 16,
+        "shared": 592
+      },
+      {
+        "B": 32,
+        "shared": 576
+      },
+      {
+        "B": 64,
+        "shared": 576
+      },
+      {
+        "B": 128,
+        "shared": 512
+      }
+    ],
+    "sizes": [
+      8,
+      16,
+      32,
+      64,
+      128
+    ],
+    "smallest": 8,
+    "largest": 128,
+    "sharedLargest": 512,
+    "fullHitPrompt": 64,
+    "fullHitTokens": 48,
+    "fullHitBlock": 16
+  },
+  "pressure": {
+    "prefixes": 12,
+    "prefixLen": 256,
+    "capacity": 2048,
+    "blocks": 128,
+    "needed": 192,
+    "rate": 31.210340775558166,
+    "sharedRate": 77.5003087563295,
+    "evictions": 1332,
+    "capacities": [
+      {
+        "capacity": 2048,
+        "rate": 31.210340775558166
+      },
+      {
+        "capacity": 3072,
+        "rate": 41.11241676459068
+      },
+      {
+        "capacity": 4096,
+        "rate": 49.1343517430474
+      },
+      {
+        "capacity": 6144,
+        "rate": 59.47512730121426
+      },
+      {
+        "capacity": 8192,
+        "rate": 63.17273795534665
+      }
+    ]
+  },
+  "myth": {
+    "uniquePreemptions": 0,
+    "uniqueRate": 0,
+    "selfRequests": 2,
+    "selfReq": 1,
+    "selfCached": 8,
+    "pairHit": 64,
+    "p50On": 0.04037699983483023,
+    "p50Off": 0.039733738788676476,
+    "p99On": 0.12414135734857012,
+    "p99Off": 0.4409715518902857,
+    "batchOn": 6.022408963585434,
+    "batchOff": 4.501046755059316
+  },
+  "check": {
+    "prefixLen": 100,
+    "blockSize": 64,
+    "shared": 64
+  }
+}

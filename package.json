@@ -22,6 +22,7 @@
     "gen:sources": "node scripts/gen-sources.ts",
     "gen:og": "node scripts/gen-og.ts",
     "gen:measured": "node scripts/gen-measured.ts",
+    "gen:figures": "node scripts/gen-figures.ts",
     "sim": "node scripts/sim.ts"
   },
   "dependencies": {

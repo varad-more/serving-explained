@@ -1,4 +1,5 @@
 import { useState } from "react";
+import F from "../../data/figures-continuous-batching.json" with { type: "json" };
 import { createSim, metrics } from "../../sim/index.ts";
 import { Figure } from "../../viz/ui/Figure.tsx";
 import { ProvenanceBadge } from "../../viz/ui/ProvenanceBadge.tsx";
@@ -16,7 +17,10 @@ export interface SweepPoint {
 }
 
 let sweep: SweepPoint[] | null = null;
-/** `long-prompt-stall` at every budget of the sweep, run once. */
+/**
+ * `long-prompt-stall` at every budget of the sweep, run once. Only the
+ * generator calls it; the figure reads the generated points (AUDIT.md P1).
+ */
 export function budgetSweep(): SweepPoint[] {
   sweep ??= SWEEP_BUDGETS.map((budget) => {
     const config = runConfig("long-prompt-stall", { ...STALL, budget });
@@ -40,7 +44,7 @@ export function budgetSweep(): SweepPoint[] {
 /** Figure 3.7: throughput, p99 ITL, and the long prompts' TTFT by budget. */
 export function BudgetSweep() {
   const [budget, setBudget] = useState<number>(STALL.budget);
-  const data = budgetSweep();
+  const data: SweepPoint[] = F.sweep.points;
   const best = (f: (d: SweepPoint) => number) =>
     data.reduce((a, d) => (f(d) < f(a) ? d : a)).budget;
   return (

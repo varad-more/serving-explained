@@ -4,14 +4,15 @@
  * so Lighthouse is not a dependency. Run it with the machine otherwise idle.
  *
  * Usage: node scripts/lighthouse.ts [base URL]
- * Writes the full reports and summary.json to test-results/audit-2/lighthouse.
+ * Writes the full reports and summary.json to $AUDIT_OUT/lighthouse
+ * (default test-results/audit-2).
  */
 import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { routePath, routes } from "../src/routes.ts";
 
 const BASE = process.argv[2] ?? "https://varadmore.me/serving-explained/";
-const OUT = "test-results/audit-2/lighthouse";
+const OUT = `${process.env.AUDIT_OUT ?? "test-results/audit-2"}/lighthouse`;
 
 interface Report {
   lighthouseVersion: string;
