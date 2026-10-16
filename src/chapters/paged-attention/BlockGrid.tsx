@@ -1,6 +1,7 @@
 import {
   useId,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type KeyboardEvent,
@@ -585,6 +586,55 @@ export function BlockGrid({
   );
 }
 
+/** CLAUDE.md's SVG budget: a larger pool's strip is drawn in runs or bins. */
+const MAX_RECTS = 2000;
+
+const summaryClass = (c: Cell) =>
+  c.kind === "held"
+    ? c.fill > 0
+      ? `summary--held summary--slot-${String(c.slot)}`
+      : "summary--waste"
+    : c.kind === "gap"
+      ? "summary--gap"
+      : c.kind === "shared" || c.kind === "used"
+        ? "summary--shared"
+        : c.kind === "cached"
+          ? "summary--cached"
+          : "summary--free";
+
+/**
+ * The strip's rects: one per block up to MAX_RECTS blocks. Beyond, runs of
+ * equal blocks; and when even the runs are too many, bins of blocks, each
+ * drawn as its most common kind.
+ */
+export function summaryRects(cells: Cell[]) {
+  const rects: { x: number; w: number; cls: string }[] = [];
+  if (cells.length <= MAX_RECTS) {
+    cells.forEach((c, i) => rects.push({ x: i, w: 1, cls: summaryClass(c) }));
+    return rects;
+  }
+  const add = (x: number, w: number, cls: string) => {
+    const last = rects.at(-1);
+    if (last?.cls === cls) last.w += w;
+    else rects.push({ x, w, cls });
+  };
+  const classes = cells.map(summaryClass);
+  classes.forEach((cls, i) => {
+    add(i, 1, cls);
+  });
+  if (rects.length <= MAX_RECTS) return rects;
+  rects.length = 0;
+  const size = Math.ceil(cells.length / (MAX_RECTS / 2));
+  for (let b = 0; b < classes.length; b += size) {
+    const count = new Map<string, number>();
+    for (const cls of classes.slice(b, b + size))
+      count.set(cls, (count.get(cls) ?? 0) + 1);
+    const [mode] = [...count].reduce((a, x) => (x[1] > a[1] ? x : a));
+    add(b, Math.min(size, classes.length - b), mode);
+  }
+  return rects;
+}
+
 /** Mobile: an 8 px strip of every block, with a bracket on the visible window. */
 function Summary({
   cells,
@@ -596,6 +646,7 @@ function Summary({
   visible: number;
 }) {
   const n = cells.length;
+  const rects = useMemo(() => summaryRects(cells), [cells]);
   return (
     <svg
       className="block-grid__summary"
@@ -603,29 +654,15 @@ function Summary({
       preserveAspectRatio="none"
       aria-hidden="true"
     >
-      {cells.map((c, i) => (
+      {rects.map((r) => (
         <rect
-          key={i}
-          x={i}
+          key={r.x}
+          x={r.x}
           // Cached blocks are half height, so shape tells them from shared.
-          y={c.kind === "cached" ? 6 : 2}
-          width={1}
-          height={c.kind === "cached" ? 4 : 8}
-          className={
-            c.kind === "held"
-              ? c.fill > 0
-                ? `summary--held summary--slot-${String(c.slot)}`
-                : "summary--waste"
-              : c.kind === "gap"
-                ? "summary--gap"
-                : c.kind === "shared"
-                  ? "summary--shared"
-                  : c.kind === "cached"
-                    ? "summary--cached"
-                    : c.kind === "used"
-                      ? "summary--shared"
-                      : "summary--free"
-          }
+          y={r.cls === "summary--cached" ? 6 : 2}
+          width={r.w}
+          height={r.cls === "summary--cached" ? 4 : 8}
+          className={r.cls}
         />
       ))}
       <rect
