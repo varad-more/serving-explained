@@ -45,7 +45,8 @@ signal yellow, used only as a bar behind the current step or row.
 - **More than 8 running requests** happen only in the sandbox (its decision 2).
   Above 8, the block grid colors blocks by state, not by request: used blocks
   get a solid `--ink-2` fill, and shared, cached, free, and waste blocks keep
-  their states below. The selected request is outlined in `--highlight`. The
+  their states below. The selected request is outlined in `--highlight`, with
+  an ink corner flag. The
   timeline draws slots 1–8, labeled "showing 8 of N slots".
 - **Request phases** (the chapter 3 timeline) are encoded with ink tones and
   patterns, never request hues, so phase and identity never collide:
@@ -65,7 +66,8 @@ signal yellow, used only as a bar behind the current step or row.
     tell prefill from decode.
 - **Provenance badges** use the same ink in every case and differ in shape and
   text: `simulated` has a dashed outline, `computed` a solid outline, and
-  `measured` is filled and carries a link arrow.
+  `measured` is filled and carries a link arrow. A tap or keyboard focus opens
+  a badge's meaning, and each page with badges shows one legend (AUDIT.md B1).
 - **KV block states:** free blocks have an outline in `--ink-2` (at least 3:1)
   and a fill near the surface color. Wasted slots use the gray hatch. Shared
   prefix blocks get a double outline. Evicted blocks get a dashed outline.
@@ -75,10 +77,15 @@ signal yellow, used only as a bar behind the current step or row.
   - **shared:** reference count ≥ 2. The double outline plus a "×n" badge,
     filled in `--ink-2`, not one owner's hue.
   - **selected chain:** the selected request's blocks get a `--highlight`
-    outline and their logical index.
+    outline, an ink corner flag, and their logical index.
 - **Text on the highlight** always uses `--on-highlight`. In dark mode, `--ink`
   on `--highlight` is 1.35:1. A test fails any CSS rule that sets a
   `--highlight` background without `--on-highlight` text (AUDIT.md m1).
+- **The highlight is never the only cue** (AUDIT.md A4). Yellow on `--surface`
+  is 1.51:1 in light mode. Highlighted text states are also underlined: the
+  current nav item, the active step number, the selected sandbox tab, and the
+  block table's row. Highlighted marks also get an ink corner flag or outline.
+  A test checks the CSS states.
 - **Touch:** every control's hit area is at least 44 × 44 px at 375 and 768 px
   wide. Nothing is reachable by hover alone.
 - **Motion:** transitions are driven by sim events. Under

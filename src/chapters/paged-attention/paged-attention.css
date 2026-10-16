@@ -135,8 +135,19 @@
 }
 
 .legend-swatch--selected {
+  position: relative;
   background: var(--surface);
   border: 3px solid var(--highlight);
+}
+
+/* The ink corner flag the selected blocks carry (AUDIT.md A4). */
+.legend-swatch--selected::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  border-left: 6px solid var(--ink);
+  border-top: 6px solid transparent;
 }
 
 /* Fixed width up to "100.00 s", so the time never resizes the scrub bar. */
@@ -239,6 +250,8 @@
 .strip__table tr.is-active td {
   background: var(--highlight);
   color: var(--on-highlight);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
 }
 
 /* Block-size charts. */

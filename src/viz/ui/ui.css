@@ -338,6 +338,9 @@ button.badge {
   background: var(--highlight);
   color: var(--on-highlight);
   text-align: center;
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 4px;
 }
 
 .step__body > :first-child {
@@ -599,6 +602,14 @@ button.badge {
   padding: var(--space-1) var(--space-3);
   border-bottom: 1px solid var(--rule);
   text-align: right;
+}
+
+/* An ink corner flag on the active mark: yellow is never the only cue (A4). */
+.active-flag {
+  fill: var(--ink);
+  stroke: var(--surface);
+  stroke-width: 0.75;
+  pointer-events: none;
 }
 
 .legend-swatch {

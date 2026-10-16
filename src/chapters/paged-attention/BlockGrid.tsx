@@ -423,6 +423,17 @@ export function BlockGrid({
         ctx.strokeStyle = colors.highlight;
         ctx.lineWidth = 3;
         ctx.strokeRect(x + 1.5, y + 1.5, cell - 3, cell - 3);
+        // An ink corner flag: yellow is never the only cue (AUDIT.md A4).
+        ctx.beginPath();
+        ctx.moveTo(x, y + cell);
+        ctx.lineTo(x, y + cell - 9);
+        ctx.lineTo(x + 9, y + cell);
+        ctx.closePath();
+        ctx.fillStyle = colors.ink;
+        ctx.fill();
+        ctx.strokeStyle = colors.surface;
+        ctx.lineWidth = 1;
+        ctx.stroke();
         if (showLogical) {
           // The logical index on a highlight tab, in --on-highlight.
           const label = String(chain);

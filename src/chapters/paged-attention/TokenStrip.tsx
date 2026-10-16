@@ -120,21 +120,29 @@ export function TokenStrip() {
                   {Array.from({ length: B }, (_, j) => {
                     const token = i * B + j;
                     const filled = token < n;
+                    const tx = LABEL_W + j * PITCH;
                     return (
-                      <rect
-                        key={j}
-                        className={`strip__token${filled ? "" : " strip__token--empty"}${token === cursor ? " strip__token--cursor" : ""}${i === logical ? " strip__token--active" : ""}`}
-                        x={LABEL_W + j * PITCH}
-                        y={0}
-                        width={CELL}
-                        height={CELL}
-                        onPointerEnter={() => {
-                          if (desktop && filled) move(token);
-                        }}
-                        onClick={() => {
-                          if (desktop && filled) move(token);
-                        }}
-                      />
+                      <g key={j}>
+                        <rect
+                          className={`strip__token${filled ? "" : " strip__token--empty"}${token === cursor ? " strip__token--cursor" : ""}${i === logical ? " strip__token--active" : ""}`}
+                          x={tx}
+                          y={0}
+                          width={CELL}
+                          height={CELL}
+                          onPointerEnter={() => {
+                            if (desktop && filled) move(token);
+                          }}
+                          onClick={() => {
+                            if (desktop && filled) move(token);
+                          }}
+                        />
+                        {token === cursor && (
+                          <path
+                            className="active-flag"
+                            d={`M${String(tx)} 0h6l-6 6z`}
+                          />
+                        )}
+                      </g>
                     );
                   })}
                 </g>
@@ -213,6 +221,9 @@ export function TokenStrip() {
                       >
                         {i}
                       </text>
+                    )}
+                    {mine && i === logical && (
+                      <path className="active-flag" d="M0 0h6l-6 6z" />
                     )}
                   </g>
                 );

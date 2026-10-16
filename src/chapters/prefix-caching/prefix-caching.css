@@ -159,6 +159,8 @@
 
 .pb__row[data-active="true"] .pb__band {
   fill: var(--highlight);
+  stroke: var(--ink);
+  stroke-width: 1.5;
 }
 
 .pb__row[data-active="true"] .chart__tick {

@@ -422,6 +422,12 @@ export function Histogram({
                         width={Math.max(1, x1 - x0 - 2)}
                         height={Math.max(0, h(n))}
                       />
+                      {on && (
+                        <path
+                          className="active-flag"
+                          d={`M${String((x0 + x1) / 2)} ${String(base + 1)}l4 6h-8z`}
+                        />
+                      )}
                       {/* The whole row height is the hit area, so short bars are easy to point at. */}
                       <rect
                         className="cb-hit"

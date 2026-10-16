@@ -33,6 +33,25 @@ describe("CSS", () => {
     }
   });
 
+  it("a state drawn in --highlight has a second cue besides color (AUDIT.md A4)", () => {
+    const state =
+      /aria-current|aria-selected|data-active|is-active|--active|--cursor|--selected/;
+    const cue =
+      /text-decoration:|font-weight:|stroke:\s*var\(--ink\)|border-[a-z]+:[^;]*var\(--ink\)/;
+    for (const file of cssFiles("src")) {
+      const all = rules(readFileSync(file, "utf8"));
+      for (const r of all) {
+        if (!state.test(r.selector) || !/var\(--highlight\)/.test(r.body))
+          continue;
+        const after = all.find((o) => o.selector === `${r.selector}::after`);
+        expect(
+          cue.test(r.body) || cue.test(after?.body ?? ""),
+          `${file}: ${r.selector}`,
+        ).toBe(true);
+      }
+    }
+  });
+
   it("the two dark token blocks are identical, and light defines the same tokens", () => {
     const css = readFileSync("src/viz/tokens.css", "utf8");
     const blocks = rules(css).map((r) => {

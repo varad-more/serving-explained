@@ -354,7 +354,7 @@ neutral `summary--held` fill. The grid above carries identity.
 - A1: the landing page has two `nav` landmarks named "Chapters" (`App.tsx:47`, `Landing.tsx:18`). axe's `landmark-unique` (moderate) fires in all 12 landing runs.
 - A2: chapter 4's lookup readout (`cache__lookup`) is a polite live region that speaks during play: 4 announcements in 3 s at steps 3–10. CHAPTER_DOD item 8 and the chapter 4 plan keep readouts quiet while playing.
 - A3: Step announces nothing in two places: the sandbox, where "KV in use at the playhead" and the event list change silently, and the figures at chapter 2 steps 1–2. Every other figure announces on Step.
-- A4: `--highlight` is the only cue for several states in the light theme: the current nav item, the active step number, the active strip block, bar, and band, and the selected sandbox tab. Yellow on `--surface` is 1.51:1, under WCAG 1.4.11's 3:1. Dark is 11.44:1.
+- A4: *(fixed 2026-10-16: underlines on highlighted text states, ink flags or an outline on highlighted marks, in both themes; `tests/viz/css.test.ts`)* `--highlight` is the only cue for several states in the light theme: the current nav item, the active step number, the active strip block, bar, and band, and the selected sandbox tab. Yellow on `--surface` is 1.51:1, under WCAG 1.4.11's 3:1. Dark is 11.44:1.
 - A5: in the summary strip, waste next to free blocks is 2.85:1 in light and 2.82:1 in dark, under 3:1.
 
 ## 3. Mobile and browsers
