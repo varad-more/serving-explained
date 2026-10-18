@@ -3197,8 +3197,12 @@ One commit each, built locally for the author's review before any push.
 - [x] Linux baselines from run 39181439734 on branch `prelaunch`. The same
       42 images changed as on darwin, each by the same height (the legend),
       within 1 px.
-- [ ] Push main and tags, delete the 7 merged remote branches and
-      `prelaunch`, check CI and the live site, tag `v1.0.0-rc.2`.
+- [x] Pushed main and the tags `v0.1-foundation` and `v0.2-sim`, fast-forward
+      with no force. Deleted the 7 merged remote branches and `prelaunch`.
+      CI run 39181780066 passed and deployed `86ed40b`. The live site serves
+      the same bundle; smoke and badge tests pass there (63, three
+      browsers), and all 13 About, llmsize and GPU source links return 200.
+      `v1.0.0-rc.2` tags the commit that ticks this box.
 
 Review notes:
 - Every remote branch tip has the same tree as a commit on main, checked
