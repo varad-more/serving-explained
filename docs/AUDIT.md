@@ -293,7 +293,7 @@ Data, sandbox, glossary, and SOURCES.md (`review-sandbox-data.md`):
 - D-5: the image tags rest on the log's pull-check lines; the pinned script has the image variables commented out.
 - D-7: *(resolved 2026-10-16: #1 and #2 merged; `src/data` and every link re-pinned to llmsize `2cef2af`, no number changed; the live app shows 70)* llmsize PR #1 (the A10G fix) is still open, so the pin is off llmsize's `main`. The live llmsize app, which chapter 1 links, still shows 125 TFLOPS. PR #2's dead GPU `source_url`s are also open.
 - D-8: llmsize's M4 Max bf16 figure (11.6 TFLOPS) is not in its `source_url`.
-- D-9: there is no About page, though PRODUCT.md puts credibility there. The author is never named.
+- D-9: *(fixed 2026-10-17: an About section on the landing page names the author, links vllm-metal #549 and #550 and both benchmark repos, and credits the AI coding assistant)* there is no About page, though PRODUCT.md puts credibility there. The author is never named.
 - D-10: SIM.md links point at `main`, not a pinned commit.
 - S-2: vllm-src links open the repo root; labels like "config/cache.py" omit `vllm/`.
 - S-5: the glossary's "cache hit" cites L146–147; the lookup is L143.

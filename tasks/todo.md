@@ -3190,7 +3190,7 @@ One commit each, built locally for the author's review before any push.
 - [x] D-7: llmsize re-pinned to main `2cef2af`; no number changed (`13e223c`).
 - [x] B1: badge meanings on tap, keyboard focus, and a legend (`cd0994b`).
 - [x] A4: a second cue for every highlighted state (`5a6ab6d`).
-- [ ] D-9: About section on the landing page. Text awaits the author.
+- [x] D-9: About section on the landing page; text approved by the author.
 - [x] Housekeeping: tags `v0.1-foundation` (e219584) and `v0.2-sim`
       (c23166b), local only; two finished items ticked.
 - [ ] After review: Linux baselines (workflow on a pushed branch), delete
